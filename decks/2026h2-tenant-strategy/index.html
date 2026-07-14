@@ -218,7 +218,7 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
   <div class="sl-head"><h2>결제는 <span class="hl">시장당 통합</span>, 설치는 <span class="hl">캠페인 안에서 세분화</span>, 확장은 <span class="hl">소재로</span></h2></div>
   <div class="fill">
   <div class="two">
-    <div class="card"><h3>원칙 1 — 시장 분리 유지</h3><p>국내/해외 결제 캠페인은 <b>계정부터 분리</b>. 통화(₩/$)·언어·구매단가·전환 리드타임이 다른 모수를 섞으면 tCPA/ROAS 입찰 신호가 오염된다. Google 공식: 캠페인당 1개 국가 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>.</p></div>
+    <div class="card"><h3>원칙 1 — 시장 분리 유지</h3><p>국내/해외 결제 캠페인은 <b>계정부터 분리</b>. 통화(₩/$)·언어·구매단가·전환 리드타임이 다른 모수를 섞으면 tCPA/ROAS 입찰 신호가 오염된다. Google 공식: Google 공식 문서 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a> 기준 국가별 캠페인 분리.</p></div>
     <div class="card"><h3>원칙 2 — 시장 내 캠페인 수 상한</h3><p>매체당 결제 캠페인 <b>2개(신규+리타겟)</b>. 목표 구조 = <b>국내 2 + 해외 2</b>. 세그먼트 구분은 Google 애셋그룹 / Meta 애드셋 / 보고 Breakdown으로만.</p></div>
   </div>
   <div class="flow" style="margin-top:16px">
@@ -321,7 +321,7 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
     <tr><td class="num">1 · 7~8월</td><td><b>한국거주 외국인</b></td><td>이벤트 빈도 최고 · 장벽 최소</td><td>언어 분리 애드셋, 국내 캠페인과 상호 제외</td></tr>
     <tr><td class="num">2 · 9~11월</td><td><b>해외거주 교포</b></td><td>귀국 시즌 예측 가능 (추석·연말)</td><td>귀국 4~8주 전 선행 노출</td></tr>
     <tr><td class="num">3 · 11월~</td><td><b>방한예정 외국인</b></td><td>장벽 최대 — 인지부터</td><td>인지·설치만, 풀 축적 목적</td></tr>
-    <tr><td>게이트 1</td><td>Google 해외 재가동</td><td>Meta CAC 4주 성립 시</td><td>해당 집단·국가 ACi 1캠페인 (국가당 1캠페인 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>)</td></tr>
+    <tr><td>게이트 1</td><td>Google 해외 재가동</td><td>Meta CAC 4주 성립 시</td><td>해당 집단·국가 ACi 1캠페인 (국가별 캠페인 분리 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>)</td></tr>
     <tr><td>게이트 2</td><td>DSP 리타게팅</td><td>풀·매칭 조건 (SL 16·18)</td><td>11~12월 파일럿</td></tr>
   </table></div>
   <div class="note">Google 해외 계정 30일 집행 0 = 의도된 후순위(Meta 선검증 중) — 방치 아님.</div>
@@ -402,7 +402,7 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
     <tr><td>브랜드 검색량 증분</td><td>EMM 검색량 × 상위 집행액 시차 상관</td><td>월 1회</td></tr>
     <tr><td>리타겟 풀 커버리지×빈도</td><td>미결제 풀 대비 도달률</td><td>격주</td></tr>
     <tr><td>설치 세그먼트 애드셋</td><td>주간 설치(임계 50)·CPI — 분할·병합 판정 + 소재 승격</td><td>격주</td></tr>
-    <tr><td>상위→하위 증분</td><td><a href="https://www.facebook.com/business/help" target="_blank">Meta Conversion Lift</a> 셀프서브 (전환 API(CAPI) 연동·이벤트 매칭 품질 점수(EMQ) 5점 초과·주 50~100 전환 — 요건 충족)</td><td>분기 검토</td></tr>
+    <tr><td>상위→하위 증분</td><td><a href="https://www.facebook.com/business/help/1628172907421319" target="_blank">Meta Conversion Lift</a> 셀프서브 (전환 API(CAPI) 연동·이벤트 매칭 품질 점수(EMQ) 5점 초과·주 50~100 전환 — 요건 충족)</td><td>분기 검토</td></tr>
     <tr><td>해외 DSP 게이트·파일럿</td><td>풀 규모(격주) / 풀 대비 증분(4주)</td><td>격주·4주</td></tr>
   </table></div>
   <div class="note">전부 기존 EMM 시트·알림 인프라에 얹는 구조 — 신규 리포팅 공수 최소.</div>
@@ -444,8 +444,8 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
   <div class="fill"><table class="small">
     <tr><th style="width:56px">ID</th><th>요지</th><th style="width:400px">출처</th></tr>
     <tr><td class="num">M1</td><td>학습 단계 주 50 이벤트 · 리셋 조건</td><td>✅ <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">facebook.com/business/help/112167992830700</a></td></tr>
-    <tr><td class="num">M2</td><td>파편화 경고 · 통합 권장 · Breakdown</td><td><a href="https://www.facebook.com/business/help/112167992830700" target="_blank">Meta Business Help Center</a> — M1 문서에서 연결되는 모범사례 하위 문서</td></tr>
-    <tr><td class="num">M3</td><td>Conversion Lift — 증분 검증, 셀프서브 요건</td><td><a href="https://www.facebook.com/business/help" target="_blank">Meta Business Help Center</a>에서 "conversion lift" 검색</td></tr>
+    <tr><td class="num">M2</td><td>파편화 경고 · 통합 권장 · Breakdown</td><td>✅ <a href="https://www.facebook.com/business/help/1592070104374343" target="_blank">facebook.com/business/help/1592070104374343</a> (About Audience Fragmentation)</td></tr>
+    <tr><td class="num">M3</td><td>Conversion Lift — 증분 검증, 셀프서브 요건</td><td>✅ <a href="https://www.facebook.com/business/help/1628172907421319" target="_blank">facebook.com/business/help/1628172907421319</a> (About Conversion Lift)</td></tr>
     <tr><td class="num">M4</td><td>풀퍼널 병행 권장 (Brand + Conversion Lift)</td><td><a href="https://www.facebook.com/business" target="_blank">Meta for Business</a> 인사이트 섹션</td></tr>
     <tr><td class="num">G1</td><td>AC 구조 — 수동 타게팅 없음, 전 지면 커버</td><td>✅ <a href="https://support.google.com/google-ads/answer/6247380" target="_blank">support.google.com/google-ads/answer/6247380</a></td></tr>
     <tr><td class="num">G2</td><td>AC 모범사례 — 캠페인 수·예산 하한·애셋 5개+</td><td>✅ <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">…/answer/9176652</a> · <a href="https://support.google.com/google-ads/answer/6167162" target="_blank">…/answer/6167162</a></td></tr>
