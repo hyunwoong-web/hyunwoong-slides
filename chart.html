@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Meta 광고 18개월 — MMP 실측</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background: #fff; }
+  #wrap { width: 1560px; padding: 28px 40px 16px; }
+  h1 { font-size: 30px; color: #111; margin-bottom: 6px; letter-spacing: -0.5px; }
+  .sub { font-size: 16px; color: #555; margin-bottom: 14px; }
+  .sub b { color: #d63384; }
+  #chart { width: 1480px; height: 560px; }
+  .foot { font-size: 12.5px; color: #888; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>Meta 광고 18개월 실측 — 상위 퍼널 투자가 결제 성장을 견인했다</h1>
+  <div class="sub">앱 설치 캠페인의 소재 다양화·증액 이후 2~3개월 시차를 두고 결제 캠페인 예산과 <b>실제 결제(MMP)</b>가 동반 성장 — 월 결제 445건 → 1,749건 (18개월 3.9배, 결제금액 4.4배)</div>
+  <div id="chart"></div>
+  <div class="foot">자료: 결제 건수 = Airbridge(MMP) 라스트터치 기여, Order Complete(App+Web) — 내부 '실제 결제완료'와 동일 정의 · 캠페인 광고비 = Meta Marketing API 실측(구·신계정 합산, USD 집행분 1,390원 환산) · 2026-07은 13일까지 부분월 · 조회일 2026-07-14</div>
+</div>
+<script>
+const months = ['25.01','25.02','25.03','25.04','25.05','25.06','25.07','25.08','25.09','25.10','25.11','25.12','26.01','26.02','26.03','26.04','26.05','26.06','26.07*'];
+const install = [1750,1860,2250,3150,4020,4600,4390,5090,3950,2150,2190,1700,1610,2150,3470,2070,1560,2250,810];
+const sales   = [920,1030,910,1100,2550,1620,1580,2070,2790,3350,5420,3540,2690,1940,2420,2990,2580,3650,2450];
+const orders  = [445,537,523,590,746,816,913,1050,1141,1187,974,975,997,999,1028,1275,1426,1749,875];
+
+const chart = echarts.init(document.getElementById('chart'));
+chart.setOption({
+  animation: false,
+  grid: { left: 70, right: 78, top: 88, bottom: 44 },
+  legend: {
+    top: 6, left: 'center', itemGap: 28,
+    textStyle: { fontSize: 15, color: '#333' },
+    data: ['앱 설치 캠페인 광고비 · 상위 퍼널 (만 원)', '결제 캠페인 광고비 · 하위 퍼널 (만 원)', '실제 결제 건수 (MMP · 우축)']
+  },
+  tooltip: { trigger: 'axis' },
+  xAxis: {
+    type: 'category', data: months,
+    axisLabel: {
+      fontSize: 13.5, color: '#444', interval: 0,
+      formatter: v => (v.endsWith('.01') ? v : v.split('.')[1])
+    },
+    axisLine: { lineStyle: { color: '#bbb' } }, axisTick: { show: false }
+  },
+  yAxis: [
+    { type: 'value', name: '캠페인 광고비 (만 원)', nameTextStyle: { color: '#666', fontSize: 12 },
+      max: 6000, axisLabel: { fontSize: 12.5, color: '#666' },
+      splitLine: { lineStyle: { color: '#eee' } } },
+    { type: 'value', name: '결제 건수 (건)', nameTextStyle: { color: '#d63384', fontSize: 12 },
+      min: 0, max: 2000, axisLabel: { fontSize: 12.5, color: '#d63384' }, splitLine: { show: false } }
+  ],
+  series: [
+    { name: '앱 설치 캠페인 광고비 · 상위 퍼널 (만 원)', type: 'bar', data: install, barGap: '10%',
+      itemStyle: { color: '#8ecbf5', borderRadius: [3,3,0,0] }, barWidth: 16 },
+    { name: '결제 캠페인 광고비 · 하위 퍼널 (만 원)', type: 'bar', data: sales,
+      itemStyle: { color: '#1c5fd0', borderRadius: [3,3,0,0] }, barWidth: 16 },
+    { name: '실제 결제 건수 (MMP · 우축)', type: 'line', yAxisIndex: 1, data: orders,
+      lineStyle: { color: '#d63384', width: 3 }, itemStyle: { color: '#d63384' },
+      symbol: 'circle', symbolSize: 7,
+      markPoint: {
+        data: [
+          { coord: ['26.06', 1749], value: '최고 1,749건', symbol: 'pin', symbolSize: 1,
+            label: { show: true, formatter: '최고 1,749건', fontSize: 13, fontWeight: 'bold',
+                     color: '#d63384', offset: [0, -18] } }
+        ]
+      }
+    },
+    { name: '_phase', type: 'bar', data: [], markArea: {
+        silent: true,
+        data: [
+          [{ xAxis: '25.01', itemStyle: { color: 'rgba(160,160,160,0.07)' },
+             label: { show: true, position: 'insideTop', fontSize: 12.5, color: '#777', formatter: '① 다양화 이전' } }, { xAxis: '25.02' }],
+          [{ xAxis: '25.03', itemStyle: { color: 'rgba(59,130,246,0.06)' },
+             label: { show: true, position: 'insideTop', fontSize: 12.5, color: '#2563eb', formatter: '② 설치 소재 대량 투입 (12→111개)' } }, { xAxis: '25.09' }],
+          [{ xAxis: '25.10', itemStyle: { color: 'rgba(28,95,208,0.08)' },
+             label: { show: true, position: 'insideTop', fontSize: 12.5, color: '#1c5fd0', formatter: '③ 결제 캠페인 확대' } }, { xAxis: '26.01' }],
+          [{ xAxis: '26.02', itemStyle: { color: 'rgba(214,51,132,0.05)' },
+             label: { show: true, position: 'insideTop', fontSize: 12.5, color: '#d63384', formatter: '④ 설치 축소에도 결제 성장' } }, { xAxis: '26.07*' }]
+        ]
+      } }
+  ]
+});
+</script>
+</body>
+</html>

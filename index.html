@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>임차인 광고 전략 FIT — 2026 하반기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root{
+  --bg:#fdfae7; --primary:#1e2bfa; --text:#111; --muted:#6b6b6b; --light:#9a9a9a;
+  --accent-l:rgba(30,43,250,.08); --accent-m:rgba(30,43,250,.15);
+  --border:rgba(30,43,250,.2); --card:rgba(30,43,250,.04);
+  --pos:#059669; --neg:#dc2626; --pink:#d63384;
+  --disp:'Space Grotesk','Pretendard',sans-serif; --body:'Pretendard','Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#111;overflow:hidden;font-family:var(--body)}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;position:relative;background:var(--bg);overflow:hidden;transform-origin:center center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.slide{position:absolute;inset:0;padding:44px 52px 56px;display:none;flex-direction:column}
+.slide.active{display:flex}
+/* header */
+.eyebrow{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);margin-bottom:8px}
+.sl-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+h2{font-family:var(--disp);font-weight:700;font-size:30px;line-height:1.15;letter-spacing:-.02em;color:var(--text)}
+h2 .hl{color:var(--primary)}
+.tagpill{flex-shrink:0;background:var(--accent-l);color:var(--primary);padding:6px 14px;border-radius:100px;font-family:var(--disp);font-weight:500;font-size:12px;margin-left:20px;white-space:nowrap}
+.lede{font-size:14.5px;color:var(--muted);line-height:1.55;margin-top:6px;max-width:1050px}
+.lede b{color:var(--text)}
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.45}
+th{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.03em;color:var(--primary);text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);background:var(--accent-l)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:#333;vertical-align:top}
+td b{color:var(--text)}
+tr.dim td{color:var(--light)}
+.num{font-family:var(--disp);font-weight:600;color:var(--primary)}
+.pos{color:var(--pos);font-weight:600}.neg{color:var(--neg);font-weight:600}
+/* cards */
+.cardgrid{display:grid;gap:14px}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px 20px}
+.card h3{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--text);margin-bottom:6px}
+.card p{font-size:13px;color:var(--muted);line-height:1.55}
+.card .big{font-family:var(--disp);font-weight:700;font-size:34px;color:var(--primary);line-height:1.05;margin-bottom:6px}
+.badge{display:inline-block;font-family:var(--disp);font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;background:var(--accent-l);color:var(--primary);margin-bottom:8px}
+.badge.ok{background:rgba(5,150,105,.1);color:var(--pos)}
+.badge.warn{background:rgba(220,38,38,.08);color:var(--neg)}
+.accentline{width:60px;height:4px;background:var(--primary);border-radius:2px;margin:0 0 22px}
+.note{font-size:11.5px;color:var(--light);line-height:1.5;margin-top:auto;padding-top:10px}
+.note b{color:var(--muted)}
+.fill{flex:1;display:flex;flex-direction:column;justify-content:center}
+a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
+/* chrome */
+#bar{position:absolute;top:0;left:0;height:3px;background:var(--primary);z-index:50;transition:width .25s}
+#counter{position:absolute;bottom:18px;right:52px;font-family:var(--disp);font-size:12px;letter-spacing:.05em;color:var(--light);z-index:50}
+#brand{position:absolute;bottom:18px;left:52px;font-family:var(--disp);font-size:12px;letter-spacing:.05em;color:var(--light);z-index:50}
+.navbtn{position:absolute;bottom:12px;left:50%;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);color:var(--primary);font-size:16px;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center}
+.navbtn:hover{background:var(--primary);color:var(--bg)}
+#prev{transform:translateX(-50px)}#next{transform:translateX(12px)}
+/* cover */
+.cover{justify-content:center;padding:0 90px}
+.cover h1{font-family:var(--disp);font-weight:700;font-size:52px;line-height:1.12;letter-spacing:-.02em;color:var(--text);margin-bottom:18px}
+.cover h1 .hl{color:var(--primary)}
+.cover .sub{font-size:19px;color:var(--muted);line-height:1.55;max-width:900px;margin-bottom:36px}
+.cover .meta{font-family:var(--disp);font-size:13px;letter-spacing:.05em;color:var(--light)}
+/* misc layout helpers */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flow{display:flex;align-items:stretch;gap:0;margin:10px 0}
+.flow .step{flex:1;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;position:relative}
+.flow .arrow{align-self:center;font-size:20px;color:var(--primary);padding:0 8px;font-weight:700}
+.stepnum{width:26px;height:26px;border-radius:50%;background:var(--primary);color:var(--bg);font-family:var(--disp);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.kv{display:flex;gap:14px;margin-top:14px}
+.kv .k{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.kv .k .v{font-family:var(--disp);font-weight:700;font-size:24px;color:var(--primary)}
+.kv .k .l{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+#chart5{width:1176px;height:470px;margin-top:4px}
+.small{font-size:12px}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+<div id="bar"></div>
+<div id="brand">삼삼엠투 · 임차인 전략 FIT</div>
+<div id="counter"></div>
+<button class="navbtn" id="prev">←</button><button class="navbtn" id="next">→</button>
+
+<!-- 01 표지 -->
+<section class="slide cover active">
+  <div class="accentline"></div>
+  <h1>임차인 광고 전략 FIT<br><span class="hl">"단기임대가 필요한 순간"의 점유</span></h1>
+  <div class="sub">2026 하반기 · 국내·해외 — 하위 퍼널은 통합, 상위 퍼널은 확장, 해외는 풀부터.<br>모든 수치는 실계정 API 실측, 결제는 MMP(Airbridge) 기준.</div>
+  <div class="meta">2026-07-14 · 데이터 기준일 동일 · 마케팅팀</div>
+</section>
+
+<!-- 02 결정 6가지 -->
+<section class="slide">
+  <div class="eyebrow">Executive Summary</div>
+  <div class="sl-head"><h2>오늘 결정할 것 <span class="hl">6가지</span></h2><div class="tagpill">구조 3 · 게이트 2 · 예산 1</div></div>
+  <div class="fill"><table>
+    <tr><th style="width:36px">#</th><th>결정</th><th>제안</th><th style="width:90px">근거</th></tr>
+    <tr><td class="num">1</td><td><b>Google 세그먼트 ACa 4개</b></td><td>점진 통합 — 격주 판정 규칙 확정</td><td>SL 12</td></tr>
+    <tr><td class="num">2</td><td><b>앱 설치 캠페인 세그먼트</b></td><td>캠페인 신설 없이 애드셋 6종 표준화</td><td>SL 13</td></tr>
+    <tr><td class="num">3</td><td><b>결제 캠페인 수 상한</b></td><td>시장(국내/해외)당 매체별 2개 — 신규+리타겟</td><td>SL 10</td></tr>
+    <tr><td class="num">4</td><td><b>해외 우선순위</b></td><td>한국거주 외국인 → 교포 → 방한예정</td><td>SL 15</td></tr>
+    <tr><td class="num">5</td><td><b>DSP 리타게팅 게이트</b></td><td>AOS 풀 보강 후 11~12월 파일럿</td><td>SL 18</td></tr>
+    <tr><td class="num">6</td><td><b>예산 배분</b></td><td>하위 65:35 → <b>55:45</b> (상위 확대)</td><td>SL 19</td></tr>
+  </table></div>
+  <div class="note">전략 감상이 아니라 결정 회의 — 각 결정의 근거를 뒤 슬라이드에서 하나씩 검증한다.</div>
+</section>
+
+<!-- 03 핵심 가설 -->
+<section class="slide">
+  <div class="eyebrow">Hypothesis</div>
+  <div class="sl-head"><h2>삼삼엠투는 <span class="hl">이벤트 드리븐</span> 서비스다 — 점유율 게임</h2></div>
+  <div class="lede">광고가 수요를 만들지 못한다. 그러나 <b>수요는 광고와 무관하게 항상 발생하고 있다</b> — 이사/인테리어 공사, 발령·출장, 학기 시작, 한달살기 결심, 입국. 단기임대가 필요한 사용자는 매일 새로 생겨나므로, 이 시장은 수요 창출이 아니라 상존 수요를 <b>누가 먼저·더 자주 만나느냐</b>의 싸움이다.</div>
+  <div class="fill"><table>
+    <tr><th style="width:56px">원칙</th><th style="width:280px">내용</th><th>한 줄 요지</th></tr>
+    <tr><td class="num">P1</td><td><b>최대 지면 점유</b></td><td>순간이 온 사용자가 어느 지면에 있을지 모른다 → 단일 캠페인의 지면 폭 최대화</td></tr>
+    <tr><td class="num">P2</td><td><b>하위 퍼널 통합·AI 위임</b></td><td>세그먼트를 캠페인으로 쪼개지 않는다 — 세분화는 소재·Breakdown으로만</td></tr>
+    <tr><td class="num">P3</td><td><b>확장은 상위 퍼널에서만</b></td><td>신규 타겟 검증은 앱 설치·영상·DemandGen에서 소재 주도로</td></tr>
+  </table></div>
+  <div class="note">마케팅의 역할 = ① 순간이 온 사람의 노출 점유(SOV) 극대화 ② 순간이 오기 전 사람의 기억 점유 + 접점 모수(pool) 확보</div>
+</section>
+
+<!-- 04 구조적 제약 -->
+<section class="slide">
+  <div class="eyebrow">Platform Mechanics</div>
+  <div class="sl-head"><h2>Google 앱 캠페인엔 <span class="hl">타게팅 설정이 없다</span> — 소재가 곧 타게팅</h2><div class="tagpill">공식 근거: <a href="https://support.google.com/google-ads/answer/6247380" target="_blank">G1</a> · <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">G2</a></div></div>
+  <div class="lede">AC는 단일 캠페인으로 검색·Play·YouTube·Discover·GDN을 자동 커버하며 수동 오디언스·키워드가 없다. "건설현장직 타게팅"은 오디언스 설정이 아니라 <b>건설현장 소재를 넣은 애셋그룹</b>이다.</div>
+  <div class="fill"><table>
+    <tr><th style="width:220px">레버</th><th>Meta</th><th>Google AC</th></tr>
+    <tr><td><b>수동 오디언스</b></td><td>애드셋 단위 가능</td><td class="neg">불가</td></tr>
+    <tr><td><b>세그먼트 구현</b></td><td>애드셋 + 전용 소재</td><td>광고그룹(애셋그룹) + 전용 소재</td></tr>
+    <tr><td><b>예산·학습 단위</b></td><td>캠페인 (CBO)</td><td>캠페인</td></tr>
+    <tr><td><b>공식 권고 수치</b></td><td>애드셋당 주 50 최적화 이벤트 (학습 임계)</td><td>시장당 2~3캠페인 · 일예산 tCPI×50 / tCPA×10~15 · 애셋 유형별 5개+</td></tr>
+  </table></div>
+  <div class="note">수동 오디언스 확장이 가능한 전환형 지면은 Video(VVC)·DemandGen뿐 — 국내 캠페인 구조 재편(SL 10~13)의 전제.</div>
+</section>
+
+<!-- 05 내부 증거 차트 -->
+<section class="slide">
+  <div class="eyebrow">Internal Evidence · Meta 18 Months</div>
+  <div class="sl-head"><h2>상위 퍼널 투자가 <span class="hl">결제 성장</span>을 견인했다 — 445 → 1,749건/월 (3.9배)</h2><div class="tagpill">결제 = MMP Order Complete (App+Web)</div></div>
+  <div id="chart5"></div>
+  <div class="note">자료: 결제 = Airbridge(MMP) 라스트터치 · 광고비 = Meta API 실측(구·신계정 합산, USD×1,390) · 26.07은 13일까지 부분월 · 25.11 결제 974건 = 내부 체감치와 일치</div>
+</section>
+
+<!-- 06 반기 스코어보드 -->
+<section class="slide">
+  <div class="eyebrow">Internal Evidence · Scoreboard</div>
+  <div class="sl-head"><h2>판매 예산 +131% → 실제 결제 <span class="hl">+104%</span>, 결제금액 <span class="hl">+119%</span></h2><div class="tagpill">반기 평균 · 월 기준</div></div>
+  <div class="fill">
+  <table>
+    <tr><th>기간</th><th>앱 설치 캠페인 예산</th><th>결제 캠페인 예산</th><th>실제 결제(MMP)</th><th>결제금액(MMP)</th></tr>
+    <tr><td><b>2025 상반기</b></td><td>2,940만 원</td><td>1,350만 원</td><td>610건</td><td>5.42억 원</td></tr>
+    <tr><td><b>2025 하반기</b></td><td>3,250만 원 <span class="pos">+11%</span></td><td><b>3,120만 원</b> <span class="pos">+131%</span></td><td><b>1,040건</b> <span class="pos">+71%</span></td><td><b>9.21억 원</b> <span class="pos">+70%</span></td></tr>
+    <tr><td><b>2026 상반기</b></td><td>2,180만 원 <span class="neg">−33%</span></td><td>2,710만 원</td><td><b>1,246건</b> <span class="pos">+104% vs 25H1</span></td><td><b>11.86억 원</b> <span class="pos">+119%</span></td></tr>
+  </table>
+  <div class="two" style="margin-top:16px">
+    <div class="card"><h3>읽기 ① — 시차 수확</h3><p>판매 예산을 2.3배 키울 수 있었던 건 웜 오디언스(풀)가 쌓였기 때문. 설치 예산(t) ↔ 판매 예산(t+3개월) 상관 <b>r=+0.61</b>, 동월은 −0.20 — 같은 달엔 예산 경쟁, 3개월 뒤 수확.</p></div>
+    <div class="card"><h3>읽기 ② — 풀은 소모품</h3><p>26년 설치 축소에도 결제는 오히려 성장(997→1,749) = 축적 풀의 수확 효과. 단 <b>계속 줄이면 하위도 꺾인다</b> → 55:45 배분의 근거.</p></div>
+  </div></div>
+  <div class="note">한계: 관찰 데이터(계절성 혼재) — 인과 확정은 <a href="https://www.facebook.com/business/help" target="_blank">Conversion Lift</a> 홀드아웃(SL 20).</div>
+</section>
+
+<!-- 07 메커니즘 4경로 -->
+<section class="slide">
+  <div class="eyebrow">Mechanism</div>
+  <div class="sl-head"><h2>상위 퍼널 확장이 결제 볼륨을 키우는 <span class="hl">4경로</span></h2><div class="tagpill">외부 공식 근거 병기</div></div>
+  <div class="fill"><table>
+    <tr><th style="width:150px">경로</th><th>작동 방식</th><th style="width:330px">공식 근거</th></tr>
+    <tr><td><b>① 리타겟 풀</b></td><td>설치·방문자 = "순간이 오면 결제할 대기 수요 저장고"</td><td>인앱 클릭 전환율 모바일웹 2배 <a href="https://business.google.com/think" target="_blank">[G4]</a></td></tr>
+    <tr><td><b>② 전환 시그널</b></td><td>상위 이벤트가 결제 캠페인 머신러닝의 시드</td><td>Meta·Google 공통 <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">[M1]</a><a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a></td></tr>
+    <tr><td><b>③ 브랜드 검색</b></td><td>순간이 왔을 때 지명 검색("삼삼엠투")으로 회수</td><td>Search Lift <a href="https://business.google.com/think" target="_blank">[G3]</a> · EMM 일별 추적 중</td></tr>
+    <tr><td><b>④ 풀퍼널 ROI</b></td><td>상위 추가 시 전체 마케팅 효율 개선</td><td>Nielsen 메타분석: 풀퍼널 ROI 최대 +45%, 상위 추가 +70% <a href="https://business.google.com/think" target="_blank">[G3]</a></td></tr>
+  </table>
+  <div class="card" style="margin-top:14px"><h3>기대치 명확화</h3><p>볼륨 확대는 확실. 하위 캠페인 "표기 ROAS"는 일부 어트리뷰션 이동 착시 포함 → 판정은 <b>전체 결제 볼륨 + 블렌디드 공헌이익 ROAS</b>, 시차 4~8주.</p></div></div>
+  <div class="note">근거 링크 전체는 부록 A.</div>
+</section>
+
+<!-- 08 진단 Google -->
+<section class="slide">
+  <div class="eyebrow">Diagnosis · Google</div>
+  <div class="sl-head"><h2>Google 임차인: 결제 퍼널이 <span class="hl">파편화</span>돼 있다</h2><div class="tagpill">최근 30일 실측 · ₩1.23억</div></div>
+  <div class="fill"><table class="small">
+    <tr><th>캠페인</th><th style="width:90px">30일 비용</th><th style="width:110px">역할</th><th>진단</th></tr>
+    <tr><td><b>ACa 한국 (주력)</b></td><td class="num">3,790만 원</td><td>결제 (UA)</td><td>유지 — <b>통합 수용처</b></td></tr>
+    <tr><td>ACe Retargeting / 재결제유도</td><td class="num">2,900만 원</td><td>결제 (리타겟)</td><td>유지</td></tr>
+    <tr><td>건설현장 VVC / DemandGen</td><td class="num">3,150만 원</td><td>상위·중간</td><td>유지 — 확장 검증·수동 오디언스 지면</td></tr>
+    <tr><td>ACa 애디렉트 / Search 방조회 / ACi / VRC·인지 시리즈</td><td class="num">1,760만 원</td><td>결제·검색·설치·상위</td><td>유지 (ACi는 증액 대상)</td></tr>
+    <tr><td><b>세그먼트 ACa — 건설현장직</b></td><td class="num">390만 원</td><td>결제 (세그)</td><td>조건부 유지 → 검증 후 통합</td></tr>
+    <tr><td><b>세그먼트 ACa — 어학당&유학</b></td><td class="num">180만 원</td><td>결제 (세그)</td><td>통합 후보 — 9월 학기 후 판정</td></tr>
+    <tr><td><b>세그먼트 ACa — 여행 / 학업</b></td><td class="num">120만 원</td><td>결제 (세그)</td><td class="neg">1순위 통합 — 일예산 권고선(tCPA×10 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>) 미달권</td></tr>
+  </table></div>
+  <div class="note">Google '전환' 열은 방조회 등 경량 이벤트 혼합 → 통합 판정은 <b>구매 전환 재집계</b> 기준(SL 12). 캠페인 실명 전체는 부록 C(구성안).</div>
+</section>
+
+<!-- 09 진단 Meta -->
+<section class="slide">
+  <div class="eyebrow">Diagnosis · Meta</div>
+  <div class="sl-head"><h2>Meta 국내는 <span class="hl">정답 구조</span>, 해외는 통합 1건 필요</h2><div class="tagpill">최근 30일 실측</div></div>
+  <div class="fill"><table>
+    <tr><th style="width:120px">계정</th><th>구조</th><th>30일 실측</th><th style="width:250px">액션</th></tr>
+    <tr><td><b>국내 결제</b></td><td>UA_판매(광타겟) + RE_판매(리타겟)</td><td>UA 801 · RE 1,499건 — 학습 임계(주 50 <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">[M1]</a>) 상회*</td><td class="pos">유지</td></tr>
+    <tr><td><b>국내 설치</b></td><td>게스트_앱설치 AOS/iOS</td><td>설치 12,600건/30일</td><td>애드셋 6종 표준화 (SL 13)</td></tr>
+    <tr><td><b>해외 결제</b></td><td>해외_판매 + 판매_ALL <b>2개 병렬</b></td><td>278건 vs <span class="neg">13건 (임계 대폭 미달)</span></td><td class="neg">판매_ALL → 해외_판매 즉시 통합</td></tr>
+    <tr><td><b>해외 설치</b></td><td>AOS / iOS</td><td>3,400건/30일</td><td>AOS 우선 증액 (SL 16)</td></tr>
+  </table>
+  <div class="card" style="margin-top:14px"><h3>내부 실험 증거</h3><p><b>UA_판매_여행 (테스트) = PAUSED</b> — 세그먼트 분리 캠페인이 통합 구조를 이기지 못하고 중단된 자사 선례.</p></div></div>
+  <div class="note">*임계 판정은 매체 자체 집계 기준(뷰스루 포함)이 맞음 — 사업 성과 보고(SL 5~6, MMP)와 기준이 다른 이유는 부록 B.</div>
+</section>
+
+<!-- 10 TO-BE -->
+<section class="slide">
+  <div class="eyebrow">Target Structure</div>
+  <div class="sl-head"><h2>결제는 <span class="hl">시장당 통합</span>, 설치는 <span class="hl">캠페인 안에서 세분화</span>, 확장은 <span class="hl">소재로</span></h2></div>
+  <div class="fill">
+  <div class="two">
+    <div class="card"><h3>원칙 1 — 시장 분리 유지</h3><p>국내/해외 결제 캠페인은 <b>계정부터 분리</b>. 통화(₩/$)·언어·구매단가·전환 리드타임이 다른 모수를 섞으면 tCPA/ROAS 입찰 신호가 오염된다. Google 공식: 캠페인당 1개 국가 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>.</p></div>
+    <div class="card"><h3>원칙 2 — 시장 내 캠페인 수 상한</h3><p>매체당 결제 캠페인 <b>2개(신규+리타겟)</b>. 목표 구조 = <b>국내 2 + 해외 2</b>. 세그먼트 구분은 Google 애셋그룹 / Meta 애드셋 / 보고 Breakdown으로만.</p></div>
+  </div>
+  <div class="flow" style="margin-top:16px">
+    <div class="step"><div class="stepnum">上</div><b>상위 퍼널 45%</b><p class="small" style="color:var(--muted);margin-top:6px">앱 설치(ACi·게스트_앱설치) · VVC·DemandGen · 인지/이해/신뢰 영상 — 타겟 확장은 여기서만</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="stepnum">풀</div><b>리타겟 풀 · 시그널 · 브랜드 검색</b><p class="small" style="color:var(--muted);margin-top:6px">"순간이 오면 결제할 대기 수요 저장고"</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="stepnum">下</div><b>하위 퍼널 55%</b><p class="small" style="color:var(--muted);margin-top:6px">결제 캠페인 UA+RE (통합·광타겟·AI 위임) · Search 방조회 방어</p></div>
+  </div></div>
+  <div class="note">결제 목적 신규 캠페인은 증설 승인제(SL 21) — 주 50전환 자립 가능성 검토 통과 시에만.</div>
+</section>
+
+<!-- 11 파편화 근거 -->
+<section class="slide">
+  <div class="eyebrow">Why Consolidation</div>
+  <div class="sl-head"><h2>파편화가 손해라는 건 <span class="hl">매체 공식 권고</span>다</h2><div class="tagpill">외부 3 + 내부 2</div></div>
+  <div class="fill"><table>
+    <tr><th style="width:110px">근거</th><th>내용</th><th style="width:300px">출처</th></tr>
+    <tr><td class="num">[M1]</td><td>애드셋 주 50 이벤트 미달 → Learning Limited, 성과 불안정. 잦은 수정은 학습 리셋</td><td><a href="https://www.facebook.com/business/help/112167992830700" target="_blank">Meta — About the Learning Phase</a> ✅</td></tr>
+    <tr><td class="num">[M2]</td><td>유사 애드셋 분할 = 신호 희석 + 자체 경합 비용 상승 → 오디언스·예산 통합 권장</td><td><a href="https://www.facebook.com/business/help/112167992830700" target="_blank">Meta Business Help Center</a> (학습 단계 문서 내 연결)</td></tr>
+    <tr><td class="num">[G2]</td><td>파편화 구조 저성과. 시장당 2~3캠페인, 예산 하한 공식, 애셋 5개+</td><td><a href="https://support.google.com/google-ads/answer/9176652" target="_blank">Google — App campaigns best practices</a> ✅</td></tr>
+    <tr><td class="num">내부 1</td><td>UA_판매_여행 테스트 → PAUSED (분리가 통합을 못 이김)</td><td>자사 Meta 계정 실측</td></tr>
+    <tr><td class="num">내부 2</td><td>판매_ALL_해외 주 3건 — 임계 미달 캠페인의 실례</td><td>자사 Meta 해외 계정 실측</td></tr>
+  </table></div>
+  <div class="note">✅ = 2026-07-14 링크 생존 확인 — 전체 URL은 부록 A.</div>
+</section>
+
+<!-- 12 결정1 통합 규칙 -->
+<section class="slide">
+  <div class="eyebrow">Decision 1</div>
+  <div class="sl-head"><h2>Google 세그먼트 ACa — <span class="hl">격주 판정, 성과 미달부터 순차 흡수</span></h2><div class="tagpill">구매 전환 재집계 기준</div></div>
+  <div class="fill"><table>
+    <tr><th>조건 (주간 구매전환 × ROAS)</th><th style="width:90px">판정</th><th>액션</th></tr>
+    <tr><td>&lt;50 <b>AND</b> 4주 연속 주력 대비 ROAS 열위</td><td class="neg">통합</td><td>소재 → 주력 ACa 애셋그룹 이관 → 2주 병행 → 정지 (예산은 주력에 가산, 학습 급변 금지 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>)</td></tr>
+    <tr><td>&lt;50 <b>BUT</b> ROAS 우위</td><td>관찰</td><td>4주 추가 후 재판정</td></tr>
+    <tr><td>≥50 <b>AND</b> ROAS 동등 이상</td><td class="pos">유지</td><td>분기마다 재판정</td></tr>
+    <tr><td><b>건설현장직 (예외)</b></td><td>조건부 유지</td><td>확장 타겟 소재 실험 목적 — VVC와 세트, 분기 말 동일 규칙 적용</td></tr>
+  </table>
+  <div class="kv">
+    <div class="k"><div class="v">여행·학업</div><div class="l">즉시 통합 후보 (70만 원/50만 원 — 권고선 미달권)</div></div>
+    <div class="k"><div class="v">어학당&유학</div><div class="l">9월 학기 시즌 지나고 판정 (180만 원)</div></div>
+    <div class="k"><div class="v">격주</div><div class="l">판정 주기 — 구매 캠페인 변경은 판정일에만 (학습 리셋 방지)</div></div>
+  </div></div>
+  <div class="note">통합 = 캠페인 삭제가 아니라 소재·예산의 주력 이관 — 세그먼트 자산은 애셋그룹으로 보존된다.</div>
+</section>
+
+<!-- 13 결정2 애드셋 세분화 -->
+<section class="slide">
+  <div class="eyebrow">Decision 2</div>
+  <div class="sl-head"><h2>앱 설치 캠페인 — <span class="hl">TPO 기준으로 계속 분할</span>하며 상위 퍼널 볼륨 확대</h2><div class="tagpill">캠페인 신설 없이 애드셋 레이어에서</div></div>
+  <div class="lede">세분화는 한 번의 개편이 아니라 <b>볼륨이 자라는 만큼 계속하는 프로세스</b>다. 분할의 본질은 <b>광고그룹(애드셋) 수 자체의 확대</b> — 쪼개진 각 애드셋이 독립된 타겟 시그널·예산 슬롯·소재 세트를 갖게 되어 도달 모수와 설치 볼륨이 커진다 (OS당 6개 → 최대 11개). 타겟군 확대 → 볼륨 성장 → 추가 분할의 <b>플라이휠</b>(SL 5의 성장 공식을 시스템화).</div>
+  <div class="fill"><div class="two">
+    <div>
+      <table class="small">
+        <tr><th colspan="2">1단계 — 즉시 (OS당 6개 · CBO)</th></tr>
+        <tr><td><b>이사/인테리어</b></td><td>공사 기간 임시 거주</td></tr>
+        <tr><td><b>출장/업무</b></td><td>발령·파견·주중 거점</td></tr>
+        <tr><td><b>인턴/실습</b></td><td>첫 사회생활 단기 거주 (1·7월)</td></tr>
+        <tr><td><b>학업·유학생</b></td><td>어학당·대학가 (3·9월)</td></tr>
+        <tr><td><b>여행/한달살기</b></td><td>살아보기·워케이션 (성수기)</td></tr>
+        <tr><td><b>건설현장직</b></td><td>현장 인근 숙소</td></tr>
+      </table>
+    </div>
+    <div>
+      <table class="small">
+        <tr><th>2단계 — 광고그룹을 독립 애드셋으로 분할 (1개 → 각 1개씩)</th></tr>
+        <tr><td>이사/인테리어 → <b>이사</b> 애드셋 + <b>인테리어</b> 애드셋</td></tr>
+        <tr><td>출장/업무 → <b>출장</b> 애드셋 + <b>업무(파견·주중 거점)</b> 애드셋</td></tr>
+        <tr><td>인턴/실습 → <b>인턴</b> 애드셋 + <b>실습</b> 애드셋</td></tr>
+        <tr><td>학업·유학생 → <b>대학생</b> 애드셋 + <b>유학생·어학당</b> 애드셋</td></tr>
+        <tr><td>여행/한달살기 → <b>한달살기</b> 애드셋 + <b>워케이션</b> 애드셋</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px"><h3>분할·병합 양방향 규칙</h3><p>애드셋 주간 설치 <b>100건 이상 2주 지속 → 하위 TPO로 분할</b> / <b>50건 미달 2주 연속 → 인접 세그먼트와 병합</b> <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">[M1]</a> — 세분화는 볼륨이 허락하는 만큼만, 그리고 허락하는 한 계속. 현재 여력: 주간 설치 AOS 1,745·iOS 1,183건 → 6분할 시 애드셋당 임계의 4~6배.</p></div></div>
+  <div class="note">명명 「세그먼트 - 앱 설치」 통일 · 기설치자·구매자 제외 · 검증 소재는 결제 캠페인·ACi로 승격 · Google은 ACi <b>내부 광고그룹</b>을 동일 구조로 미러링 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a> — 세그먼트별 ACi 캠페인 신설 금지 · iOS(2) 캠페인은 본 캠페인 애드셋으로 흡수</div>
+</section>
+
+<!-- 14 확장 타겟 -->
+<section class="slide">
+  <div class="eyebrow">Audience Expansion</div>
+  <div class="sl-head"><h2>확장 타겟 우선순위 — 기준은 <span class="hl">이벤트 빈도 × 예측 가능성</span></h2><div class="tagpill">캘린더가 명확한 집단부터</div></div>
+  <div class="fill"><table>
+    <tr><th style="width:50px">순위</th><th>타겟</th><th>이벤트 빈도</th><th>예측 가능성</th><th>투입</th></tr>
+    <tr><td class="num">1</td><td><b>건설현장직</b></td><td>높음 (공사 일정)</td><td>중 (동절기 감소)</td><td>진행 중 — VVC·ACa 소재, 분기 말 판정</td></tr>
+    <tr><td class="num">2</td><td><b>방한 유학생·어학연수</b></td><td>높음 (학기 단위)</td><td><b>최상 (3·9월)</b></td><td>8월 말 · 11월</td></tr>
+    <tr><td class="num">3</td><td><b>인턴/실습</b></td><td>중 (반기)</td><td>상 (1·7월)</td><td>7월 즉시</td></tr>
+    <tr><td class="num">4</td><td>여행목적 방한 외국인</td><td>중</td><td>중</td><td>해외 트랙에서 (SL 15)</td></tr>
+    <tr class="dim"><td class="num">5</td><td>의료관광 외국인</td><td>낮음</td><td>하</td><td>하반기 보류</td></tr>
+  </table></div>
+  <div class="note">집행 수단은 전부 기존 캠페인 내부(SL 13 구조) — 캠페인 증설 없음.</div>
+</section>
+
+<!-- 15 해외 로드맵 -->
+<section class="slide">
+  <div class="eyebrow">Overseas Track</div>
+  <div class="sl-head"><h2>해외 3개 집단 — <span class="hl">Meta 선검증 → 성립 집단부터 확장</span></h2><div class="tagpill">순서가 전략이다</div></div>
+  <div class="fill"><table>
+    <tr><th style="width:110px">단계</th><th style="width:180px">집단</th><th>왜 이 순서</th><th>실행</th></tr>
+    <tr><td class="num">1 · 7~8월</td><td><b>한국거주 외국인</b></td><td>이벤트 빈도 최고 · 장벽 최소</td><td>언어 분리 애드셋, 국내 캠페인과 상호 제외</td></tr>
+    <tr><td class="num">2 · 9~11월</td><td><b>해외거주 교포</b></td><td>귀국 시즌 예측 가능 (추석·연말)</td><td>귀국 4~8주 전 선행 노출</td></tr>
+    <tr><td class="num">3 · 11월~</td><td><b>방한예정 외국인</b></td><td>장벽 최대 — 인지부터</td><td>인지·설치만, 풀 축적 목적</td></tr>
+    <tr><td>게이트 1</td><td>Google 해외 재가동</td><td>Meta CAC 4주 성립 시</td><td>해당 집단·국가 ACi 1캠페인 (국가당 1캠페인 <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>)</td></tr>
+    <tr><td>게이트 2</td><td>DSP 리타게팅</td><td>풀·매칭 조건 (SL 16·18)</td><td>11~12월 파일럿</td></tr>
+  </table></div>
+  <div class="note">Google 해외 계정 30일 집행 0 = 의도된 후순위(Meta 선검증 중) — 방치 아님.</div>
+</section>
+
+<!-- 16 해외 풀 실측 -->
+<section class="slide">
+  <div class="eyebrow">Overseas Pool · Measured</div>
+  <div class="sl-head"><h2>해외 풀은 생각보다 크고, <span class="hl">iOS 우세</span>라 액션이 달라진다</h2><div class="tagpill">2026-07-14 실측</div></div>
+  <div class="fill"><table>
+    <tr><th>지표</th><th style="width:270px">실측값</th><th>함의</th></tr>
+    <tr><td>Airbridge 해외 설치 (26 YTD 전채널)</td><td class="num">66,704건 (월 8,000~12,000건, 7월 약 18,000건 페이스)</td><td>유료(Meta 약 8,400건)의 8배 — 오가닉 포함 풀이 본체</td></tr>
+    <tr><td>설치 OS 구성</td><td class="num">iOS 63% / AOS 37%</td><td><b>국내(AOS 60%)와 정반대</b></td></tr>
+    <tr><td>GA4 30일 해외 앱 활성</td><td class="num">38,398명 (iOS 20,824 / AOS 14,539)</td><td>도달 가능 풀의 상한 근사</td></tr>
+    <tr><td>리타게팅 가능 풀 (기기ID)</td><td class="num">약 1.7만~1.9만 명 (AOS GAID 약 1.3만 명 + iOS ATT 4천~6천 명)</td><td>게이트(2만)의 85~95% — <b>AOS 설치 증액으로 충족 가능</b></td></tr>
+    <tr><td>국가 상위</td><td class="num">미국 압도 (설치 28,482건 · 활성 10,979명)</td><td>교포 타겟군 파일럿 후보 근거</td></tr>
+  </table></div>
+  <div class="note">병목은 풀 크기가 아니라 기기ID 매칭 — Meta 해외 설치 증액을 AOS 우선 배분(현재 AOS $2,000/iOS $1,900 균등), DSP 선정 시 iOS 리타게팅 역량(ATT·SKAN) 확인.</div>
+</section>
+
+<!-- 17 RE/UA -->
+<section class="slide">
+  <div class="eyebrow">Domestic Proof · Harvest Layer</div>
+  <div class="sl-head"><h2>리타게팅은 신규의 <span class="hl">절반 가격</span> — 최근 2개월 구매의 67% 담당</h2><div class="tagpill">Meta 국내 · 캠페인 상대 비교</div></div>
+  <div class="fill"><table>
+    <tr><th>기간</th><th>UA(신규) 구매 CPA</th><th>RE(리타겟) 구매 CPA</th><th>RE/UA</th><th>RE 구매 비중</th></tr>
+    <tr><td>2025 상반기</td><td>₩87,377</td><td>₩39,026</td><td class="num">0.45배</td><td>48%</td></tr>
+    <tr><td>2025 하반기 (풀 급성장기)</td><td>₩77,253</td><td>₩23,595</td><td class="num"><b>0.31배</b></td><td>48%</td></tr>
+    <tr><td>2026 상반기</td><td>₩35,664</td><td>₩27,063</td><td class="num">0.76배</td><td>33%</td></tr>
+    <tr><td><b>2026 6~7월</b></td><td>₩93,774</td><td>₩36,171</td><td class="num"><b>0.39배</b></td><td class="num"><b>67%</b></td></tr>
+    <tr><td><b>전기간 가중 평균</b></td><td>₩56,295</td><td>₩28,051</td><td class="num"><b>0.50배</b></td><td>42%</td></tr>
+  </table>
+  <div class="card" style="margin-top:14px"><h3>해외 시사점</h3><p>풀이 성숙하면 리타게팅이 최저가·최대 비중 구매 소스가 된다 — 해외에 없는 것은 수요가 아니라 <b>이 수확 레이어</b>다.</p></div></div>
+  <div class="note">이 표만 매체 클릭 기여 기준(MMP는 채널 단위라 캠페인 UA/RE 분리 불가 — 상대 비교 목적). 절대 결제 규모는 SL 5~6의 MMP 기준.</div>
+</section>
+
+<!-- 18 DSP -->
+<section class="slide">
+  <div class="eyebrow">Overseas DSP</div>
+  <div class="sl-head"><h2>DSP는 이미 <span class="hl">결제를 만들어온 채널</span>이다 — 해외는 검증된 채널의 지역 확장</h2><div class="tagpill">MMP 실측 25.01~26.07</div></div>
+  <div class="kv">
+    <div class="k"><div class="v">₩14.5억</div><div class="l">국내 DSP 집행 (몰로코·애피어·RTB House·스마덱스)</div></div>
+    <div class="k"><div class="v">32,420건</div><div class="l">MMP 결제 기여 · ₩277억 — 26H1만 13,859건 (같은 기간 Meta 7,474건보다 큼)</div></div>
+    <div class="k"><div class="v">RTB House</div><div class="l">설치 2,200건 vs 결제 9,900건 — <b>리타게팅 수확 패턴</b>의 국내 선례</div></div>
+  </div>
+  <div class="fill" style="margin-top:12px"><table class="small">
+    <tr><th style="width:170px">단계</th><th>내용</th><th style="width:120px">시점</th></tr>
+    <tr><td><b>1. 풀 실측</b></td><td>완료 — SL 16</td><td class="pos">완료</td></tr>
+    <tr><td><b>2. 풀 보강 + 게이트</b></td><td>Meta 해외 설치 AOS 우선 증액 → 리타게팅 가능 풀 2만+ · DSP 선정 시 iOS 리타게팅 역량 확인 · Airbridge 정합성 점검</td><td>9~10월</td></tr>
+    <tr><td><b>3. 리타게팅 파일럿</b></td><td>DSP 1개사 × 타겟군 1개(한국거주 외국인 우선, 교포 후보) — <b>국내에서 확대해 둔 DSP 지면·계정·운영 체계를 해외 RE 캠페인으로 이전</b>, AOS 개시</td><td>11~12월</td></tr>
+    <tr><td><b>4. 확장</b></td><td>CAC·증분 성립 시 추가 DSP · iOS · 프로스펙팅</td><td>2027~</td></tr>
+  </table></div>
+  <div class="note">측정 주의: 리타게팅 라스트터치는 증분 과대계상 위험 → 파일럿 판정은 <b>풀 대비 증분</b>(홀드아웃/코호트). 집행 데이터는 Airbridge → EMM 자동 편입.</div>
+</section>
+
+<!-- 19 예산 -->
+<section class="slide">
+  <div class="eyebrow">Budget</div>
+  <div class="sl-head"><h2>하위 65:35 → <span class="hl">55:45</span> — 모수 확보가 하위 성장의 상한을 올린다</h2></div>
+  <div class="fill">
+  <div class="three">
+    <div class="card"><div class="big">65 : 35</div><h3>현재 (실측)</h3><p>하위(결제·리타겟) : 상위(설치·영상·DemandGen) — 국내 임차인 월 약 ₩2.0억 기준</p></div>
+    <div class="card" style="border-color:var(--primary);border-width:2px"><div class="big">55 : 45</div><h3>하반기 목표</h3><p>이동 방식 = 하위 삭감이 아니라 <b>증분 + 세그먼트 ACa 통합 회수분</b>을 상위로. 하위 통합 캠페인의 주 50전환 안정성 유지 전제</p></div>
+    <div class="card"><div class="big">60 : 40</div><h3>롤백 조건</h3><p>상위 45%가 2개월 연속 리타겟 풀·브랜드 검색 증분 미달 시 복귀</p></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>근거</h3><p>내부 — 설치 축소 후에도 결제 성장(SL 5~6)했지만 풀은 소모품 · 외부 — Nielsen 풀퍼널 ROI +45%, 상위 추가 +70% <a href="https://business.google.com/think" target="_blank">[G3]</a></p></div></div>
+  <div class="note">"예산 이동이 아니라 회수 재배치" — 실무 수용성의 핵심.</div>
+</section>
+
+<!-- 20 KPI -->
+<section class="slide">
+  <div class="eyebrow">KPI & Measurement</div>
+  <div class="sl-head"><h2>'지면 점유율' = <span class="hl">순간이 온 사용자에 대한 도달률×빈도</span> — 노출 총량이 아니다</h2><div class="tagpill">기존 EMM 인프라 연계</div></div>
+  <div class="fill"><table class="small">
+    <tr><th>측정 항목</th><th>방법</th><th style="width:110px">주기</th></tr>
+    <tr><td><b>하위: 공헌이익 ROAS 200%</b></td><td>기존 자동 이슈 검토 파이프라인</td><td>상시</td></tr>
+    <tr><td><b>블렌디드 공헌이익 ROAS</b></td><td>상위 비용 포함 전 캠페인 합산 — <b>최종 판정 지표</b>, 하위 단독 판정 금지</td><td>월 1회</td></tr>
+    <tr><td>브랜드 검색량 증분</td><td>EMM 검색량 × 상위 집행액 시차 상관</td><td>월 1회</td></tr>
+    <tr><td>리타겟 풀 커버리지×빈도</td><td>미결제 풀 대비 도달률</td><td>격주</td></tr>
+    <tr><td>설치 세그먼트 애드셋</td><td>주간 설치(임계 50)·CPI — 분할·병합 판정 + 소재 승격</td><td>격주</td></tr>
+    <tr><td>상위→하위 증분</td><td><a href="https://www.facebook.com/business/help" target="_blank">Meta Conversion Lift</a> 셀프서브 (전환 API(CAPI) 연동·이벤트 매칭 품질 점수(EMQ) 5점 초과·주 50~100 전환 — 요건 충족)</td><td>분기 검토</td></tr>
+    <tr><td>해외 DSP 게이트·파일럿</td><td>풀 규모(격주) / 풀 대비 증분(4주)</td><td>격주·4주</td></tr>
+  </table></div>
+  <div class="note">전부 기존 EMM 시트·알림 인프라에 얹는 구조 — 신규 리포팅 공수 최소.</div>
+</section>
+
+<!-- 21 가드레일 -->
+<section class="slide">
+  <div class="eyebrow">Guardrails</div>
+  <div class="sl-head"><h2>구조를 바꾸는 것보다 <span class="hl">지키는 게</span> 어렵다 — 규칙 6개</h2></div>
+  <div class="fill"><div class="three">
+    <div class="card"><div class="badge">1</div><h3>학습 리셋 금지</h3><p>결제 캠페인 변경은 격주 판정일에만 (예산 ±20% 초과 포함) <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">[M1]</a></p></div>
+    <div class="card"><div class="badge">2</div><h3>제외 타겟 관리</h3><p>UA에서 구매자·리타겟 풀 제외, 국내↔해외 상호 배타 <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">[M2]</a></p></div>
+    <div class="card"><div class="badge">3</div><h3>Advantage+ 위임 유지</h3><p>수동 LAL 회귀 금지 — 고객 데이터 매칭 품질(Meta 전환 API의 EMQ 점수)을 분기 점검</p></div>
+    <div class="card"><div class="badge">4</div><h3>소재 슬롯 충족</h3><p>AC 애셋 유형별 5개+ <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">[G2]</a>, Low 애셋 주 1회 교체</p></div>
+    <div class="card"><div class="badge">5</div><h3>캠페인 증설 승인제</h3><p>결제 목적 신규 캠페인은 주 50전환 자립 검토 통과 시에만</p></div>
+    <div class="card"><div class="badge">6</div><h3>DSP 사전 점검</h3><p>기기ID·이벤트 정합성 점검 — iOS는 ATT 제약으로 파일럿 AOS 우선</p></div>
+  </div></div>
+  <div class="note">각 규칙은 실측 사고·매체 공식 권고에 대응한다.</div>
+</section>
+
+<!-- 22 로드맵 -->
+<section class="slide">
+  <div class="eyebrow">H2 Roadmap</div>
+  <div class="sl-head"><h2>수요 이벤트 캘린더에 실행·판정을 정렬 — <span class="hl">오늘 확정하면 7월부터</span></h2></div>
+  <div class="fill"><table>
+    <tr><th style="width:90px">시기</th><th style="width:220px">수요 이벤트</th><th>국내</th><th>해외</th></tr>
+    <tr><td><b>7~8월</b></td><td>한달살기·워케이션·인턴</td><td>ACa 점진 통합 개시 · 설치 애드셋 표준화 · 인턴/실습 소재</td><td>해외_판매 단일화 · 한국거주 외국인 검증</td></tr>
+    <tr><td><b>9~10월</b></td><td>이사철·2학기·추석</td><td>이사 소재 강화 · 유학생 소재 · 통합 1차 판정</td><td>교포 시즌 · CAC 판정 · <b>DSP 게이트 판정</b></td></tr>
+    <tr><td><b>11~12월</b></td><td>연말 발령·겨울방학</td><td>55:45 도달 · 연간 구조 확정</td><td>Google 재가동 결정 · <b>DSP 파일럿</b></td></tr>
+  </table>
+  <div class="card" style="margin-top:14px"><h3>클로징</h3><p>슬라이드 2의 결정 6개로 돌아가 하나씩 확정한다 — 구조 3 · 게이트 2 · 예산 1.</p></div></div>
+  <div class="note">게이트 기준의 "제안 기준" 표기 항목은 이 자리에서 조정·확정.</div>
+</section>
+
+<!-- 23 부록 A -->
+<section class="slide">
+  <div class="eyebrow">Appendix A</div>
+  <div class="sl-head"><h2>공식 근거 링크</h2><div class="tagpill">✅ = 링크 생존 확인 2026-07-14</div></div>
+  <div class="fill"><table class="small">
+    <tr><th style="width:56px">ID</th><th>요지</th><th style="width:400px">출처</th></tr>
+    <tr><td class="num">M1</td><td>학습 단계 주 50 이벤트 · 리셋 조건</td><td>✅ <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">facebook.com/business/help/112167992830700</a></td></tr>
+    <tr><td class="num">M2</td><td>파편화 경고 · 통합 권장 · Breakdown</td><td><a href="https://www.facebook.com/business/help/112167992830700" target="_blank">Meta Business Help Center</a> — M1 문서에서 연결되는 모범사례 하위 문서</td></tr>
+    <tr><td class="num">M3</td><td>Conversion Lift — 증분 검증, 셀프서브 요건</td><td><a href="https://www.facebook.com/business/help" target="_blank">Meta Business Help Center</a>에서 "conversion lift" 검색</td></tr>
+    <tr><td class="num">M4</td><td>풀퍼널 병행 권장 (Brand + Conversion Lift)</td><td><a href="https://www.facebook.com/business" target="_blank">Meta for Business</a> 인사이트 섹션</td></tr>
+    <tr><td class="num">G1</td><td>AC 구조 — 수동 타게팅 없음, 전 지면 커버</td><td>✅ <a href="https://support.google.com/google-ads/answer/6247380" target="_blank">support.google.com/google-ads/answer/6247380</a></td></tr>
+    <tr><td class="num">G2</td><td>AC 모범사례 — 캠페인 수·예산 하한·애셋 5개+</td><td>✅ <a href="https://support.google.com/google-ads/answer/9176652" target="_blank">…/answer/9176652</a> · <a href="https://support.google.com/google-ads/answer/6167162" target="_blank">…/answer/6167162</a></td></tr>
+    <tr><td class="num">G3</td><td>Nielsen 풀퍼널 ROI +45% / 상위 추가 +70%</td><td><a href="https://business.google.com/think" target="_blank">business.google.com/think</a> ("full funnel Nielsen ROI" 검색)</td></tr>
+    <tr><td class="num">G4</td><td>인앱 전환율 2배 · 앱 유저 고LTV</td><td><a href="https://business.google.com/think" target="_blank">Think with Google</a> — App growth 인사이트</td></tr>
+  </table></div>
+  <div class="note"></div>
+</section>
+
+<!-- 24 부록 B -->
+<section class="slide">
+  <div class="eyebrow">Appendix B</div>
+  <div class="sl-head"><h2>데이터 기준 (Q&amp;A 대비)</h2><div class="tagpill">조회일 2026-07-14</div></div>
+  <div class="fill"><div class="two">
+    <div class="card"><h3>결제 수치 기준 (공식)</h3><p>Airbridge(MMP) 라스트터치 — <b>Order Complete(App+Web) 건수 + 이벤트 value 금액</b>. 전 채널 중복 제거, 내부 '실제 결제'와 동일 정의. 검증: 25.11 Meta 974건 = 내부 체감치 일치 (Meta 자체 보고는 뷰스루 포함 3,096 / 클릭만 853 — 기여 창 차이일 뿐 오류 아님)</p></div>
+    <div class="card"><h3>학습 임계 판정만 예외</h3><p>매체 자체 집계 기준(뷰스루 포함) — 임계는 매체가 자기 기준으로 세기 때문. 두 숫자가 다른 것은 목적별 기준 차이</p></div>
+    <div class="card"><h3>계정 이관 (26.03→04)</h3><p>공백·중복 없음 (3월 구계정 8,230만 원→4월 0 / 신계정 4월 $37,000) · MMP는 채널 단위라 이관 무관 — 결제 흐름 연속(997→999→1,028→1,275)</p></div>
+    <div class="card"><h3>환산·집계 · 원천</h3><p>USD×1,390 고정 환산 · 캠페인 분류 objective 기준 · RE/UA 캠페인명 기준 · Google Ads API v24 / Meta API v25.0(구계정 포함) / Airbridge Actuals v7 / GA4 Data API / EMM 시트</p></div>
+  </div></div>
+  <div class="note">월별 전체 표(19개월)·캠페인 실명 명세는 구성안 md 부록 참조.</div>
+</section>
+
+</div></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;
+const bar=document.getElementById('bar'),counter=document.getElementById('counter');
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===cur));bar.style.width=((cur+1)/slides.length*100)+'%';counter.textContent=(String(cur+1).padStart(2,'0'))+' / '+slides.length;}
+document.getElementById('prev').onclick=()=>show(cur-1);
+document.getElementById('next').onclick=()=>show(cur+1);
+addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key))show(cur+1);if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key))show(cur-1);if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1);});
+function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);document.getElementById('stage').style.transform=`scale(${s})`;}
+addEventListener('resize',fit);fit();show(0);
+/* slide 5 chart */
+const months=['25.01','25.02','25.03','25.04','25.05','25.06','25.07','25.08','25.09','25.10','25.11','25.12','26.01','26.02','26.03','26.04','26.05','26.06','26.07*'];
+const install=[1750,1860,2250,3150,4020,4600,4390,5090,3950,2150,2190,1700,1610,2150,3470,2070,1560,2250,810];
+const sales=[920,1030,910,1100,2550,1620,1580,2070,2790,3350,5420,3540,2690,1940,2420,2990,2580,3650,2450];
+const orders=[445,537,523,590,746,816,913,1050,1141,1187,974,975,997,999,1028,1275,1426,1749,875];
+if(window.echarts){
+const c=echarts.init(document.getElementById('chart5'));
+c.setOption({animation:false,grid:{left:56,right:64,top:64,bottom:36},
+legend:{top:0,left:'center',itemGap:22,textStyle:{fontSize:12.5,color:'#333'},
+data:['앱 설치 캠페인 광고비 · 상위 퍼널 (만 원)','결제 캠페인 광고비 · 하위 퍼널 (만 원)','실제 결제 건수 (MMP · 우축)']},
+tooltip:{trigger:'axis'},
+xAxis:{type:'category',data:months,axisLabel:{fontSize:11.5,color:'#444',interval:0,formatter:v=>v.endsWith('.01')?v:v.split('.')[1]},axisLine:{lineStyle:{color:'#bbb'}},axisTick:{show:false}},
+yAxis:[{type:'value',name:'광고비 (만 원)',nameTextStyle:{color:'#666',fontSize:11},max:6000,axisLabel:{fontSize:11,color:'#666'},splitLine:{lineStyle:{color:'rgba(30,43,250,.08)'}}},
+{type:'value',name:'결제 건수(건)',nameTextStyle:{color:'#d63384',fontSize:11},min:0,max:2000,axisLabel:{fontSize:11,color:'#d63384'},splitLine:{show:false}}],
+series:[
+{name:'앱 설치 캠페인 광고비 · 상위 퍼널 (만 원)',type:'bar',data:install,barGap:'10%',itemStyle:{color:'#8ea6f5',borderRadius:[3,3,0,0]},barWidth:13},
+{name:'결제 캠페인 광고비 · 하위 퍼널 (만 원)',type:'bar',data:sales,itemStyle:{color:'#1e2bfa',borderRadius:[3,3,0,0]},barWidth:13},
+{name:'실제 결제 건수 (MMP · 우축)',type:'line',yAxisIndex:1,data:orders,lineStyle:{color:'#d63384',width:2.5},itemStyle:{color:'#d63384'},symbol:'circle',symbolSize:6,
+markPoint:{data:[{coord:['26.06',1749],symbol:'pin',symbolSize:1,label:{show:true,formatter:'최고 1,749건',fontSize:12,fontWeight:'bold',color:'#d63384',offset:[0,-16]}}]}},
+{name:'_p',type:'bar',data:[],markArea:{silent:true,data:[
+[{xAxis:'25.01',itemStyle:{color:'rgba(30,43,250,.03)'},label:{show:true,position:'insideTop',fontSize:11,color:'#888',formatter:'① 다양화 이전'}},{xAxis:'25.02'}],
+[{xAxis:'25.03',itemStyle:{color:'rgba(30,43,250,.05)'},label:{show:true,position:'insideTop',fontSize:11,color:'#1e2bfa',formatter:'② 설치 소재 대량 투입 (12→111개)'}},{xAxis:'25.09'}],
+[{xAxis:'25.10',itemStyle:{color:'rgba(30,43,250,.08)'},label:{show:true,position:'insideTop',fontSize:11,color:'#1e2bfa',formatter:'③ 결제 캠페인 확대'}},{xAxis:'26.01'}],
+[{xAxis:'26.02',itemStyle:{color:'rgba(214,51,132,.05)'},label:{show:true,position:'insideTop',fontSize:11,color:'#d63384',formatter:'④ 설치 축소에도 결제 성장'}},{xAxis:'26.07*'}]]}}
+]});
+}
+</script>
+</body>
+</html>
