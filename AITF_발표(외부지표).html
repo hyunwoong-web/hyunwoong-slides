@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>외부 지표 AI 모니터링 — 33m2 EMM · AI TF 공유</title>
+
+<!-- === FONTS: IBM Plex Sans KR (display/body) + IBM Plex Mono (numerals/labels) === -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   THEME — "Ops Console" custom design system
+   딥 잉크 배경 + 시그널 그린/앰버/레드 상태 컬러
+   =========================================== */
+:root {
+    --stage-bg: #05080C;
+    --slide-bg: #0A0E14;
+    --panel: #101823;
+    --panel-2: #0D1420;
+    --line: #1D2836;
+    --line-soft: #16202D;
+    --ink: #EAF1F8;
+    --ink-dim: #8A97A8;
+    --ink-faint: #5A6878;
+    --sig: #3DDC97;          /* signal green — 정상/포인트 */
+    --sig-dim: rgba(61,220,151,.14);
+    --amber: #FFB454;        /* 경고 */
+    --amber-dim: rgba(255,180,84,.13);
+    --red: #FF6B6B;          /* 사고/알림 */
+    --red-dim: rgba(255,107,107,.12);
+    --blue: #6CB2FF;         /* 정보 */
+    --blue-dim: rgba(108,178,255,.12);
+
+    --font-body: 'IBM Plex Sans KR', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   (viewport-base.css — 전체 포함, 수정 금지)
+   =========================================== */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide {
+        position: relative; display: block !important; visibility: visible !important;
+        opacity: 1 !important; pointer-events: auto !important;
+        width: 1920px; height: 1080px; break-after: page; page-break-after: always;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* ===========================================
+   SLIDE CANVAS — 배경 그리드 + 공통 레이아웃
+   =========================================== */
+.slide {
+    font-family: var(--font-body);
+    color: var(--ink);
+    background:
+        radial-gradient(1100px 600px at 8% -10%, rgba(61,220,151,.055), transparent 60%),
+        radial-gradient(900px 500px at 100% 110%, rgba(108,178,255,.045), transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 95px, rgba(29,40,54,.36) 95px 96px),
+        repeating-linear-gradient(90deg, transparent 0 95px, rgba(29,40,54,.36) 95px 96px),
+        var(--slide-bg);
+}
+.inner { position: absolute; inset: 0; padding: 56px 84px 64px; display: flex; flex-direction: column; }
+
+/* 상단 콘솔 크롬: 좌 = 시스템 라벨, 우 = 페이지 */
+.chrome {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 19px; letter-spacing: .14em;
+    color: var(--ink-faint); text-transform: uppercase;
+    padding-bottom: 18px; border-bottom: 1px solid var(--line-soft);
+}
+.chrome .dot { color: var(--sig); }
+.chrome .sec { color: var(--ink-dim); }
+
+/* 타이틀 블록 */
+.t-wrap { margin: 34px 0 8px; }
+.kicker {
+    font-family: var(--font-mono); font-size: 21px; letter-spacing: .22em;
+    color: var(--sig); text-transform: uppercase; margin-bottom: 14px;
+}
+h2.t { font-size: 56px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.12; }
+.t-sub { margin-top: 12px; font-size: 27px; color: var(--ink-dim); font-weight: 400; line-height: 1.45; }
+.t-sub b, .t-sub strong { color: var(--ink); font-weight: 600; }
+.body { flex: 1; margin-top: 34px; min-height: 0; }
+
+/* ===========================================
+   COMPONENTS — 패널·스탯·칩·표·알림 목업
+   =========================================== */
+.panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 26px 30px;
+}
+.panel h3 { font-size: 26px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.01em; }
+.panel h3 .mono { font-family: var(--font-mono); font-size: 20px; color: var(--sig); margin-right: 10px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+
+/* 숫자 카드 */
+.stat {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 30px 32px 26px; position: relative; overflow: hidden;
+}
+.stat::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--sig); opacity: .85;
+}
+.stat .num { font-family: var(--font-mono); font-size: 62px; font-weight: 600; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
+.stat .num small { font-size: 30px; color: var(--ink-dim); font-weight: 500; }
+.stat .lbl { margin-top: 12px; font-size: 24px; font-weight: 600; color: var(--ink); }
+.stat .sub { margin-top: 7px; font-size: 20.5px; color: var(--ink-dim); line-height: 1.48; }
+
+/* 상태 칩 */
+.chip {
+    display: inline-block; font-family: var(--font-mono); font-size: 18.5px;
+    padding: 4px 13px; border-radius: 100px; letter-spacing: .04em;
+    background: var(--sig-dim); color: var(--sig); border: 1px solid rgba(61,220,151,.3);
+    vertical-align: middle;
+}
+.chip.a { background: var(--amber-dim); color: var(--amber); border-color: rgba(255,180,84,.3); }
+.chip.r { background: var(--red-dim); color: var(--red); border-color: rgba(255,107,107,.3); }
+.chip.b { background: var(--blue-dim); color: var(--blue); border-color: rgba(108,178,255,.3); }
+.chip.n { background: rgba(138,151,168,.12); color: var(--ink-dim); border-color: var(--line); }
+
+/* 데이터 테이블 */
+table.tbl { width: 100%; border-collapse: collapse; font-size: 21.5px; }
+.tbl th {
+    font-family: var(--font-mono); font-size: 18px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-faint); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    font-weight: 500; white-space: nowrap;
+}
+.tbl td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); color: var(--ink-dim); line-height: 1.42; vertical-align: top; }
+.tbl td:first-child, .tbl td b, .tbl td strong { color: var(--ink); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl .mono, .mono { font-family: var(--font-mono); }
+.tbl.tight td { padding: 8px 14px; font-size: 20px; }
+.tbl.tight th { padding: 8px 14px; }
+
+/* 불릿 리스트 */
+ul.list { list-style: none; }
+ul.list li {
+    position: relative; padding-left: 30px; margin-bottom: 14px;
+    font-size: 23px; color: var(--ink-dim); line-height: 1.5;
+}
+ul.list li::before { content: '▸'; position: absolute; left: 4px; color: var(--sig); }
+ul.list li b, ul.list li strong { color: var(--ink); font-weight: 600; }
+ul.list.tight li { font-size: 21px; margin-bottom: 10px; }
+
+/* Google Chat 알림 목업 — 볼드 헤드라인 + ↳ 회색 근거 줄 */
+.alert {
+    background: var(--panel-2); border: 1px solid var(--line); border-left: 4px solid var(--sig);
+    border-radius: 10px; padding: 16px 22px; margin-bottom: 14px;
+}
+.alert.warn { border-left-color: var(--amber); }
+.alert.crit { border-left-color: var(--red); }
+.alert.info { border-left-color: var(--blue); }
+.alert .h { font-size: 21.5px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+.alert .s { margin-top: 5px; font-size: 19.5px; color: var(--ink-dim); line-height: 1.45; }
+.alert .s.corr { color: var(--ink-faint); font-style: italic; }
+.alert .cap { margin-top: 8px; font-family: var(--font-mono); font-size: 16.5px; color: var(--ink-faint); letter-spacing: .04em; }
+
+/* 파이프라인 플로우 노드 */
+.flow { display: flex; align-items: stretch; gap: 0; }
+.fnode {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 22px; text-align: center; flex: 1; position: relative;
+}
+.fnode .fn-t { font-size: 22px; font-weight: 600; color: var(--ink); }
+.fnode .fn-s { margin-top: 6px; font-size: 18px; color: var(--ink-dim); line-height: 1.4; }
+.fnode.hot { border-color: rgba(61,220,151,.45); background: linear-gradient(180deg, rgba(61,220,151,.07), var(--panel)); }
+.farrow { display: flex; align-items: center; padding: 0 12px; color: var(--sig); font-size: 26px; font-family: var(--font-mono); }
+
+/* 섹션 구분 라벨 */
+.divlbl {
+    font-family: var(--font-mono); font-size: 18px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 20px 0 12px;
+}
+.divlbl .ln { color: var(--line); }
+
+/* 하이라이트 인용/키 메시지 */
+.callout {
+    border: 1px solid rgba(61,220,151,.35); background: var(--sig-dim);
+    border-radius: 12px; padding: 18px 26px; font-size: 23px; color: var(--ink); line-height: 1.5;
+}
+.callout.amber { border-color: rgba(255,180,84,.35); background: var(--amber-dim); }
+.callout b { color: var(--sig); }
+.callout.amber b { color: var(--amber); }
+
+/* 막대 그래프(매물수) */
+.bar-row { display: grid; grid-template-columns: 240px 1fr 170px; align-items: center; gap: 16px; margin-bottom: 13px; }
+.bar-row .bn { font-size: 21px; color: var(--ink); font-weight: 500; text-align: right; }
+.bar-row .bt { height: 26px; border-radius: 5px; background: linear-gradient(90deg, rgba(61,220,151,.85), rgba(61,220,151,.45)); min-width: 4px; }
+.bar-row.dim .bt { background: linear-gradient(90deg, rgba(108,178,255,.7), rgba(108,178,255,.3)); }
+.bar-row .bv { font-family: var(--font-mono); font-size: 20px; color: var(--ink-dim); }
+
+/* ===========================================
+   TITLE SLIDE
+   =========================================== */
+.slide.title .inner { justify-content: center; padding-top: 40px; }
+.title-status { display: flex; gap: 14px; margin-bottom: 44px; }
+.title-kicker { font-family: var(--font-mono); font-size: 24px; letter-spacing: .3em; color: var(--sig); text-transform: uppercase; margin-bottom: 28px; }
+h1.title-h {
+    font-size: 96px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08;
+}
+h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
+.title-sub { margin-top: 30px; font-size: 32px; color: var(--ink-dim); line-height: 1.5; max-width: 1400px; }
+.title-sub b { color: var(--ink); font-weight: 600; }
+.title-meta { margin-top: 56px; display: flex; gap: 36px; font-family: var(--font-mono); font-size: 21px; color: var(--ink-faint); }
+.title-meta span b { color: var(--ink-dim); font-weight: 500; }
+
+/* ===========================================
+   REVEAL ANIMATION — 슬라이드 진입 시 스태거
+   =========================================== */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: .05s; }
+.reveal:nth-child(2) { transition-delay: .13s; }
+.reveal:nth-child(3) { transition-delay: .21s; }
+.reveal:nth-child(4) { transition-delay: .29s; }
+.reveal:nth-child(5) { transition-delay: .37s; }
+.reveal:nth-child(6) { transition-delay: .45s; }
+.reveal:nth-child(7) { transition-delay: .53s; }
+.reveal:nth-child(8) { transition-delay: .61s; }
+
+/* ===========================================
+   DECK CHROME — 진행바·페이지·편집(스테이지 밖)
+   =========================================== */
+.deck-progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--sig); width: 0%; z-index: 1001; transition: width .3s var(--ease); }
+.deck-page {
+    position: fixed; right: 26px; bottom: 20px; z-index: 1001;
+    font-family: var(--font-mono); font-size: 14px; color: var(--ink-faint); letter-spacing: .1em;
+}
+.deck-hint {
+    position: fixed; left: 26px; bottom: 20px; z-index: 1001;
+    font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); letter-spacing: .06em; opacity: .7;
+}
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle {
+    position: fixed; top: 18px; left: 18px; z-index: 10001;
+    width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink); font-size: 20px; cursor: pointer;
+    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+}
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { border-color: var(--sig); color: var(--sig); }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===================== 01 표지 ===================== -->
+<section class="slide title active">
+    <div class="inner">
+        <div class="title-status reveal">
+            <span class="chip">● LIVE — 무인 운영 중</span>
+            <span class="chip b">수집기 23종 · 시트 23탭</span>
+            <span class="chip n">2026-07-14 기준 실측</span>
+        </div>
+        <div class="title-kicker reveal">33M2 · EXTERNAL METRICS MONITOR</div>
+        <h1 class="title-h reveal">외부 지표 <span class="thin">AI 모니터링</span></h1>
+        <p class="title-sub reveal">자사·경쟁사 지표 <b>자동 수집</b>부터 <b>이상 감지 · 자동 검토 · 정기 리포트</b>까지,<br>사람 개입 없는 완전 무인 파이프라인</p>
+        <div class="flow reveal" style="margin-top:52px; max-width:1500px;">
+            <div class="fnode hot"><div class="fn-t">수집</div><div class="fn-s">Python 수집기 23종</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fn-t">적재</div><div class="fn-s">Google Sheets 23탭</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fn-t">감지</div><div class="fn-s">이상 규칙 ~30종</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode hot"><div class="fn-t">알림</div><div class="fn-s">Google Chat 9개 스페이스</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>DATE <b>2026-07</b></span><span>FOR <b>AI TF 공유용</b></span><span>BUILT·RUN BY <b>AI Agent (Claude)</b></span>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 02 Executive Summary ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — EXTERNAL METRICS MONITOR</span><span class="sec">02 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Executive Summary</div>
+            <h2 class="t">8개사 × 7개 지표 카테고리를 하루 최대 30회 수집, <span style="color:var(--sig)">이상 시에만</span> 알린다</h2>
+        </div>
+        <div class="body grid-3" style="grid-template-rows: 1fr 1fr;">
+            <div class="stat reveal"><div class="num">8<small>개사</small></div><div class="lbl">추적 대상</div><div class="sub">자사 삼삼엠투 + 경쟁 7사 — 리브애니웨어·자리톡·에어비앤비·단단홈즈·미스터멘션·엔코스테이·직방(스테이 부분)</div></div>
+            <div class="stat reveal"><div class="num">23<small>탭</small></div><div class="lbl">수집기 23개 모듈 → 시트 23탭</div><div class="sub">전 지표 시계열 누적 · 자연키 중복 0% 상시 감사</div></div>
+            <div class="stat reveal"><div class="num">30<small>회/일</small></div><div class="lbl">수집 리듬 5개</div><div class="sub">매시(GA4) · 하루 4회(당일 광고·동향) · 매일 9시(확정치) · 11시(DSP) · 17시(소진)</div></div>
+            <div class="stat reveal"><div class="num">30<small>+4종</small></div><div class="lbl">이벤트 알림 ~30종 + 정기 리포트 4종</div><div class="sub">주제별 Google Chat 스페이스 9개로 라우팅</div></div>
+            <div class="stat reveal"><div class="num">0<small>건</small></div><div class="lbl">무인 운영 스케줄 실패</div><div class="sub">07-09 이후 GitHub Actions + n8n — 노트북이 꺼져 있어도 동작</div></div>
+            <div class="stat reveal"><div class="num">172<small>케이스</small></div><div class="lbl">AI 에이전트 주도 개발·운영</div><div class="sub">감지·알림 로직 회귀 테스트로 품질 방어 — 사람은 정책 결정만</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 03 배경·문제의식 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 배경</span><span class="sec">03 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Problem</div>
+            <h2 class="t">"경쟁사에 무슨 일이 있는지, 광고비가 새고 있는지"를<br>사람이 매일 확인하는 것은 불가능하다</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">01</span>매일 봐야 할 것들</h3>
+                <ul class="list">
+                    <li><b>경쟁 7사</b> — 기사 · 공지 · 프로모션 · 앱 업데이트 · 매물 변화 · 앱스토어 순위 · 채용 · SNS</li>
+                    <li><b>자사 광고 4채널</b> — 수십 개 캠페인의 확정치·당일 소진</li>
+                    <li><b>자사 트래픽·검색 성과</b> — GA4 · Search Console</li>
+                </ul>
+                <div class="callout amber" style="margin-top:22px;">특히 광고 — 당일 소진 급증 · 전환 추적 고장 · 소재 비승인은 <b>몇 시간 안에</b> 잡아야 손실이 안 커진다</div>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">02</span>수동 모니터링의 실패 모드 4가지</h3>
+                <table class="tbl">
+                    <tr><td><b>누락</b></td><td>매일 안 보게 됨 — 리소스 문제로 "안 하는 게 아니라 못 하는" 상태</td></tr>
+                    <tr><td><b>판단 불가</b></td><td>봐도 '평소 대비 이상'인지 알 수 없음 — 기준선 부재</td></tr>
+                    <tr><td><b>조사 비용</b></td><td>발견해도 원인 파악에 30분 이상 소요</td></tr>
+                    <tr><td><b>분산</b></td><td>담당자별로 보는 채널이 흩어져 전체 그림 없음</td></tr>
+                </table>
+                <div class="divlbl">해법의 방향</div>
+                <div class="callout">10여 개 화면을 매일 도는 대신 — <b>Chat 알림 하나</b>만 보면 되는 상태로</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 04 목표와 범위 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 목표·범위</span><span class="sec">04 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Goal &amp; Scope</div>
+            <h2 class="t">목표는 대시보드가 아니라 <span style="color:var(--sig)">"조용하지만 놓치지 않는 감시자"</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">GOALS</span>목표 4가지</h3>
+                <ul class="list">
+                    <li><b>전 지표 매일 자동 수집·누적</b> — 시계열 자산화</li>
+                    <li><b>이상 징후만 알림</b> — 소음 최소화, "중요할 때만"</li>
+                    <li><b>알림에 원인 단서 자동 첨부</b> — 연관 신호 + 자동 검토</li>
+                    <li><b>100% 무인 운영</b> — 트리거부터 발송까지 사람 개입 0</li>
+                </ul>
+                <div class="divlbl">명시적 비목표</div>
+                <ul class="list tight">
+                    <li>실시간 대시보드 아님 — <b>시트가 원장</b></li>
+                    <li>모든 변화 알림 아님 — <b>자사에 불리한 변화 중심</b></li>
+                    <li>저신뢰 프록시(경쟁사 계약 건수 추정 등) 제외 확정</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">SCOPE</span>대상 — 자사 1 + 경쟁사 7</h3>
+                <table class="tbl">
+                    <tr><th>대상</th><th>추적 범위</th></tr>
+                    <tr><td><b>삼삼엠투</b> (자사)</td><td>전 지표 — 광고·트래픽·검색·매물·순위·콘텐츠</td></tr>
+                    <tr><td><b>경쟁 6사</b><br><span style="font-size:19px;">리브애니웨어 · 자리톡 · 에어비앤비 · 단단홈즈 · 미스터멘션 · 엔코스테이</span></td><td>시장 활동 전반 — 뉴스·공지·앱·매물·순위·검색량·SNS·채용</td></tr>
+                    <tr><td><b>직방</b> (스테이)</td><td>매물 · 공지 · 앱버전 · 뉴스 <span class="chip a" style="font-size:17px;">부분 추적</span><br><span style="font-size:19px;">종합 부동산 브랜드라 검색량·순위 전역 편입 시 '단기임대' 지표 오염 — 실측 후 결정</span></td></tr>
+                </table>
+                <div class="callout" style="margin-top:20px;">"직방 부분 추적" 같은 결정도 데이터 오염 <b>실측 후</b> 내린 것 — 설계 원칙은 '정확한 기준선'</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 05 전체 아키텍처 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 아키텍처</span><span class="sec">05 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Architecture</div>
+            <h2 class="t">수집→적재→감지→알림 4단 파이프라인 — 트리거부터 발송까지 사람 개입 0</h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal">
+                <div class="fnode"><div class="fn-t">n8n 스케줄</div><div class="fn-s">+ 17:00 cron<br>+ 워치독 10:30 백스톱</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fn-t">GitHub Actions 러너</div><div class="fn-s">run.py 수집기 23종<br>시크릿 = EMM_DOTENV · 세션 gpg</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fn-t">Google Sheets 23탭</div><div class="fn-s">자연키 중복 방지<br>state는 적재 성공 후 커밋</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fn-t">detect.py</div><div class="fn-s">규칙 평가<br>+ correlate 연관 신호<br>+ reviews 자동 검토</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fn-t">notify.py</div><div class="fn-s">Chat 카드(cardsV2)<br>실패 시 평문 폴백</div></div>
+            </div>
+            <div class="grid-2" style="margin-top:30px;">
+                <div class="panel reveal">
+                    <h3><span class="mono">STATE</span>상태까지 git으로 — 서버리스 구성</h3>
+                    <ul class="list">
+                        <li>감지 기준선·중복 억제·보류 큐 등 모든 state는 repo <b>state 브랜치</b>에 러너가 커밋 — 로컬 PC 불요</li>
+                        <li>자격증명은 GitHub Secrets, 로그인 세션은 <b>gpg 암호화 파일</b>로 리포 동봉 → 러너에서 복호화</li>
+                        <li>증분 수집기는 state를 <b>'적재 성공 후'에만</b> 커밋 — 실패 시 자동 재수집</li>
+                    </ul>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">WHY</span>왜 이렇게 왔나</h3>
+                    <ul class="list">
+                        <li>개인 PC 스케줄러로 시작 → <b>주말 노트북 꺼짐</b>으로 확정치 데이터 영구 유실 경험</li>
+                        <li>07-06 GitHub Actions <b>완전 이관</b> — 이후 스케줄 실패 0건</li>
+                        <li>워치독이 daily 미실행 감지 시 대신 실행 — n8n 단일 장애점 방어</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 06 수집 방법론 총론 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 수집 방법론</span><span class="sec">06 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">How We Collect</div>
+            <h2 class="t">공식 API가 없으면 <span style="color:var(--sig)">대시보드가 쓰는 백엔드를 직접 재생</span>한다</h2>
+            <p class="t-sub">소스별로 가장 안정적인 경로 선택 — 소스 유형 5가지 × 적재 패턴 5가지</p>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">SRC</span>소스 유형 5가지</h3>
+                <table class="tbl tight">
+                    <tr><td><b>1 공식 API</b></td><td>네이버 검색광고 · Google Ads · Meta · Airbridge · GA4 · GSC · YouTube · IG Graph · 키워드도구·데이터랩 · iTunes</td></tr>
+                    <tr><td><b>2 백엔드 API 재생</b> <span style="color:var(--ink-faint)">(무로그인)</span></td><td>리브·엔코·미스터·단단·직방 매물 검색 API · 직방 프로모션(Next.js 매니페스트) · Play 차트(batchexecute)</td></tr>
+                    <tr><td><b>3 세션·토큰 재생</b></td><td>자리톡(토큰 캡처 후 API) · AirDNA(refresh 토큰→15분 app 토큰 → Explorer API, 07-14 브라우저 제거)</td></tr>
+                    <tr><td><b>4 브라우저 자동화</b></td><td>자사 33m2 매물(Playwright 4그룹×18지역) · 리브 호스트 공지</td></tr>
+                    <tr><td><b>5 RSS·페이지 파싱</b></td><td>구글뉴스 RSS · 에어비앤비 뉴스룸 · Play 릴리스노트 · iOS 장르차트</td></tr>
+                </table>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">LOAD</span>적재 패턴 5가지</h3>
+                <table class="tbl tight">
+                    <tr><td><b>1 일일 스냅샷</b></td><td>매일 그날 값 1행 누적 — 매물수·순위·검색량·팔로워</td></tr>
+                    <tr><td><b>2 당일 누적</b></td><td>하루 4~5회, 시각 컬럼 포함 — 광고 3채널 _당일 탭(페이스 감지용)</td></tr>
+                    <tr><td><b>3 변경 감지형</b></td><td>바뀔 때만 적재 — 앱버전(state 비교)</td></tr>
+                    <tr><td><b>4 증분형</b></td><td>처음 보는 것만 — 뉴스·공지·채용 (state는 적재 성공 후 커밋)</td></tr>
+                    <tr><td><b>5 증가분 계산형</b></td><td>이번−직전 수집, 결측일 일할 보정 — 유튜브 영상·인스타 게시물</td></tr>
+                </table>
+                <div class="callout" style="margin-top:18px;">공통 방어 — 탭별 <b>자연키</b> 중복 검사 상시 운용 + append 위치 고정(잡셀 면역)</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 07 하루 일과표 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 수집 주기</span><span class="sec">07 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Daily Schedule</div>
+            <h2 class="t">지표 성격에 따라 5개 리듬 — 실시간성이 필요한 것만 자주</h2>
+        </div>
+        <div class="body">
+            <div class="panel reveal" style="padding:18px 30px;">
+                <table class="tbl">
+                    <tr><th style="width:270px;">시각 (KST)</th><th style="width:150px;">잡</th><th>수집 내용</th><th style="width:430px;">후속 감지</th></tr>
+                    <tr><td class="mono"><b>매시 정각</b> (24h)</td><td><span class="chip b" style="font-size:17px;">ga4</span></td><td>GA4 실시간 — 30분 활성 사용자·페이지·앱 첫 실행</td><td>급증 · 급락(장애) · 설치 급증</td></tr>
+                    <tr><td class="mono"><b>09:00</b></td><td><span class="chip" style="font-size:17px;">daily</span></td><td><b>전 수집기</b> — 광고 확정 3채널·검색량·GSC·뉴스·공지·앱버전·매물 8사·순위·GA4 일간·SNS·YT·IG·채용</td><td>전 규칙 + 광고 점검 + 조용시간 보류분 지연발송</td></tr>
+                    <tr><td class="mono"><b>10:05 / 14:05 / 18:05 / 22:05</b></td><td><span class="chip" style="font-size:17px;">intraday</span></td><td>당일 광고 스냅샷 3채널 + 뉴스·공지·앱버전 증분</td><td>당일 페이스(R4)+자동 검토 · 신규 기사·공지</td></tr>
+                    <tr><td class="mono"><b>10:30</b></td><td><span class="chip n" style="font-size:17px;">watchdog</span></td><td>daily 미실행 감지 시 재기동 (백스톱)</td><td>—</td></tr>
+                    <tr><td class="mono"><b>11:00</b></td><td><span class="chip" style="font-size:17px;">dsp</span></td><td>DSP 확정치 — 몰로코·애피어·RTB House·스마덱스</td><td>DSP 신규·소멸·급증</td></tr>
+                    <tr><td class="mono"><b>17:00</b></td><td><span class="chip a" style="font-size:17px;">spend</span></td><td>당일 광고 스냅샷 3채널 (17시 시점)</td><td>💰 소진 현황 카드 (정기)</td></tr>
+                    <tr><td class="mono"><b>매주 월 10시대</b></td><td><span class="chip n" style="font-size:17px;">편승</span></td><td>—</td><td>📦 매물 주간리뷰 + 📊 주간 광고 성과 + 🔍 GSC 주간</td></tr>
+                </table>
+            </div>
+            <div class="grid-2" style="margin-top:24px;">
+                <div class="callout reveal">발송 창 <b>09:00~22:00</b> — 밤 발화분은 버리지 않고 보류 큐 → 아침에 <b>"🌙 지연발송"</b> 카드로 묶음 발송(발생 시각 표기)</div>
+                <div class="callout amber reveal">당일치는 집계 지연으로 과소 가능 — <b>급증 판정에만</b> 사용, 급감 판정은 반드시 익일 확정치로</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 08 지표 카테고리 맵 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 지표 카테고리</span><span class="sec">08 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Metric Map</div>
+            <h2 class="t">수집 지표 7개 카테고리 — 이후 7장에 걸쳐 하나씩 상세</h2>
+        </div>
+        <div class="body">
+            <div class="panel reveal" style="padding:18px 30px;">
+                <table class="tbl">
+                    <tr><th style="width:70px;">#</th><th style="width:340px;">카테고리</th><th>시트 탭</th><th style="width:250px;">주기</th><th style="width:420px;">대표 알림</th></tr>
+                    <tr><td class="mono" style="color:var(--sig);"><b>A</b></td><td><b>자사 광고비</b> (4채널)</td><td>네이버·구글·메타(+각 _당일)·DSP — 7탭</td><td>확정 일 1회 + 당일 5회</td><td>신규·소멸·급증·당일 페이스+자동 검토</td></tr>
+                    <tr><td class="mono" style="color:var(--sig);"><b>B</b></td><td><b>자사 트래픽</b> (GA4)</td><td>GA4_실시간 · GA4_일간 — 2탭</td><td>매시 + 일 1회</td><td>실시간 급증/급락(장애 경보) · 일간 급증/유입</td></tr>
+                    <tr><td class="mono" style="color:var(--sig);"><b>C</b></td><td><b>자사 자연검색</b> (GSC)</td><td>자연검색_GSC — 1탭</td><td>일 1회 (D-3 확정)</td><td>노출 급감(디인덱싱 경보) · 주간 요약</td></tr>
+                    <tr><td class="mono" style="color:var(--sig);"><b>D</b></td><td><b>검색 수요</b> (키워드 11개)</td><td>검색량_네이버·구글·유튜브 — 3탭</td><td>일 1회</td><td>검색량 급증 (네이버·구글)</td></tr>
+                    <tr><td class="mono" style="color:var(--sig);"><b>E</b></td><td><b>경쟁사 시장 활동</b></td><td>뉴스 · 경쟁사_공지 · 경쟁사_채용 — 3탭</td><td>뉴스·공지 일 5회, 채용 일 1회</td><td>신규 기사/후속보도 · 공지 · 채용</td></tr>
+                    <tr><td class="mono" style="color:var(--sig);"><b>F</b></td><td><b>경쟁사 제품·공급</b></td><td>앱버전 · 매물수 · 앱마켓 순위 2종 — 4탭</td><td>앱버전 일 5회, 나머지 일 1회</td><td>앱 업데이트 · 추월당함 · 주간 확장/축소 · 주간리뷰</td></tr>
+                    <tr><td class="mono" style="color:var(--sig);"><b>G</b></td><td><b>브랜드·콘텐츠</b></td><td>SNS_팔로워 · 유튜브_영상 · 인스타_게시물 — 3탭</td><td>일 1회</td><td>팔로워 급변 · 콘텐츠 급상승</td></tr>
+                </table>
+            </div>
+            <p class="t-sub reveal" style="margin-top:22px;">합계 <b>23탭</b> — 모든 탭이 시계열 원장이자 감지 규칙의 입력</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 09 카테고리 A 광고비 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 카테고리 A</span><span class="sec">09 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">A · Ads Spend</div>
+            <h2 class="t">광고비 4채널 — <span style="color:var(--sig)">확정치(어제)와 당일 누적(오늘)</span> 이중 트랙</h2>
+            <p class="t-sub">사고는 당일에 잡고, 판정은 확정치로 한다</p>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">WHAT</span>무엇을 · 어디서</h3>
+                <table class="tbl tight">
+                    <tr><td><b>네이버</b></td><td>검색광고 API · 2계정(MO/PC) — 캠페인별 비용·노출·클릭</td></tr>
+                    <tr><td><b>구글</b></td><td>Google Ads API(REST) · 3계정(임대인·임차인·해외) + 전환</td></tr>
+                    <tr><td><b>메타</b></td><td>Marketing API insights · 3계정 — <b>통화 USD</b>(헤더 명시), 토큰 만료 14일 전 자동 재교환</td></tr>
+                    <tr><td><b>DSP</b></td><td>Airbridge Actuals API(비동기 폴링) — 몰로코·애피어·RTB House·스마덱스 + 설치</td></tr>
+                </table>
+                <div class="divlbl">주기</div>
+                <ul class="list tight">
+                    <li>확정치 = 매일 09:00 <b>(DSP만 11:00</b> — 매체→에어브릿지 반영 지연)</li>
+                    <li>당일 누적 = 10·14·17·18·22시 스냅샷 (시각 컬럼 · 누적 단조성 검증)</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">SIGNAL</span>연결 알림 8종</h3>
+                <ul class="list tight">
+                    <li>🆕 R1 신규 캠페인 / ⚠️ R2 소멸·0원 / 🚨 R3 확정 급증 / 🚨 R4 당일 페이스 <b>(+자동 검토 첨부)</b></li>
+                    <li>🧯 전환 추적 고장 / 🚫 소재 비승인 — 계정 건강 점검</li>
+                    <li>💰 소진 현황(매일 17시) / 📊 주간 다이제스트(월)</li>
+                </ul>
+                <div class="divlbl">데이터 특성 — 실측</div>
+                <div class="alert warn">
+                    <div class="h">당일치는 집계 지연으로 과소 — 특히 네이버</div>
+                    <div class="s">↳ 14시 스냅샷 ₩147k vs 17시 실제 ₩333k 실측 → 급감 판정은 익일 확정치로만, 네이버는 당일 % 비교 자체를 제거</div>
+                </div>
+                <div class="callout" style="margin-top:16px;">ROAS는 팀 확정 기준 <b>공헌이익 매출(App+Web, Airbridge)</b> — 매체 대시보드 숫자와 다른 이유까지 설명 가능</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 10 카테고리 B GA4 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 카테고리 B</span><span class="sec">10 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">B · GA4 Traffic</div>
+            <h2 class="t">매시 실시간 수집 — <span style="color:var(--sig)">장애와 바이럴을 몇십 분 안에</span> 아는 유일한 채널</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">WHAT</span>무엇을 · 어디서 · 주기</h3>
+                <ul class="list">
+                    <li><b>실시간</b> — 최근 30분 활성 사용자(전체·플랫폼·페이지 Top10) + 앱 첫 실행 수 · <b>매시 정각 24시간</b>(수집은 밤에도, 발송만 보류)</li>
+                    <li><b>일간</b> — 소스·매체별, 신규 유입, 플랫폼별 사용자(전일 확정) · 매일 09:00</li>
+                    <li>GA4 Data API · 서비스계정 — 어제 사용자 <b class="mono">45,502명</b> 실측 규모 속성</li>
+                    <li>제약 — 실시간 API는 소스/매체 미지원(일간으로 보완) · IP 단위는 GA4 원천 미제공</li>
+                </ul>
+                <div class="divlbl">연결 알림</div>
+                <ul class="list tight">
+                    <li>🚨 실시간 급증(동시각 ×1.5·50명↑) / 🔻 급락(절반 이하 — <b>장애 조기 경보</b>) / 📈 첫 실행 급증(×1.5·100건↑)</li>
+                    <li>📈🔻 일간 급증·급감 / 📈 유입 급증 / 🆕 신규 유입 소스(500명↑)</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">CASE</span>실물 사례 — 소음 튜닝의 근거</h3>
+                <div class="alert">
+                    <div class="h">📈 구글 앱캠페인 증액 → first_open 슬롯당 82→133건 상승 포착</div>
+                    <div class="s">↳ 광고비 증액 연관 신호와 함께 알림 — 원인 조사 불필요</div>
+                </div>
+                <div class="alert warn">
+                    <div class="h">07-13 밤새 급증 알림 8건 도배 사고</div>
+                    <div class="s">↳ 지속 상승을 매 시각 새 이상처럼 재알림 → <b>지표당 하루 1회</b> 게이트 + 하한 30→100건 상향</div>
+                    <div class="s corr">시뮬레이션 검증: 최근 3일 12건 → 1건</div>
+                </div>
+                <div class="callout" style="margin-top:16px;">"알림은 계속 조정된다" — 규칙은 고정물이 아니라 <b>운영하며 조율하는 시스템</b></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 11 카테고리 C GSC ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 카테고리 C</span><span class="sec">11 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">C · Search Console</div>
+            <h2 class="t">매일 쌓되 알림은 <span style="color:var(--sig)">주 1회 + 디인덱싱 경보만</span></h2>
+            <p class="t-sub">순위 데이터는 원래 출렁인다 — "매일 수집 ≠ 매일 알림"의 대표 사례</p>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">WHAT</span>무엇을 · 어떻게</h3>
+                <ul class="list">
+                    <li>쿼리별 클릭·노출·CTR·평균순위 + <b>(전체) 사이트 총계행</b></li>
+                    <li>노이즈 컷 — <b>노출 ≥10 쿼리만</b> 수집(실측: 전체 쿼리의 96%가 노출&lt;10) + 핵심 워치리스트 11개는 예외 ≈ 일 40행</li>
+                    <li>매일 09:00 수집 — 단 GSC 특성상 데이터는 <b>3일 전 확정치(D-3)</b></li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">SIGNAL</span>알림 설계 — 폐지와 대체</h3>
+                <div class="alert crit">
+                    <div class="h">키워드 순위 일일 알림 — 07-13 전면 폐지</div>
+                    <div class="s">↳ 1.2→1.6위 같은 무의미한 소수점 변동이 소음의 대부분이었음</div>
+                </div>
+                <div class="alert">
+                    <div class="h">🔍 주간 요약으로 대체 — 매주 월 10시</div>
+                    <div class="s">↳ 정확한 7일 vs 7일 창 · 브랜드/논브랜드 클릭·노출·순위 · 상승·하락·신규 진입 쿼리 · 노출 가중 순위 변동</div>
+                    <div class="s corr">브랜드 어간에 '33엠' 등 오타 변형 포함 — 실측 반영</div>
+                </div>
+                <div class="alert warn">
+                    <div class="h">🔻 사이트 전체 노출 급감 — 일일 유지</div>
+                    <div class="s">↳ 7일 중앙값 −30% = 색인 누락·페널티 조기 경보(장애 신호라 예외)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 12 카테고리 D 검색 수요 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 카테고리 D</span><span class="sec">12 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">D · Search Demand</div>
+            <h2 class="t">키워드 11개 × 3플랫폼 — <span style="color:var(--sig)">브랜드 검색량은 경쟁사 이벤트의 선행 지표</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">WHAT</span>플랫폼별 수집 방식</h3>
+                <table class="tbl tight">
+                    <tr><td><b>네이버</b></td><td>키워드도구 30일 절대량(PC/MO) × 데이터랩 일별 지수 → <b>하루치 절대량 추정</b>(기기별 분해)</td></tr>
+                    <tr><td><b>구글</b></td><td>Trends 0~100 상대지수 — 절대량은 Ads Basic Access 승인 시 자동 추가(코드 준비 완료)</td></tr>
+                    <tr><td><b>유튜브</b></td><td>Trends YouTube 필터 지수 — <b>알림 의도적 미연결</b>: 저볼륨 0↔36 플래핑 실측 → 기록·추세 관측만</td></tr>
+                </table>
+                <div class="divlbl">키워드 구성</div>
+                <ul class="list tight">
+                    <li>일반어 5개 — 단기임대 등 + <b>경쟁사 브랜드 6개</b> — 삼삼엠투·리브애니웨어·자리톡 등</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">SIGNAL</span>알림 규칙 + 실물 규모</h3>
+                <ul class="list tight">
+                    <li>📈 네이버 — 추정 절대량 <b>중앙값×1.5 AND +100회/일</b></li>
+                    <li>📈 구글 — 지수 ≥20 AND (<b>×1.5 OR +30pt</b> — 지수 100 포화 대응)</li>
+                    <li>공통 통계 게이트 — 수정 z&gt;3.5 (극단값 내성)</li>
+                </ul>
+                <div class="divlbl">실물 규모 — 연관 신호로도 활용</div>
+                <div class="alert">
+                    <div class="h">에어비앤비 브랜드 38,935회/일 (+23%) · 리브애니웨어 981회 (+15%)</div>
+                    <div class="s">↳ 순위 역전·기사 알림에 "브랜드 검색량 동반 상승" 맥락으로 자동 첨부</div>
+                </div>
+                <div class="callout" style="margin-top:16px;">"유튜브는 왜 알림이 없나" — <b>데이터 품질이 기준 미달이면 연결하지 않는다</b>는 원칙</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 13 카테고리 E 시장 활동 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 카테고리 E</span><span class="sec">13 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">E · Market Activity</div>
+            <h2 class="t">경쟁사의 "말과 행동"을 하루 5회 증분 수집 — <span style="color:var(--sig)">같은 사건은 한 묶음으로</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">WHAT</span>3개 지표 수집 방식</h3>
+                <table class="tbl tight">
+                    <tr><td><b>뉴스</b><br><span style="font-size:18px;color:var(--ink-faint)">일 5회</span></td><td>네이버뉴스 API + 구글뉴스 RSS — 브랜드 쿼리+제목 필터, <b>신디케이션 병합</b>(여러 매체 동일 기사) + <b>주제ID 클러스터링</b>(후속보도를 같은 스레드로), 발행 14일 초과 알림 제외</td></tr>
+                    <tr><td><b>공지·프로모션</b><br><span style="font-size:18px;color:var(--ink-faint)">6개사 · 일 5회</span></td><td>공식 소스 직접 — 미스터=이벤트 JSON · 에어비앤비=뉴스룸 RSS · 엔코=Zendesk · 단단=백엔드 · 리브=Playwright · <b>직방=Next.js 빌드 매니페스트 라우트 열거</b>(목록 API 부재 우회). 자리톡=소스 미발견(보류)</td></tr>
+                    <tr><td><b>채용</b><br><span style="font-size:18px;color:var(--ink-faint)">4개사 · 일 1회</span></td><td>원티드(자리톡·리브·엔코) + 사람인(미스터멘션) — 처음 보는 포지션만, 포지션당 1회</td></tr>
+                </table>
+                <div class="callout" style="margin-top:16px;">공통: 첫 등록분은 <b>'시딩'</b>으로 적재만 — 직방 편입 때 기존 프로모션 11건·기사 75건 무음 처리 실전</div>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">LIVE</span>실물 알림 — 07-14 아침</h3>
+                <div class="alert info">
+                    <div class="h">🔁 [후속보도] 에어비앤비 — 에어비앤비, 일본편 첫 공동 프로모션 실시</div>
+                    <div class="s">↳ 같은 주제 스레드로 묶여 발송 · 발행시간 · 링크</div>
+                    <div class="cap">07-14 09:00 DAILY 실발송</div>
+                </div>
+                <div class="alert info">
+                    <div class="h">📢 [경쟁사 공지] 리브애니웨어 — 호스트 리포트(2026년 6월)</div>
+                    <div class="s">↳ (게재일) 링크</div>
+                    <div class="cap">07-14 09:00 DAILY 실발송</div>
+                </div>
+                <div class="alert">
+                    <div class="h">💼 [신규 채용] 자리톡 — 프로덕트 오너 (경력)</div>
+                    <div class="s">↳ 원티드 링크 — 재게시·공고 ID 변경은 자동으로 접힘</div>
+                </div>
+                <div class="callout" style="margin-top:14px;">투자·M&amp;A 같은 굵직한 소식은 별도 지표 없이 <b>뉴스 알림이 커버</b> — 설계 결정</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 14 카테고리 F 제품·공급 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 카테고리 F</span><span class="sec">14 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">F · Product &amp; Supply</div>
+            <h2 class="t">경쟁사의 "제품 움직임과 재고"를 정량 추적 — <span style="color:var(--sig)">순위 역전은 자사에 불리할 때만</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">SUPPLY</span>매물수 8개사 — 07-14 실측 (시장 총 65,634개)</h3>
+                <div class="bar-row"><div class="bn">삼삼엠투</div><div class="bt" style="width:100%;"></div><div class="bv">32,511</div></div>
+                <div class="bar-row dim"><div class="bn">에어비앤비 (서울)</div><div class="bt" style="width:47.5%;"></div><div class="bv">15,439</div></div>
+                <div class="bar-row dim"><div class="bn">리브애니웨어</div><div class="bt" style="width:44.4%;"></div><div class="bv">14,434</div></div>
+                <div class="bar-row dim"><div class="bn">자리톡</div><div class="bt" style="width:21.6%;"></div><div class="bv">7,011</div></div>
+                <div class="bar-row dim"><div class="bn">엔코스테이</div><div class="bt" style="width:17.7%;"></div><div class="bv">5,748</div></div>
+                <div class="bar-row dim"><div class="bn">미스터멘션</div><div class="bt" style="width:17.2%;"></div><div class="bv">5,598</div></div>
+                <div class="bar-row dim"><div class="bn">직방</div><div class="bt" style="width:3.7%;"></div><div class="bv">1,199</div></div>
+                <div class="bar-row dim"><div class="bn">단단홈즈</div><div class="bt" style="width:0.4%;"></div><div class="bv">101</div></div>
+                <div class="divlbl">회사마다 다른 수집 경로</div>
+                <ul class="list tight" style="font-size:19px;">
+                    <li>백엔드 검색 API(리브·엔코·미스터·단단·자리톡·직방) · 자사=Playwright · <b>에어비앤비=AirDNA Explorer API</b>(서울, 월 갱신)</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">SIGNAL</span>앱버전 · 순위 · 알림</h3>
+                <ul class="list tight">
+                    <li><b>앱버전</b> — iOS 8 + Android 8, 일 5회 변경 감지 · 자사=전부 알림 / <b>타사=메이저 상승만</b>(마이너는 기록만)</li>
+                    <li><b>키워드 순위</b> — 7사×11키워드×2스토어(일 154행) + 카테고리 차트(일 14행) · 개인화 미반영 공통 기준 = 추세용</li>
+                    <li><b>매물 가드</b> — ⚠️ 일 ±30% 수집 이상 · ⚠️ 수집 중단 감지 · 📈📉 주간 확장/축소(±10% AND ±50개) · 📦 주간리뷰</li>
+                </ul>
+                <div class="alert crit" style="margin-top:14px;">
+                    <div class="h">📉 [자사 추월당함] 에어비앤비가 삼삼엠투를 추월 (07-13→07-14)</div>
+                    <div class="s">↳ PlayStore '리브애니웨어' 검색순위: 에어비앤비 6위→5위, 삼삼엠투 4위→8위</div>
+                    <div class="cap">07-14 실발송 · 연관 신호 자동 첨부</div>
+                </div>
+                <div class="callout" style="margin-top:14px;"><b>경쟁사끼리의 순위 다툼은 알리지 않는다</b> + 쿨다운 7일로 접전 플래핑을 주 1회로 압축 — 소음 설계 철학</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 15 카테고리 G 브랜드·콘텐츠 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 카테고리 G</span><span class="sec">15 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">G · Brand &amp; Content</div>
+            <h2 class="t">팔로워 스냅샷 + 콘텐츠 단위 증가분 — <span style="color:var(--sig)">"진짜 바이럴"만</span> 알린다</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">WHAT</span>3개 지표</h3>
+                <table class="tbl tight">
+                    <tr><td><b>SNS 팔로워</b></td><td>공식 채널 13개 — 유튜브=Data API · 인스타=<b>Graph API 시스템 사용자 토큰</b>(만료 없음, 러너 IP 차단을 API로 우회). 알려진 결측: 엔코스테이 IG(개인 계정)</td></tr>
+                    <tr><td><b>유튜브 영상</b></td><td>7채널 × 최근 30개(Shorts 포함) — 조회·좋아요·댓글 <b>일일 증가분</b>(결측일 일할 보정)</td></tr>
+                    <tr><td><b>인스타 게시물</b></td><td>계정당 25개(피드·릴스 구분) — 좋아요·댓글 증가분</td></tr>
+                </table>
+                <div class="callout" style="margin-top:16px;">인스타 정밀값 확보 스토리 — 공개 반올림 23,000 → 토큰 전환 후 <b class="mono">23,069</b></div>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">RULE</span>급상승 판정 — 사고에서 배운 재설계</h3>
+                <div class="alert warn">
+                    <div class="h">첫 활성일 17건 도배 사고 (07-08)</div>
+                    <div class="s">↳ 구 기준선 '채널 평균'은 옛 콘텐츠 증가~0에 눌려 무력화 — 일상 트래픽 전부 발화</div>
+                </div>
+                <div class="alert">
+                    <div class="h">🔥 새 기준선 = 그 콘텐츠 자신의 직전 증가분 이력</div>
+                    <div class="s">↳ 자체 중앙값 <b>×3</b> AND 절대 하한(YT 조회 +1,000/일 등) AND 통계 게이트 · 콘텐츠당 7일 쿨다운</div>
+                    <div class="s corr">효과: 광고로 꾸준히 높은 영상·평시 트래픽은 침묵, 휴면→폭증만 발화</div>
+                </div>
+                <ul class="list tight" style="margin-top:14px;">
+                    <li>🚨🔻 팔로워 급변 — <b>±5% AND ±300명</b> 동시 충족 시만</li>
+                    <li>자사 콘텐츠 포함 — 성과 확인용 <b>좋은 소식 예외</b></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 16 소음 제어 6원칙 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 소음 제어</span><span class="sec">16 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Noise Control</div>
+            <h2 class="t">알림 시스템의 성패는 규칙 수가 아니라 소음 제어 — <span style="color:var(--sig)">"울리면 봐야 하는" 신뢰</span></h2>
+        </div>
+        <div class="body">
+            <div class="grid-3">
+                <div class="panel reveal"><h3><span class="mono">01</span>같은 내용 하루 1회</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.5;">규칙별 발화 게이트(새 확정일·새 일자 1회). 지속 상태 재알림은 의미 있는 변화 시에만 — 급증 지속은 직전 알림 대비 <b style="color:var(--ink)">1.2배 재상승</b> 시</p></div>
+                <div class="panel reveal"><h3><span class="mono">02</span>조용시간 보류 큐</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.5;">22시~09시 발화분은 버리지 않고 큐에 보류 → 아침에 <b style="color:var(--ink)">발생 시각과 함께 지연발송</b></p></div>
+                <div class="panel reveal"><h3><span class="mono">03</span>쿨다운</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.5;">접전 플래핑 억제 — 앱순위 <b style="color:var(--ink)">7일</b> · 콘텐츠 <b style="color:var(--ink)">7일</b></p></div>
+                <div class="panel reveal"><h3><span class="mono">04</span>콜드스타트 자동 활성</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.5;">기준선 데이터가 쌓여야 규칙이 켜짐(급증 7일·페이스 3일·순위 2일) — 그 전엔 <b style="color:var(--ink)">침묵이 정답</b></p></div>
+                <div class="panel reveal"><h3><span class="mono">05</span>기준선 자동 갱신</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.5;">고정 임계 아님 — 최근 4주(또는 1주) <b style="color:var(--ink)">중앙값+MAD</b>(평균 아님, 극단값 내성). 요일·계절 자동 반영</p></div>
+                <div class="panel reveal"><h3><span class="mono">06</span>방향 필터</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.5;">자사에 불리한 변화만(순위) · 타사는 임팩트 큰 것만(메이저 업데이트) · 표시 하한(페이스 ₩5만 등)</p></div>
+            </div>
+            <div class="panel reveal" style="margin-top:24px; display:flex; gap:40px; align-items:center;">
+                <div class="divlbl" style="margin:0; white-space:nowrap;">튜닝 실적</div>
+                <div style="display:flex; gap:36px; flex:1;">
+                    <div><span class="mono" style="font-size:34px;color:var(--sig);font-weight:600;">7→2</span><span style="font-size:20px;color:var(--ink-dim);margin-left:10px;">R4 페이스/일</span></div>
+                    <div><span class="mono" style="font-size:34px;color:var(--sig);font-weight:600;">12→1</span><span style="font-size:20px;color:var(--ink-dim);margin-left:10px;">GA4 첫 실행/3일</span></div>
+                    <div><span class="mono" style="font-size:34px;color:var(--sig);font-weight:600;">17→0</span><span style="font-size:20px;color:var(--ink-dim);margin-left:10px;">콘텐츠 오탐/일</span></div>
+                    <div style="font-size:20px;color:var(--ink-dim);align-self:center;">— 임계값은 전부 코드 상단 상수 · 튜닝 = 숫자 1개 수정</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 17 알림 카탈로그 ① 광고 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 알림 카탈로그 1/3</span><span class="sec">17 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Alert Catalog · Ads</div>
+            <h2 class="t">광고 4단 감지 — 등장 → 소멸 → 어제 급증 → 오늘 페이스 <span style="color:var(--ink-dim);font-weight:300;">+ 건강 점검 2종</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="reveal">
+                <div class="alert"><div class="h">🆕 [R1 신규 캠페인] — 캠페인 첫 등장 즉시</div><div class="s">↳ 네이버/MO/신규캠페인: 첫 등장, ₩45,200</div></div>
+                <div class="alert warn"><div class="h">⚠️ [R2 소멸/0원] — 쓰던 캠페인이 확정 집계에서 사라짐</div><div class="s">↳ 실물: 구글/임차인 캠페인 소멸 ₩37,655→없음 · 같은 소멸 1회만(부활 후 재소멸 시 재알림)</div></div>
+                <div class="alert crit"><div class="h">🚨 [R3 전일 확정 급증] — 28일 중앙값×1.5 AND ₩3만↑ AND 통계 게이트</div><div class="s">↳ 실물: 건설현장직 앱 캠페인 확정 ₩135,812 — 최근 28일 중앙값의 4.5배</div></div>
+                <div class="alert crit"><div class="h">🚨 [R4 당일 페이스] — 7일 같은 시각 중앙값×2.0 AND 누적 ₩5만↑</div><div class="s">↳ 캠페인당 하루 1회 · <b>자동 이슈 검토 첨부</b>(다음 슬라이드)</div></div>
+            </div>
+            <div class="reveal">
+                <div class="alert warn"><div class="h">🧯 [전환 추적 고장] — ₩5만↑ 집행 중 전환이 7일 중앙값의 20% 이하</div><div class="s">↳ 해소까지 <b>매일 재알림</b> — 중대 사고 예외 (전환 태그·연동 고장은 조용히 손실 누적)</div></div>
+                <div class="alert warn"><div class="h">🚫 [소재 비승인] — 구글 DISAPPROVED + 메타 WITH_ISSUES</div><div class="s">↳ 신규 비승인만 1회 — 지속돼도 도배 없음, 해소 후 재비승인 시에만 새 사건</div></div>
+                <div class="panel" style="margin-top:18px;">
+                    <h3><span class="mono">NOTE</span>임계는 전부 실사고 후 조정값</h3>
+                    <ul class="list tight">
+                        <li>R4 배율 ×1.5→<b>×2.0</b> · 하한 ₩3만→<b>₩5만</b> — 경계선 반복·소액 도배 7건 실측 후</li>
+                        <li>같은 캠페인 하루 1회 게이트 — 스냅샷마다 재발화하던 것 차단</li>
+                        <li>기준선 = 최근 7일 <b>같은 시각</b> 중앙값 — 시간대 소진 패턴 반영</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 18 알림 카탈로그 ② 트래픽·검색 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 알림 카탈로그 2/3</span><span class="sec">18 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Alert Catalog · Traffic &amp; Search</div>
+            <h2 class="t">실시간은 <span style="color:var(--sig)">장애·바이럴 즉보</span>, 일간·주간은 수요·성과 변화</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="reveal">
+                <div class="divlbl">GA4 실시간 — 매시</div>
+                <div class="alert crit"><div class="h">🚨 [실시간 사용자 급증] 11:00 활성 19,087명</div><div class="s">↳ 동시각 중앙값(2,074)의 9.2배 · 같은 지표는 하루 1회만 알림</div></div>
+                <div class="alert crit"><div class="h">🔻 [실시간 사용자 급락] — 동시각 절반 이하</div><div class="s">↳ 사이트/앱 <b>장애 조기 경보</b> — 유일하게 시각마다 재평가(도배 허용)</div></div>
+                <div class="alert"><div class="h">📈 [앱 첫 실행 급증] — ×1.5 AND 100건/30분↑</div><div class="s">↳ 설치 캠페인 효과·바이럴 조기 신호</div></div>
+                <div class="divlbl">GA4 일간 — 매일 9시</div>
+                <div class="alert"><div class="h">📈 [유입 급증] 'google-play / organic': 962명</div><div class="s">↳ 실물: GA4 일간 감지 첫 발화(07-13) — 중앙값 대비 배수 병기</div></div>
+            </div>
+            <div class="reveal">
+                <div class="divlbl">검색 수요·자연검색</div>
+                <div class="alert"><div class="h">📈 [검색량 급증] 네이버 — 절대량 추정 ×1.5 AND +100회/일</div><div class="s">↳ 구글은 지수 ≥20 AND (×1.5 OR +30pt)</div></div>
+                <div class="alert warn"><div class="h">🔻 [자연검색 노출 급감] — 7일 중앙값 −30%</div><div class="s">↳ 디인덱싱·페널티 조기 경보 — 색인/패널티 확인 안내 첨부</div></div>
+                <div class="panel" style="margin-top:18px;">
+                    <h3><span class="mono">CASE</span>콜드스타트 기간의 수동 대응</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">메인 랜딩 웹 유입 <b class="mono" style="color:var(--ink)">2,074→19,087명</b> 급증을 시트로 확인해 수동 발송 — 기준선 축적 후엔 같은 상황이 자동 알림으로 커버</p>
+                </div>
+                <div class="callout" style="margin-top:16px;">"실시간 급락 = 장애 신호라서 유일하게 도배 허용" — <b>알림 등급 설계</b>의 예</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 19 알림 카탈로그 ③ 경쟁사·콘텐츠 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 알림 카탈로그 3/3</span><span class="sec">19 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Alert Catalog · Competitors &amp; Content</div>
+            <h2 class="t">경쟁사의 유의미한 움직임 + <span style="color:var(--sig)">우리 순위에 대한 위협만</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="reveal">
+                <div class="alert info"><div class="h">🔁 [후속보도] 에어비앤비 — 일본편 첫 공동 프로모션 실시</div><div class="s">↳ 07-14 실물 · 주제 스레드 묶음</div></div>
+                <div class="alert info"><div class="h">📢 [경쟁사 공지] 리브애니웨어 — 호스트 리포트(2026년 6월)</div><div class="s">↳ 07-14 실물 · 💼 채용 / 📱 앱 업데이트(타사 메이저만)도 같은 방</div></div>
+                <div class="alert crit"><div class="h">📉 [자사 추월당함] 에어비앤비가 삼삼엠투를 추월</div><div class="s">↳ 07-14 실물: PlayStore '리브애니웨어' 검색순위 — 에어비앤비 6위→5위, 삼삼엠투 4위→8위</div></div>
+                <div class="alert"><div class="h">🥇 [카테고리 1위] 삼삼엠투 2위 → 1위 — 제친 앱: 호갱노노(현재 2위)</div><div class="s">↳ 07-12 실물 · 유일한 "좋은 소식" 알림 (🚫 이탈 / 📉 급락 / ✅ 복귀도 같은 계열)</div></div>
+            </div>
+            <div class="reveal">
+                <div class="alert"><div class="h">🔥 [콘텐츠 급상승] 엔코스테이 YT 영상 — 자체 이력 대비 폭증</div><div class="s">↳ 07-13 첫 실발화 · 새 기준선(자체 이력)의 첫 검증</div></div>
+                <div class="alert warn"><div class="h">⚠️ [매물 수집 이상 · 수집 중단] / 📈📉 [주간 확장·축소]</div><div class="s">↳ 데이터 오류 의심을 시장 변화보다 먼저 의심 — 이상 회사는 주간 판정에서 제외</div></div>
+                <div class="alert"><div class="h">🚨🔻 [팔로워 급변] — ±5% AND ±300명</div><div class="s">↳ 인스타 반올림 값 특성상 실질 큰 변화만 걸림</div></div>
+                <div class="callout" style="margin-top:16px;">모든 알림에 붙는 <b>🔍 연관 신호</b>(슬라이드 24)가 이 카탈로그의 부가가치 — 알림이 곧 1차 조사 결과</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 20 자동 이슈 검토 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 자동 이슈 검토</span><span class="sec">20 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">🧾 Auto Review</div>
+            <h2 class="t">급증 알림에서 끝나지 않는다 — <span style="color:var(--sig)">왜 올랐는지, 유지할지 조정할지</span> 초안 판단까지 같은 카드에</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal" style="background:var(--panel-2);">
+                <h3><span class="mono">LIVE</span>구글 키워드 캠페인 검토 — R4 발화 시 자동</h3>
+                <div style="font-family:var(--font-mono); font-size:18.5px; line-height:1.7; color:var(--ink-dim); background:#0A1018; border:1px solid var(--line); border-radius:10px; padding:18px 22px;">
+<span style="color:var(--ink);font-weight:600;">🧾 [자동 이슈 검토] 구글/임차인/Keyword Ads_방 조회</span><br>
+<span style="color:var(--sig);">1. CPC가 오른 키워드 — 오늘 진행분 기준</span><br>
+&nbsp;&nbsp;• 오늘 CPC ₩5,105 = 최근 7일 평균(₩599)의 <span style="color:var(--red);">8.5배</span> · 전일의 7.3배, 비용 비중 29% <span style="color:var(--amber);">⭐핵심</span><br>
+<span style="color:var(--sig);">2. 원인 진단</span> — 경쟁 입찰 심화 vs 유입 확대<br>
+&nbsp;&nbsp;• 노출점유율 분해: IS 31% · 순위 손실 69%<br>
+&nbsp;&nbsp;• 낭비 검색어: 100개 ₩172k — 'enkoplex' 등 오타 유입 발굴<br>
+<span style="color:var(--sig);">3. 검토 의견</span> — 공헌이익 ROAS ≥200%면 유지 권고<br>
+&nbsp;&nbsp;• ⭐핵심어는 CPC 상승에도 유지 (노출 우위 사수)
+                </div>
+                <div class="alert info" style="margin-top:14px;"><div class="s">오늘 클릭 5회↑ 키워드만 표시 — 오전 소표본 CPC 노이즈 차단</div></div>
+            </div>
+            <div class="reveal">
+                <div class="panel" style="margin-bottom:18px;">
+                    <h3><span class="mono">APP</span>구글 앱 캠페인 검토 — 다른 진단 경로</h3>
+                    <ul class="list tight">
+                        <li><b>변경 이력</b>(예산·타겟CPA, 변경자) + CPM vs 볼륨 정합 판정</li>
+                        <li>결론 예: "의도된 증액 → 설치 코호트 매출 지연 감안, <b>3~5일 후 재평가</b>"</li>
+                        <li>실물 E2E — 건설현장직: 변경 2건·볼륨 4~6배 정합·유지 = <b>사용자 수동 리뷰와 동일 결론</b></li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h3><span class="mono">META</span>메타 페이스 검토</h3>
+                    <ul class="list tight">
+                        <li>Airbridge 가입 CPA — 오늘 0건이면 <b>사유 명시 후</b> 전일·7일로 검토</li>
+                        <li>CPM·빈도·CTR로 경매 경쟁 / 소재 피로 진단</li>
+                    </ul>
+                </div>
+                <div class="callout" style="margin-top:18px;">현재는 <b>규칙 기반 1차 분석</b> — Phase2에서 LLM 소견으로 확장 예정(로드맵). 양식은 팀 피드백 수차례 반영해 확정, 별도 공유 문서 운영</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 21 정기 리포트 4종 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 정기 리포트</span><span class="sec">21 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Scheduled Reports</div>
+            <h2 class="t">이벤트 알림은 "이상 시에만" — <span style="color:var(--sig)">리듬 파악용 정기물은 4종으로 한정</span></h2>
+        </div>
+        <div class="body">
+            <div class="grid-2" style="gap:22px;">
+                <div class="stat reveal"><div class="num" style="font-size:34px;">💰 광고비 소진 현황</div><div class="lbl">매일 17:00 · 전용 서식 카드</div><div class="sub">채널·계정별 당일 누계 + 전일 같은 시각 대비 %(구글·메타) · 네이버는 집계 지연 각주 · DSP 포함<br><span class="mono" style="color:var(--ink);">실물: 구글 ₩3.31M · 메타 $1,639 · 네이버 ₩394k · 기타 ₩560k</span></div></div>
+                <div class="stat reveal"><div class="num" style="font-size:34px;">📊 주간 광고 성과</div><div class="lbl">매주 월 10시 · 지난주 vs 전주</div><div class="sub">채널 그룹별 비용·설치·가입·결제·공헌이익 ROAS<br><span class="mono" style="color:var(--ink);">실물: 전체 ₩99.8M(+11%) · 설치 33,389(+28%) · 결제 5,308건 · ROAS 581%</span></div></div>
+                <div class="stat reveal"><div class="num" style="font-size:34px;">📦 매물 시장 주간리뷰</div><div class="lbl">매주 월 10시</div><div class="sub">시장 전체 증감 · 최대 확장/축소 지역 · 회사별 현황 + 신규 추적·수집 중단 명시<br><span class="mono" style="color:var(--ink);">실물(첫 발송): 시장 +139개(+0.21%) · 총 65,634개 · "신규 추적: 직방 1,210개"</span></div></div>
+                <div class="stat reveal"><div class="num" style="font-size:34px;">🔍 자연검색 주간 요약</div><div class="lbl">매주 월 10시 · 첫 발송 07-20</div><div class="sub">브랜드/논브랜드 성과 · 상승/하락/신규 쿼리 · 노출 가중 순위 변동 — 일일 순위 알림의 대체재</div></div>
+            </div>
+            <p class="t-sub reveal" style="margin-top:20px;">주간 3종이 전부 <b>월요일 10시</b>에 오는 이유 — 주간 회의 전 브리핑 팩 역할</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 22 소진 현황 카드 개선안 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 소진 현황 개선안</span><span class="sec">22 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">💰 Spend Card · Next</div>
+            <h2 class="t">소진 현황 카드 개선안 — <span style="color:var(--sig)">채널별 비용 / 공헌이익 / ROAS</span> 한 줄에</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal" style="background:var(--panel-2);">
+                <h3><span class="mono">AS-IS</span>구 형식 카드 — 07-14 14:00 실물 <span class="chip n" style="font-size:16px;">비용만 표기</span></h3>
+                <div style="font-family:var(--font-mono); font-size:18px; line-height:1.75; color:var(--ink-dim); background:#0A1018; border:1px solid var(--line); border-radius:10px; padding:16px 20px;">
+<span style="color:var(--ink);font-weight:600;">💰 광고비 소진 현황 — 2026-07-14 오늘 누계</span><br>
+<span style="color:var(--ink-faint);">구글 · 14:00 수집 · 전일 같은 시각 대비 -7%</span><br>
+&nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">₩2,194,043</span> — 임차인 ₩2,047,201 · 임대인 ₩146,842<br>
+<span style="color:var(--ink-faint);">메타 · 전일 같은 시각 대비 +23%</span><br>
+&nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">$1,455.50</span> — 임차인 $1,155.72 · 해외 $249.82 · 임대인 $49.96<br>
+<span style="color:var(--ink-faint);">네이버 검색광고 · 집계 지연 각주</span><br>
+&nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">₩481,479</span> — MO ₩320,353 · PC ₩161,126<br>
+<span style="color:var(--ink-faint);">그 외 채널(에어브리지)</span><br>
+&nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">₩750,242</span> — rtbhouse ₩427,714 · appier ₩187,886 · smadex ₩134,643
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="panel" style="border-color:rgba(61,220,151,.4); margin-bottom:16px;">
+                    <h3><span class="mono">TO-BE</span>확정 형식 — 07-14 실측 값 <span class="chip" style="font-size:16px;">구현 완료 · 내일 17시부터</span></h3>
+                    <div style="font-family:var(--font-mono); font-size:18px; line-height:1.75; color:var(--ink-dim); background:#0A1018; border:1px solid rgba(61,220,151,.3); border-radius:10px; padding:16px 20px;">
+<span style="color:var(--ink-faint);">구글 · 14:00 수집 · 전일 같은 시각 대비 -7%</span><br>
+&nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">₩2,194,043</span> / <span style="color:var(--sig);font-weight:600;">₩9,379,113</span> / <span style="color:var(--sig);font-weight:600;">ROAS 427%</span><br>
+<span style="color:var(--ink-faint);">메타 · 14:00 수집 · 전일 같은 시각 대비 +23%</span><br>
+&nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">$1,455.50</span> / <span style="color:var(--sig);font-weight:600;">₩4,383,070</span> / <span style="color:var(--sig);font-weight:600;">ROAS 231%</span><br>
+&nbsp;&nbsp;<span style="color:var(--ink-faint);">비용(채널 API 실시간) / 에어브리지 공헌이익(App+Web) / ROAS(공헌이익 기준)</span>
+                    </div>
+                </div>
+                <ul class="list tight">
+                    <li><b>비용 = 채널 API 실시간</b> · 공헌이익·ROAS = 에어브리지 당일 매칭(매출 없으면 비용만)</li>
+                    <li><b>당일 비용 미적재 채널(몰로코 등)은 제외</b> — 사용자 확정 07-14</li>
+                    <li>메타 ROAS는 <b>에어브리지 ₩ 비용 기준</b> — 표시 통화($) 불일치 회피, 실측 231%</li>
+                    <li>하단 경고에 <b>동기화 지연 1줄 추가</b>(익일 06시 보정) · 회귀 176케이스 통과</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 23 실제 발송 메시지 모음 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 실물 메시지</span><span class="sec">23 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Real Messages</div>
+            <h2 class="t">오늘 아침에도 이렇게 왔다 — <span style="color:var(--sig)">전부 실물</span></h2>
+            <p class="t-sub">발표 시 이 슬라이드는 Google Chat 실제 스크린샷 6~8장으로 교체 (발표 당일 아침 카드 권장)</p>
+        </div>
+        <div class="body grid-2">
+            <div class="reveal">
+                <div class="divlbl">이벤트 카드 — 📡 외부지표 변동감지</div>
+                <div class="alert info"><div class="h">🔁 [후속보도] 에어비앤비 — 일본편 첫 공동 프로모션</div><div class="cap">07-14 09:05 · 뉴스·동향 방</div></div>
+                <div class="alert crit"><div class="h">🚨 [당일 페이스] + 🧾 자동 검토(키워드 CPC·낭비 검색어)</div><div class="cap">R4 발화 시 · 광고비 방</div></div>
+                <div class="alert"><div class="h">🥇 [카테고리 1위] — 제친 앱: 호갱노노(현재 2위)</div><div class="cap">07-12 · 앱마켓 방</div></div>
+                <div class="alert warn"><div class="h">🌙 발송 대기시간 발생분 - 지연발송</div><div class="s">↳ 조용시간(22~09시) 발화분을 아침에 발생 시각과 함께 묶음 방출</div><div class="cap">매일 09시 첫 실행</div></div>
+            </div>
+            <div class="reveal">
+                <div class="divlbl">정기 서식 카드</div>
+                <div class="alert"><div class="h">💰 17시 소진 현황 — 채널·계정별 누계 + 전일 대비</div><div class="cap">매일 17:00 · 광고비 봇 방</div></div>
+                <div class="alert"><div class="h">📊 주간 다이제스트 — 비용·설치·가입·결제·ROAS</div><div class="cap">월 10시 · 광고비 방</div></div>
+                <div class="alert"><div class="h">📦 매물 주간리뷰 — "+139개 · 신규 추적: 직방"</div><div class="cap">월 10시 · 매물 방</div></div>
+                <div class="alert warn"><div class="h">🧯/🚫 광고 점검 — 전환 추적·소재 비승인</div><div class="s">↳ 현재 무발화 = <b>정상 상태</b> (문제 있을 때만 오는 알림)</div><div class="cap">매일 09시대 1회 점검</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 24 연관 신호 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 연관 신호</span><span class="sec">24 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">🔍 Correlated Signals</div>
+            <h2 class="t">"알림 → 원인 조사"의 <span style="color:var(--sig)">첫 30분을 기계가 대신한다</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">HOW</span>방식 — 추가 API 호출 0</h3>
+                <ul class="list">
+                    <li>감지가 이미 읽어둔 <b>전 탭을 인덱스화</b> → 알림 엔티티(회사·캠페인·키워드)와 같은 날 신호를 자동 매칭</li>
+                    <li>보강 실패는 이중 격리 — 연관 신호가 죽어도 <b>본 알림은 발송</b></li>
+                </ul>
+                <div class="divlbl">매칭 매트릭스</div>
+                <table class="tbl tight">
+                    <tr><td><b>광고 급증</b></td><td>↔ GA4 유료 유입 · 브랜드 검색량 <span style="color:var(--ink-faint)">(+1차 해석: 유입 동반=수요 확대 / flat=입찰 경쟁 의심)</span></td></tr>
+                    <tr><td><b>경쟁사 검색량 급증</b></td><td>↔ 그 회사 기사 · 공지</td></tr>
+                    <tr><td><b>앱 순위 역전</b></td><td>↔ 상대 앱 업데이트 · 프로모션 · 브랜드 검색량</td></tr>
+                    <tr><td><b>GA4 변화</b></td><td>↔ 광고비 · GSC</td></tr>
+                </table>
+            </div>
+            <div class="panel reveal" style="background:var(--panel-2);">
+                <h3><span class="mono">LIVE</span>실물 — 07-14 추월당함 알림 하단</h3>
+                <div class="alert crit" style="margin-bottom:0;">
+                    <div class="h">📉 [자사 추월당함] 에어비앤비가 삼삼엠투를 추월</div>
+                    <div class="s">↳ PlayStore '리브애니웨어' 검색순위: 에어비앤비 6위→5위, 삼삼엠투 4위→8위</div>
+                    <div class="s corr">🔍 연관 신호(에어비앤비): 앱 업데이트 07-09 Android v26.26 · 공지 1건(카카오페이·대한항공 제휴) · 기사 10건 · 브랜드 검색량 38,935회(+23%) → 최근 업데이트가 순위에 반영됐을 가능성</div>
+                </div>
+                <div class="callout" style="margin-top:18px;">Phase2 1단계(규칙 기반) <b>완료 상태</b> — 2단계 LLM 소견의 입력이 바로 이 인덱스</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 25 데이터 품질·운영 신뢰성 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 품질·신뢰성</span><span class="sec">25 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Quality &amp; Reliability</div>
+            <h2 class="t">알림 시스템은 데이터가 틀리면 끝 — <span style="color:var(--sig)">품질을 도구와 프로세스로 방어</span></h2>
+        </div>
+        <div class="body grid-3">
+            <div class="panel reveal"><h3><span class="mono">01</span>정합성</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">23탭 자연키 <b style="color:var(--ink)">중복 0%</b> 상시 감사 + 심층 감사(일자별 행수·공란율·클릭≤노출·누적 단조성·전국 vs 시도합 등 탭별 불변식)</p></div>
+            <div class="panel reveal"><h3><span class="mono">02</span>회귀 테스트</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">감지·알림 로직 <b style="color:var(--ink)">172케이스</b> — 네트워크·시트 불필요(합성 데이터), 규칙 수정마다 전체 통과 확인</p></div>
+            <div class="panel reveal"><h3><span class="mono">03</span>무인 실적</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">07-09 이후 스케줄 실패 <b style="color:var(--ink)">0건</b> — daily·intraday·dsp·ga4·watchdog 전부 초록</p></div>
+            <div class="panel reveal"><h3><span class="mono">04</span>장애 시 자기 보고</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">수집기 실패 요약 + 인프라 단계 실패(pip·복호화 등)도 Chat 알림 — <b style="color:var(--ink)">"조용한 실패" 차단</b></p></div>
+            <div class="panel reveal"><h3><span class="mono">05</span>수집 중단 자기 감지</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">회사 단위 데이터가 전일 존재→금일 부재면 ⚠️ 알림 — <b style="color:var(--ink)">에어비앤비 결측 4일 사고</b>에서 배운 규칙</p></div>
+            <div class="panel reveal"><h3><span class="mono">06</span>한계 명시 운영</h3><p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">GSC 3일 지연 · 메타 USD · 네이버 당일 과소 · 인스타 일부 결측 · 에어비앤비 월 갱신 — <b style="color:var(--ink)">카드 각주와 문서에 상시 표기</b></p></div>
+        </div>
+        <p class="t-sub reveal" style="margin-top:22px;">"실패를 숨기지 않는 시스템"이 무인 운영의 전제 조건</p>
+    </div>
+</section>
+
+<!-- ===================== 26 기술적 난제와 해결 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 딥다이브</span><span class="sec">26 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Deep Dive</div>
+            <h2 class="t">공식 API가 없는 세계에서 안정 수집을 만드는 기술 — <span style="color:var(--sig)">대표 사례 5</span></h2>
+        </div>
+        <div class="body">
+            <div class="grid-2" style="margin-bottom:22px;">
+                <div class="panel reveal">
+                    <h3><span class="mono">01</span>AirDNA × Cloudflare (07-14)</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">봇 검증 도입으로 headless 스크랩 사망 → 실 브라우저로 API 스니핑 → 인증 체인(refresh→id→15분 app 토큰) 재현 → <b style="color:var(--sig)">브라우저 없는 API 직접 호출로 전환, 오히려 더 견고해짐</b></p>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">02·03</span>직방 매물 · 프로모션</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">지도 API 좌표 암호화 → <b style="color:var(--ink)">시·도명 주소검색 API 우회</b> + 행정 통합('전남광주') 구 단위 재분해 / 목록 API 부재 → <b style="color:var(--ink)">Next.js 빌드 매니페스트 라우트 열거</b>(종료 프로모션 자동 제외 성질 활용)</p>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">04</span>인스타그램 러너 차단</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">GitHub 러너 IP 차단 → 스크래핑 포기, Graph API <b style="color:var(--ink)">시스템 사용자 토큰(만료 없음)</b> 전환 — 오히려 정밀값 확보</p>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">05</span>운영 사고 3종 → 재발 방지</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">gpg 복호화 실패(CRLF → LF 정규화 3중 방어) / 스케줄 동시 기동 경합(뮤텍스 · :05 어긋내기) / 시트 잡셀 append 이탈(위치 고정)</p>
+                </div>
+            </div>
+            <div class="callout reveal">전부 <b>관찰 → 가설 → 실측 → 우회</b> 패턴 — 이 루프를 AI 에이전트가 자율 수행했다 (다음 슬라이드)</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 27 AI 에이전트 주도 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — AI 에이전트</span><span class="sec">27 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Built &amp; Run by AI Agent</div>
+            <h2 class="t">코드·장애 진단·소음 튜닝·문서화까지 AI 주도 — <span style="color:var(--sig)">사람은 결정만</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="mono">HUMAN</span>사람(운영자)의 역할</h3>
+                <ul class="list">
+                    <li><b>정책 결정</b> — 알림 기준·대상·양식 확정</li>
+                    <li><b>승인</b> — 웹훅 실발송·정책 변경은 명시 지시로만</li>
+                    <li>실례 — 07-13 하루 지시 20차례를 당일 전부 반영(GSC 일일 알림 폐지 · 소진 카드 v2 · 카드 가독성 개편 등)</li>
+                </ul>
+                <div class="divlbl">안전장치</div>
+                <ul class="list tight">
+                    <li>웹훅 실발송은 사용자 명시 지시 시에만(테스트 카드 포함)</li>
+                    <li>로컬 수동 실행은 dry-run 원칙 · 시크릿은 git 이력 전수 검증</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">AGENT</span>AI(Claude)의 역할</h3>
+                <ul class="list">
+                    <li>소스 <b>리버스엔지니어링</b> — API 스니핑·백엔드 재생</li>
+                    <li>규칙 구현 + <b>합성 회귀 테스트 작성</b>(172케이스)</li>
+                    <li>무인 사고의 <b>근본 원인 규명</b> — AirDNA CF 판정→API 전환→러너 검증을 한 세션에</li>
+                    <li>시트 감사 · 문서 동기화</li>
+                </ul>
+                <div class="divlbl">세션을 잇는 방법</div>
+                <div class="callout">인수인계 문서(<span class="mono">HANDOFF.md</span>)로 상태 지속 — <b>"읽고 이어서 진행" 한 줄로 재개</b>, 9일차까지 일지 축적. AI TF 시사점: <b>에이전트 + 인수인계 문서 + 회귀 테스트</b> = 멀티세션 장기 프로젝트의 실증 사례</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 28 로드맵 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 로드맵</span><span class="sec">28 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Roadmap</div>
+            <h2 class="t">다음 단계 — 규칙 기반 1차 분석에서 <span style="color:var(--sig)">LLM 소견으로</span></h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="margin-bottom:26px;">
+                <div class="fnode"><div class="fn-t">Phase 1 <span class="chip" style="font-size:15px;">완료</span></div><div class="fn-s">수집·적재·감지·알림<br>무인 파이프라인</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fn-t">Phase 2-1 <span class="chip" style="font-size:15px;">완료</span></div><div class="fn-s">연관 신호 자동 첨부<br>+ 자동 이슈 검토</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fn-t">Phase 2-2 <span class="chip a" style="font-size:15px;">대기</span></div><div class="fn-s">LLM 소견 — 알림별<br>자연어 해석·권고 (API 키 결정 시)</div></div>
+            </div>
+            <div class="grid-3">
+                <div class="panel reveal">
+                    <h3><span class="mono">ADS</span>광고 플레이북 백로그</h3>
+                    <ul class="list tight">
+                        <li>입찰 전략 상태 점검</li>
+                        <li>낭비 검색어 주간 심화 — n-gram·브랜드 유출·미등록 전환 검색어</li>
+                        <li>품질점수(QS) 분포 · 메타 소재 피로도 · GSC 자기잠식 점검</li>
+                    </ul>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">DATA</span>데이터 확장 — 승인 대기</h3>
+                    <ul class="list tight">
+                        <li>구글 검색량 절대치 — Ads Basic Access 승인 시 <b>자동 활성(코드 완료)</b></li>
+                        <li>에어비앤비 전국 확대 · 자리톡 공지 소스 발굴 · 단단홈즈 채용</li>
+                    </ul>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">OPS</span>운영 개선</h3>
+                    <ul class="list tight">
+                        <li>fine-grained PAT 전환 (조직 승인 대기)</li>
+                        <li>필요 시 intraday 4회차 시간 조정</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="callout reveal" style="margin-top:24px;">"대기" 항목 다수가 <b>외부 승인 의존</b> — 기술 준비는 끝나 있음</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 29 활용 가이드 — 웹훅 채널 기준 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 활용 가이드</span><span class="sec">29 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Getting Started</div>
+            <h2 class="t">오늘부터 쓰는 법 — <span style="color:var(--sig)">필요한 웹훅 채널만 구독</span></h2>
+            <p class="t-sub">실제 라우팅 기준(<span class="mono">detect.py WEBHOOK_ROUTES</span>) — 웹훅 키별 수신 내용</p>
+        </div>
+        <div class="body">
+            <div class="grid-2">
+                <div class="panel reveal" style="padding:14px 26px;">
+                    <table class="tbl tight">
+                        <tr><th style="width:220px;">웹훅 키</th><th>수신 내용</th></tr>
+                        <tr><td class="mono"><b>…_ADS</b></td><td>광고 4채널 확정·당일 7탭(네이버·구글·메타·DSP) + 광고_점검(전환추적·비승인) + 📊 주간 광고 성과</td></tr>
+                        <tr><td class="mono"><b>…_SPEND</b></td><td>💰 매일 17시 소진 현황 카드 (전용 — 폴백 ADS→기본)</td></tr>
+                        <tr><td class="mono"><b>…_NEWS</b></td><td>뉴스 · 경쟁사_공지 · 경쟁사_채용 · 검색량_네이버·구글 · SNS_팔로워 — 6탭</td></tr>
+                        <tr><td class="mono"><b>…_APPMARKET</b></td><td>앱마켓_순위 · 카테고리순위 · 경쟁사_앱버전</td></tr>
+                        <tr><td class="mono"><b>…_SUPPLY</b></td><td>경쟁사_매물수 (주간리뷰 포함)</td></tr>
+                    </table>
+                </div>
+                <div class="panel reveal" style="padding:14px 26px;">
+                    <table class="tbl tight">
+                        <tr><th style="width:220px;">웹훅 키</th><th>수신 내용</th></tr>
+                        <tr><td class="mono"><b>…_GSC</b></td><td>자연검색_GSC — 노출 급감 + 🔍 주간 요약</td></tr>
+                        <tr><td class="mono"><b>…_GA4</b></td><td>GA4_실시간 · GA4_일간</td></tr>
+                        <tr><td class="mono"><b>…_CONTENT</b></td><td>유튜브_영상 · 인스타_게시물 — 🔥 급상승</td></tr>
+                        <tr><td class="mono"><b>…_ERRORS</b></td><td>🛠️ 수집 실패 요약 · 인프라 실패 (발생 시 · 9시 이후)</td></tr>
+                        <tr><td class="mono"><b>기본 URL</b></td><td>폴백 — 라우팅에 없는 탭·키 미설정 시 (그것도 없으면 콘솔만)</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top:22px;">
+                <div class="panel reveal" style="padding:20px 26px;">
+                    <h3><span class="mono">DATA</span>원장 데이터</h3>
+                    <ul class="list tight">
+                        <li>Google Sheets <b>23탭 전 시계열</b> — 애드혹 분석은 시트에서 바로</li>
+                        <li>링크 모음 — 시트 / GitHub repo / 알림주기 문서 / 자동 이슈 검토 양식 문서</li>
+                    </ul>
+                </div>
+                <div class="reveal">
+                    <div class="callout" style="margin-bottom:14px;">채널 추가·이동은 <b>코드 1줄</b>(탭→키 매핑) · 웹훅 등록은 도구 스크립트로 1분</div>
+                    <div class="callout">알림 기준이 안 맞으면 — <b>변경 요청 채널로 요청</b>. 임계값은 코드 상수라 즉시 반영 가능</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 30 Q&A · 맺음말 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — Q&amp;A</span><span class="sec">30 / 33</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Q&amp;A</div>
+            <h2 class="t" style="font-size:64px;">"사람이 못 보던 것을 매일 보고,<br><span style="color:var(--sig)">울리면 이유까지 온다</span>"</h2>
+        </div>
+        <div class="body">
+            <div class="grid-3">
+                <div class="panel reveal">
+                    <h3><span class="mono">Q1</span>알림이 너무 많아지면?</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">소음 제어 6원칙 + 임계 튜닝 — 실적: R4 페이스 7→2건, GA4 12→1건, 콘텐츠 17→0건. 임계값은 상수라 <b style="color:var(--ink)">조정이 숫자 1개</b></p>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">Q2</span>수집이 끊기면?</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">3중 방어 — 실패 <b style="color:var(--ink)">자기 보고</b>(Chat) + 회사 단위 <b style="color:var(--ink)">수집 중단 감지</b> + <b style="color:var(--ink)">워치독</b> 재기동</p>
+                </div>
+                <div class="panel reveal">
+                    <h3><span class="mono">Q3</span>다른 도메인 확장 가능?</h3>
+                    <p style="font-size:21px;color:var(--ink-dim);line-height:1.55;">수집기 플러그인 구조 — <b style="color:var(--ink)">새 지표 = 수집기 1개 + 감지 규칙 추가</b>. 파이프라인·라우팅·소음 제어는 공통 인프라</p>
+                </div>
+            </div>
+            <div class="callout reveal" style="margin-top:30px; font-size:25px;">맺음말 — <b>LLM 소견 단계 공동 설계</b> 등 AI TF와의 협업을 제안합니다</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 31 부록 A 수집기 23종 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 부록 A</span><span class="sec">31 / 33</span></div>
+        <div class="t-wrap reveal" style="margin:26px 0 4px;">
+            <div class="kicker">Appendix A</div>
+            <h2 class="t" style="font-size:44px;">수집기 23종 전체 목록</h2>
+        </div>
+        <div class="body grid-2" style="margin-top:22px;">
+            <div class="panel reveal" style="padding:12px 22px;">
+                <table class="tbl tight" style="font-size:18.5px;">
+                    <tr><th>key</th><th>지표</th><th>소스 · 주기</th></tr>
+                    <tr><td class="mono">naver_ads</td><td>네이버 광고 확정치(2계정)</td><td>검색광고 API · 09:00</td></tr>
+                    <tr><td class="mono">naver_ads_snap</td><td>네이버 당일 누적</td><td>동일 API · 일 5회</td></tr>
+                    <tr><td class="mono">google_ads</td><td>구글 광고 확정치(3계정)</td><td>Google Ads API · 09:00</td></tr>
+                    <tr><td class="mono">google_ads_snap</td><td>구글 당일 누적</td><td>동일 API · 일 5회</td></tr>
+                    <tr><td class="mono">meta_ads</td><td>메타 광고 확정치(3계정·USD)</td><td>Marketing API · 09:00</td></tr>
+                    <tr><td class="mono">meta_ads_snap</td><td>메타 당일 누적(USD)</td><td>동일 API · 일 5회</td></tr>
+                    <tr><td class="mono">dsp_ads</td><td>DSP 확정치(4채널)</td><td>Airbridge API · 11:00</td></tr>
+                    <tr><td class="mono">search_volume</td><td>네이버 검색량(절대량 추정)</td><td>키워드도구+데이터랩 · 09:00</td></tr>
+                    <tr><td class="mono">search_volume_google</td><td>구글 검색량(지수)</td><td>Google Trends · 09:00</td></tr>
+                    <tr><td class="mono">search_volume_youtube</td><td>유튜브 검색량(관측 전용)</td><td>Trends YouTube · 09:00</td></tr>
+                    <tr><td class="mono">search_console</td><td>자연검색 쿼리 성과(D-3)</td><td>GSC API · 09:00</td></tr>
+                    <tr><td class="mono">news</td><td>기사(주제 클러스터)</td><td>네이버뉴스+구글 RSS · 일 5회</td></tr>
+                </table>
+            </div>
+            <div class="panel reveal" style="padding:12px 22px;">
+                <table class="tbl tight" style="font-size:18.5px;">
+                    <tr><th>key</th><th>지표</th><th>소스 · 주기</th></tr>
+                    <tr><td class="mono">comp_notices</td><td>공지·프로모션 6사</td><td>회사별 공식 소스 · 일 5회</td></tr>
+                    <tr><td class="mono">comp_appver</td><td>앱버전 iOS8+And8(변경 감지)</td><td>iTunes+Play · 일 5회</td></tr>
+                    <tr><td class="mono">comp_supply</td><td>매물수 8사×전국+시/도</td><td>백엔드 API+Playwright+AirDNA · 09:00</td></tr>
+                    <tr><td class="mono">comp_jobs</td><td>채용 4사(신규만)</td><td>원티드·사람인 · 09:00</td></tr>
+                    <tr><td class="mono">app_rank</td><td>검색순위 7사×11kw×2스토어</td><td>iTunes+Play 검색 · 09:00</td></tr>
+                    <tr><td class="mono">app_cat_rank</td><td>카테고리 차트 순위</td><td>iTunes RSS+batchexecute · 09:00</td></tr>
+                    <tr><td class="mono">ga4_realtime</td><td>GA4 실시간(30분 창)</td><td>GA4 Data API · 매시</td></tr>
+                    <tr><td class="mono">ga4_daily</td><td>GA4 일간(전일 확정)</td><td>GA4 Data API · 09:00</td></tr>
+                    <tr><td class="mono">sns_followers</td><td>팔로워 13채널</td><td>YouTube+IG Graph API · 09:00</td></tr>
+                    <tr><td class="mono">yt_videos</td><td>유튜브 영상 증가분(채널당 30)</td><td>YouTube Data API · 09:00</td></tr>
+                    <tr><td class="mono">ig_media</td><td>인스타 게시물 증가분(계정당 25)</td><td>IG Graph API · 09:00</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 32 부록 B 알림 인벤토리 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 부록 B</span><span class="sec">32 / 33</span></div>
+        <div class="t-wrap reveal" style="margin:26px 0 4px;">
+            <div class="kicker">Appendix B</div>
+            <h2 class="t" style="font-size:44px;">이벤트 알림 인벤토리 — 약 30종</h2>
+        </div>
+        <div class="body grid-3" style="margin-top:22px;">
+            <div class="panel reveal"><h3><span class="mono">광고 6</span></h3><ul class="list tight"><li>🆕 신규 / ⚠️ 소멸</li><li>🚨 전일 급증 / 🚨 당일 페이스(+검토)</li><li>🧯 전환 추적 고장 / 🚫 소재 비승인</li></ul></div>
+            <div class="panel reveal"><h3><span class="mono">트래픽 7</span></h3><ul class="list tight"><li>GA4 실시간 — 급증 · 급락 · 첫 실행 급증</li><li>GA4 일간 — 급증 · 급감 · 유입 급증 · 신규 유입 소스</li></ul></div>
+            <div class="panel reveal"><h3><span class="mono">검색 3</span></h3><ul class="list tight"><li>📈 검색량 급증 네이버 · 구글</li><li>🔻 GSC 노출 급감</li></ul></div>
+            <div class="panel reveal"><h3><span class="mono">경쟁사 활동 4</span></h3><ul class="list tight"><li>📰 신규 기사 / 🔁 후속보도</li><li>📢 공지 / 💼 채용</li></ul></div>
+            <div class="panel reveal"><h3><span class="mono">제품·공급 9</span></h3><ul class="list tight"><li>📱 앱 업데이트 / ⚠️ 매물 수집 이상 · 수집 중단</li><li>📈📉 주간 확장·축소</li><li>📉 추월당함 / 🚫 이탈 / 📉 급락 / ✅ 복귀 / 🥇 1위</li></ul></div>
+            <div class="panel reveal"><h3><span class="mono">콘텐츠 2 + 시스템 3</span></h3><ul class="list tight"><li>🚨🔻 팔로워 급변 / 🔥 콘텐츠 급상승</li><li>수집 실패 요약 / 인프라 실패 / 🌙 지연발송</li></ul></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 33 부록 C 정기 리포트 스케줄 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> EMM — 부록 C</span><span class="sec">33 / 33</span></div>
+        <div class="t-wrap reveal" style="margin:26px 0 4px;">
+            <div class="kicker">Appendix C</div>
+            <h2 class="t" style="font-size:44px;">정기 리포트 스케줄 · 참고 문서</h2>
+        </div>
+        <div class="body grid-2" style="margin-top:22px;">
+            <div class="panel reveal" style="padding:16px 26px;">
+                <table class="tbl">
+                    <tr><th>리포트</th><th style="width:200px;">주기</th><th style="width:200px;">채널</th><th style="width:180px;">형식</th></tr>
+                    <tr><td>💰 광고비 소진 현황</td><td>매일 17:00</td><td>광고비 봇 방</td><td>서식 카드</td></tr>
+                    <tr><td>📊 주간 광고 성과 (+결제·ROAS)</td><td>매주 월 10시</td><td>광고비 방</td><td>서식 카드</td></tr>
+                    <tr><td>📦 매물 시장 주간리뷰</td><td>매주 월 10시</td><td>매물 방</td><td>카드</td></tr>
+                    <tr><td>🔍 자연검색 주간 요약</td><td>매주 월 10시</td><td>자연검색 방</td><td>서식 카드 <span style="color:var(--ink-faint)">(첫 발송 07-20)</span></td></tr>
+                </table>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="mono">DOCS</span>참고 문서</h3>
+                <ul class="list">
+                    <li><b>알림주기.csv</b> — 비개발자용 알림 시간표</li>
+                    <li><b>자동이슈검토_양식.md</b> — 검토 카드 확정 양식·판정 분기</li>
+                    <li><b>AITF_발표_참고표.xlsx</b> — 이 덱의 표 전체(수집기·알림·라우팅·카드 개선안)</li>
+                    <li><b>핸드오프_정리.md</b> — 지표 카탈로그 &amp; 알림 가이드 (전체 상세)</li>
+                    <li><b>HANDOFF.md</b> — 개발·운영 일지 (1~9일차)</li>
+                </ul>
+                <div class="callout" style="margin-top:20px;">문의·기준 변경 요청 — <b>운영 채널로</b>. 이 덱의 수치는 전부 2026-07-14 실측</div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- APPEND:SLIDES -->
+</main>
+</div>
+
+<!-- === 스테이지 밖 크롬: 진행바 · 페이지 · 힌트 · 편집 === -->
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-page" id="deckPage">01 / 33</div>
+<div class="deck-hint">← → 이동 · E 편집 · Ctrl+S 저장</div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="편집 모드 (E)">✏️</button>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   고정 1920×1080 스테이지 스케일링 + 내비게이션
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.stage = document.getElementById('deckStage');
+        this.progress = document.getElementById('deckProgress');
+        this.page = document.getElementById('deckPage');
+        this.current = 0;
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        const fromHash = parseInt((location.hash || '').replace('#', ''), 10);
+        this.showSlide(isNaN(fromHash) ? 0 : fromHash - 1);
+    }
+    setupStageScale() {
+        const scale = () => {
+            const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * f) / 2;
+            const y = (window.innerHeight - 1080 * f) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.isContentEditable || document.designMode === 'on' && e.key !== 'Escape') {
+                if (!(e.ctrlKey || e.metaKey)) return;
+            }
+            switch (e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+                    e.preventDefault(); this.next(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+                    e.preventDefault(); this.prev(); break;
+                case 'Home': e.preventDefault(); this.showSlide(0); break;
+                case 'End': e.preventDefault(); this.showSlide(this.slides.length - 1); break;
+            }
+        });
+    }
+    setupTouchNav() {
+        let sx = 0;
+        document.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - sx;
+            if (Math.abs(dx) > 60) dx < 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    setupWheelNav() {
+        let lock = false;
+        document.addEventListener('wheel', (e) => {
+            if (document.designMode === 'on') return;
+            if (lock || Math.abs(e.deltaY) < 24) return;
+            lock = true; setTimeout(() => lock = false, 550);
+            e.deltaY > 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    next() { this.showSlide(this.current + 1); }
+    prev() { this.showSlide(this.current - 1); }
+    showSlide(i) {
+        this.current = Math.max(0, Math.min(i, this.slides.length - 1));
+        this.slides.forEach((s, k) => {
+            s.classList.toggle('active', k === this.current);
+            s.classList.toggle('visible', k === this.current);
+        });
+        const n = this.current + 1, total = this.slides.length;
+        this.progress.style.width = (n / total * 100) + '%';
+        this.page.textContent = String(n).padStart(2, '0') + ' / ' + total;
+        history.replaceState(null, '', '#' + n);
+    }
+}
+
+/* ===========================================
+   INLINE EDITOR — E 키/좌상단 핫존, Ctrl+S 저장
+   designMode 토글 + localStorage 자동 보존
+   =========================================== */
+const editor = {
+    isActive: false,
+    KEY: 'emm-aitf-deck-edits',
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.designMode = this.isActive ? 'on' : 'off';
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        if (!this.isActive) this.persist();
+    },
+    persist() {
+        try { localStorage.setItem(this.KEY, document.getElementById('deckStage').innerHTML); } catch (e) {}
+    },
+    restore() {
+        try {
+            const saved = localStorage.getItem(this.KEY);
+            if (saved) document.getElementById('deckStage').innerHTML = saved;
+        } catch (e) {}
+    },
+    exportFile() {
+        this.persist();
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'AITF_발표_edited.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+};
+editor.restore();
+const deck = new SlidePresentation();
+
+/* 편집 토글 UI — JS 기반 호버(400ms 유예) */
+const hotzone = document.getElementById('editHotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+const showBtn = () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); };
+const hideBtn = () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400); };
+hotzone.addEventListener('mouseenter', showBtn);
+hotzone.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('mouseenter', showBtn);
+editToggle.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !e.target.isContentEditable && document.designMode !== 'on') editor.toggleEditMode();
+    if (e.key === 'Escape' && editor.isActive) editor.toggleEditMode();
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); editor.exportFile(); }
+});
+</script>
+</body>
+</html>
