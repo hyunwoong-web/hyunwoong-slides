@@ -1,0 +1,22 @@
+{
+  "owner": "박현웅",
+  "decks": [
+    {
+      "slug": "2026h2-tenant-strategy",
+      "title": "임차인 광고 전략 FIT — 2026 하반기",
+      "desc": "국내·해외 임차인 캠페인 구조 전략. 하위 퍼널 통합 · 상위 퍼널 TPO 분할 · 해외 DSP 확장 — 실계정 API 실측 기반 24장.",
+      "date": "2026-07-14",
+      "tags": [
+        "전략 FIT",
+        "Meta·Google",
+        "MMP 실측"
+      ],
+      "extras": [
+        {
+          "label": "18개월 콤보 차트 단품",
+          "path": "chart.html"
+        }
+      ]
+    }
+  ]
+}
