@@ -4,7 +4,7 @@
     {
       "slug": "practical-lab1-setup",
       "title": "실습 1강 — 작업환경 구축 (OMP·스킬·MCP)",
-      "desc": "삼삼엠투 AI 교육 실습반 1강. 비개발자 대상으로 터미널·Claude Code·OMP(Oh My Pi)·스킬·MCP를 실제 화면 재현과 실측 명령으로 처음부터 세팅 — Windows 기준 35장.",
+      "desc": "삼삼엠투 AI 교육 실습반 1강. 비개발자 대상으로 터미널·Claude Code·OMP(Oh My Pi)·스킬·MCP를 실제 화면 재현·실측 명령으로 처음부터 세팅. 사내 실사용 스킬(하이웍스 자동기안·광고 소재·airbridge)과 MCP 사례 포함 — Windows 기준 37장.",
       "date": "2026-07-27",
       "tags": [
         "AI 교육",
