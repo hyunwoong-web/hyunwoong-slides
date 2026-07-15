@@ -490,7 +490,7 @@ const install=[1750,1860,2250,3150,4020,4600,4390,5090,3950,2150,2190,1700,1610,
 const sales=[920,1030,910,1100,2550,1620,1580,2070,2790,3350,5420,3540,2690,1940,2420,2990,2580,3650,2450];
 const orders=[445,537,523,590,746,816,913,1050,1141,1187,974,975,997,999,1028,1275,1426,1749,875];
 if(window.echarts){
-const c=echarts.init(document.getElementById('chart5'));
+const c=echarts.init(document.getElementById('chart5'),null,{renderer:'svg'});
 c.setOption({animation:false,grid:{left:56,right:64,top:64,bottom:36},
 legend:{top:0,left:'center',itemGap:22,textStyle:{fontSize:12.5,color:'#45515e'},
 data:['앱 설치 캠페인 광고비 · 상위 퍼널 (만 원)','결제 캠페인 광고비 · 하위 퍼널 (만 원)','실제 결제 건수 (MMP · 우축)']},
