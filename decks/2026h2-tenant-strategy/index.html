@@ -4,22 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>임차인 광고 전략 FIT — 2026 하반기</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <style>
 :root{
-  --bg:#fdfae7; --primary:#1e2bfa; --text:#111; --muted:#6b6b6b; --light:#9a9a9a;
-  --accent-l:rgba(30,43,250,.08); --accent-m:rgba(30,43,250,.15);
-  --border:rgba(30,43,250,.2); --card:rgba(30,43,250,.04);
-  --pos:#059669; --neg:#dc2626; --pink:#d63384;
-  --disp:'Space Grotesk','Pretendard',sans-serif; --body:'Pretendard','Inter',sans-serif;
+  --bg:#ffffff; --stage:#e7ebf0; --primary:#1456f0; --text:#222222; --muted:#45515e; --light:#8e8e93;
+  --accent-l:rgba(20,86,240,.06); --accent-m:rgba(20,86,240,.12);
+  --border:#e5e7eb; --border-brand:rgba(20,86,240,.28); --card:#f7f9fc;
+  --pos:#0f9d6b; --neg:#dc2626; --pink:#d63384;
+  --shadow-card:0 2px 10px rgba(20,40,80,.05);
+  --disp:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif; --body:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;background:#111;overflow:hidden;font-family:var(--body)}
+html,body{height:100%;background:var(--stage);overflow:hidden;font-family:var(--body)}
 #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-#stage{width:1280px;height:720px;position:relative;background:var(--bg);overflow:hidden;transform-origin:center center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.slide{position:absolute;inset:0;padding:44px 52px 56px;display:none;flex-direction:column}
+#stage{width:1280px;height:720px;position:relative;background:var(--bg);overflow:hidden;transform-origin:center center;box-shadow:0 10px 40px rgba(20,40,80,.15)}
+.slide{position:absolute;inset:0;padding:44px 52px 56px;display:none;flex-direction:column;background:radial-gradient(720px 400px at 6% -12%,rgba(20,86,240,.05),transparent 60%),radial-gradient(600px 350px at 102% 112%,rgba(96,165,250,.05),transparent 60%),repeating-linear-gradient(0deg,transparent 0 63px,rgba(23,32,43,.03) 63px 64px),repeating-linear-gradient(90deg,transparent 0 63px,rgba(23,32,43,.03) 63px 64px),var(--bg)}
+.slide::after{content:'';position:absolute;top:18px;right:52px;width:104px;height:22px;background:url('./33m2_logo.png') right center/contain no-repeat;pointer-events:none;z-index:20;opacity:.92}
 .slide.active{display:flex}
 /* header */
 .eyebrow{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);margin-bottom:8px}
@@ -32,14 +34,14 @@ h2 .hl{color:var(--primary)}
 /* tables */
 table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.45}
 th{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.03em;color:var(--primary);text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);background:var(--accent-l)}
-td{padding:8px 12px;border-bottom:1px solid var(--border);color:#333;vertical-align:top}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
 td b{color:var(--text)}
 tr.dim td{color:var(--light)}
 .num{font-family:var(--disp);font-weight:600;color:var(--primary)}
 .pos{color:var(--pos);font-weight:600}.neg{color:var(--neg);font-weight:600}
 /* cards */
 .cardgrid{display:grid;gap:14px}
-.card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px 20px}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-card)}
 .card h3{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--text);margin-bottom:6px}
 .card p{font-size:13px;color:var(--muted);line-height:1.55}
 .card .big{font-family:var(--disp);font-weight:700;font-size:34px;color:var(--primary);line-height:1.05;margin-bottom:6px}
@@ -490,21 +492,21 @@ const orders=[445,537,523,590,746,816,913,1050,1141,1187,974,975,997,999,1028,12
 if(window.echarts){
 const c=echarts.init(document.getElementById('chart5'));
 c.setOption({animation:false,grid:{left:56,right:64,top:64,bottom:36},
-legend:{top:0,left:'center',itemGap:22,textStyle:{fontSize:12.5,color:'#333'},
+legend:{top:0,left:'center',itemGap:22,textStyle:{fontSize:12.5,color:'#45515e'},
 data:['앱 설치 캠페인 광고비 · 상위 퍼널 (만 원)','결제 캠페인 광고비 · 하위 퍼널 (만 원)','실제 결제 건수 (MMP · 우축)']},
 tooltip:{trigger:'axis'},
-xAxis:{type:'category',data:months,axisLabel:{fontSize:11.5,color:'#444',interval:0,formatter:v=>v.endsWith('.01')?v:v.split('.')[1]},axisLine:{lineStyle:{color:'#bbb'}},axisTick:{show:false}},
-yAxis:[{type:'value',name:'광고비 (만 원)',nameTextStyle:{color:'#666',fontSize:11},max:6000,axisLabel:{fontSize:11,color:'#666'},splitLine:{lineStyle:{color:'rgba(30,43,250,.08)'}}},
+xAxis:{type:'category',data:months,axisLabel:{fontSize:11.5,color:'#45515e',interval:0,formatter:v=>v.endsWith('.01')?v:v.split('.')[1]},axisLine:{lineStyle:{color:'#c9ced6'}},axisTick:{show:false}},
+yAxis:[{type:'value',name:'광고비 (만 원)',nameTextStyle:{color:'#8e8e93',fontSize:11},max:6000,axisLabel:{fontSize:11,color:'#8e8e93'},splitLine:{lineStyle:{color:'rgba(20,86,240,.07)'}}},
 {type:'value',name:'결제 건수(건)',nameTextStyle:{color:'#d63384',fontSize:11},min:0,max:2000,axisLabel:{fontSize:11,color:'#d63384'},splitLine:{show:false}}],
 series:[
 {name:'앱 설치 캠페인 광고비 · 상위 퍼널 (만 원)',type:'bar',data:install,barGap:'10%',itemStyle:{color:'#8ea6f5',borderRadius:[3,3,0,0]},barWidth:13},
-{name:'결제 캠페인 광고비 · 하위 퍼널 (만 원)',type:'bar',data:sales,itemStyle:{color:'#1e2bfa',borderRadius:[3,3,0,0]},barWidth:13},
+{name:'결제 캠페인 광고비 · 하위 퍼널 (만 원)',type:'bar',data:sales,itemStyle:{color:'#1456f0',borderRadius:[3,3,0,0]},barWidth:13},
 {name:'실제 결제 건수 (MMP · 우축)',type:'line',yAxisIndex:1,data:orders,lineStyle:{color:'#d63384',width:2.5},itemStyle:{color:'#d63384'},symbol:'circle',symbolSize:6,
 markPoint:{data:[{coord:['26.06',1749],symbol:'pin',symbolSize:1,label:{show:true,formatter:'최고 1,749건',fontSize:12,fontWeight:'bold',color:'#d63384',offset:[0,-16]}}]}},
 {name:'_p',type:'bar',data:[],markArea:{silent:true,data:[
-[{xAxis:'25.01',itemStyle:{color:'rgba(30,43,250,.03)'},label:{show:true,position:'insideTop',fontSize:11,color:'#888',formatter:'① 다양화 이전'}},{xAxis:'25.02'}],
-[{xAxis:'25.03',itemStyle:{color:'rgba(30,43,250,.05)'},label:{show:true,position:'insideTop',fontSize:11,color:'#1e2bfa',formatter:'② 설치 소재 대량 투입 (12→111개)'}},{xAxis:'25.09'}],
-[{xAxis:'25.10',itemStyle:{color:'rgba(30,43,250,.08)'},label:{show:true,position:'insideTop',fontSize:11,color:'#1e2bfa',formatter:'③ 결제 캠페인 확대'}},{xAxis:'26.01'}],
+[{xAxis:'25.01',itemStyle:{color:'rgba(20,86,240,.03)'},label:{show:true,position:'insideTop',fontSize:11,color:'#8e8e93',formatter:'① 다양화 이전'}},{xAxis:'25.02'}],
+[{xAxis:'25.03',itemStyle:{color:'rgba(20,86,240,.05)'},label:{show:true,position:'insideTop',fontSize:11,color:'#1456f0',formatter:'② 설치 소재 대량 투입 (12→111개)'}},{xAxis:'25.09'}],
+[{xAxis:'25.10',itemStyle:{color:'rgba(20,86,240,.08)'},label:{show:true,position:'insideTop',fontSize:11,color:'#1456f0',formatter:'③ 결제 캠페인 확대'}},{xAxis:'26.01'}],
 [{xAxis:'26.02',itemStyle:{color:'rgba(214,51,132,.05)'},label:{show:true,position:'insideTop',fontSize:11,color:'#d63384',formatter:'④ 설치 축소에도 결제 성장'}},{xAxis:'26.07*'}]]}}
 ]});
 }
