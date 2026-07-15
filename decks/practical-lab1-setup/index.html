@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실습 1강 — 작업환경 구축 · 삼삼엠투 AI 교육</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   THEME — "Study Lab" 밝은 교육용 라이트 테마
+   흰 종이 배경 + 삼삼엠투 포인트(인디고) + 연결 그린
+   --brand 값만 바꾸면 브랜드 컬러 교체됨
+   =========================================== */
+:root {
+    --stage-bg: #DEE4EE;
+    --slide-bg: #FFFFFF;
+    --paper:    #F6F8FB;
+    --paper-2:  #EDF1F7;
+    --line:     #DBE2EC;
+    --line-soft:#E9EEF4;
+    --ink:      #17202B;
+    --ink-dim:  #55636F;
+    --ink-faint:#8B97A6;
+    --brand:    #3B5BDB;      /* 삼삼엠투 포인트 컬러 — 교체 지점 */
+    --brand-dim:rgba(59,91,219,.10);
+    --accent:   #0CA678;      /* 성공/연결 */
+    --accent-dim:rgba(12,166,120,.12);
+    --amber:    #E8890C;
+    --amber-dim:rgba(232,137,12,.13);
+    --red:      #E03131;
+    --red-dim:  rgba(224,49,49,.10);
+    --blue:     #1C7ED6;
+    --blue-dim: rgba(28,126,214,.10);
+
+    --font-body: 'IBM Plex Sans KR', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   FIXED 16:9 STAGE — viewport-base (수정 금지)
+   =========================================== */
+html, body {
+    width: 100%; height: 100%; margin: 0; overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-stage {
+    position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+    overflow: hidden; transform-origin: 0 0; background: var(--slide-bg, #fff);
+}
+.slide {
+    position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+    display: block; visibility: hidden; opacity: 0; pointer-events: none; background: var(--slide-bg, #fff);
+}
+.slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide {
+        position: relative; display: block !important; visibility: visible !important;
+        opacity: 1 !important; pointer-events: auto !important;
+        width: 1920px; height: 1080px; break-after: page; page-break-after: always;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls, .deck-hint, .edit-toggle, .edit-hotzone { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* ===========================================
+   SLIDE CANVAS
+   =========================================== */
+.slide {
+    font-family: var(--font-body); color: var(--ink);
+    background:
+        radial-gradient(1100px 600px at 6% -12%, rgba(59,91,219,.05), transparent 60%),
+        radial-gradient(900px 520px at 102% 112%, rgba(12,166,120,.05), transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        repeating-linear-gradient(90deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        var(--slide-bg);
+}
+.inner { position: absolute; inset: 0; padding: 52px 84px 60px; display: flex; flex-direction: column; }
+
+/* 상단 크롬 */
+.chrome {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 19px; letter-spacing: .12em;
+    color: var(--ink-faint); text-transform: uppercase;
+    padding-bottom: 16px; border-bottom: 1px solid var(--line);
+}
+.chrome .dot { color: var(--accent); }
+.chrome .sec { color: var(--ink-dim); }
+
+/* 타이틀 블록 */
+.t-wrap { margin: 30px 0 6px; }
+.kicker {
+    font-family: var(--font-mono); font-size: 21px; letter-spacing: .22em;
+    color: var(--brand); text-transform: uppercase; margin-bottom: 13px;
+}
+h2.t { font-size: 52px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.14; }
+h2.t .hl { color: var(--brand); }
+.t-sub { margin-top: 12px; font-size: 26px; color: var(--ink-dim); font-weight: 400; line-height: 1.45; }
+.t-sub b, .t-sub strong { color: var(--ink); font-weight: 600; }
+.body { flex: 1; margin-top: 30px; min-height: 0; }
+
+/* 패널 */
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 30px; }
+.panel.plain { background: #fff; }
+.panel h3 { font-size: 25px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.01em; display:flex; align-items:center; gap:10px; }
+.panel h3 .mono { font-family: var(--font-mono); font-size: 19px; color: var(--brand); }
+.panel h3 .ic { font-size: 26px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+.cols-l { display:grid; grid-template-columns: 1fr 1.05fr; gap: 30px; align-items:start; }
+.cols-r { display:grid; grid-template-columns: 1.05fr 1fr; gap: 30px; align-items:start; }
+
+/* 숫자/개념 카드 */
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; position: relative; overflow: hidden; }
+.stat::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--brand); opacity: .9; }
+.stat .num { font-family: var(--font-mono); font-size: 54px; font-weight: 600; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
+.stat .num small { font-size: 26px; color: var(--ink-dim); font-weight: 500; }
+.stat .lbl { margin-top: 12px; font-size: 23px; font-weight: 600; color: var(--ink); }
+.stat .sub { margin-top: 7px; font-size: 19.5px; color: var(--ink-dim); line-height: 1.48; }
+
+/* 개념 카드(아이콘 상단) */
+.card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px 22px; box-shadow:0 4px 16px rgba(20,30,50,.04); }
+.card .ic { font-size:38px; }
+.card .ct { margin-top:12px; font-size:24px; font-weight:700; color:var(--ink); }
+.card .ct .mono { font-family:var(--font-mono); font-size:17px; color:var(--brand); display:block; font-weight:500; letter-spacing:.02em; }
+.card .cd { margin-top:9px; font-size:19px; color:var(--ink-dim); line-height:1.5; }
+.card.hot { border-color: rgba(59,91,219,.4); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+
+/* 칩 */
+.chip {
+    display: inline-block; font-family: var(--font-mono); font-size: 18px;
+    padding: 4px 13px; border-radius: 100px; letter-spacing: .03em;
+    background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(12,166,120,.28); vertical-align: middle;
+}
+.chip.br { background: var(--brand-dim); color: var(--brand); border-color: rgba(59,91,219,.28); }
+.chip.a { background: var(--amber-dim); color: var(--amber); border-color: rgba(232,137,12,.3); }
+.chip.r { background: var(--red-dim); color: var(--red); border-color: rgba(224,49,49,.3); }
+.chip.n { background: rgba(139,151,166,.12); color: var(--ink-dim); border-color: var(--line); }
+
+/* 테이블 */
+table.tbl { width: 100%; border-collapse: collapse; font-size: 21px; }
+.tbl th { font-family: var(--font-mono); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--line); font-weight: 500; white-space: nowrap; }
+.tbl td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); color: var(--ink-dim); line-height: 1.42; vertical-align: top; }
+.tbl td:first-child, .tbl td b, .tbl td strong { color: var(--ink); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr.hot td { background: var(--brand-dim); }
+.mono { font-family: var(--font-mono); }
+.tbl.tight td { padding: 8px 14px; font-size: 19.5px; }
+.tbl.tight th { padding: 8px 14px; }
+
+/* 리스트 */
+ul.list { list-style: none; }
+ul.list li { position: relative; padding-left: 30px; margin-bottom: 13px; font-size: 22px; color: var(--ink-dim); line-height: 1.5; }
+ul.list li::before { content: '▸'; position: absolute; left: 4px; color: var(--brand); }
+ul.list li b, ul.list li strong { color: var(--ink); font-weight: 600; }
+ul.list.tight li { font-size: 20px; margin-bottom: 9px; }
+ul.check { list-style:none; }
+ul.check li { position:relative; padding-left: 40px; margin-bottom: 15px; font-size: 23px; color: var(--ink); line-height: 1.45; }
+ul.check li::before { content:'✓'; position:absolute; left:6px; top:-1px; color:var(--accent); font-weight:700; font-size:24px; }
+ul.check li .s { display:block; font-size:19px; color:var(--ink-dim); margin-top:3px; }
+
+/* 콜아웃 / 알림 */
+.callout { border: 1px solid rgba(59,91,219,.32); background: var(--brand-dim); border-radius: 14px; padding: 18px 26px; font-size: 22px; color: var(--ink); line-height: 1.5; }
+.callout b { color: var(--brand); }
+.callout.ok { border-color: rgba(12,166,120,.35); background: var(--accent-dim); }
+.callout.ok b { color: var(--accent); }
+.callout.amber { border-color: rgba(232,137,12,.35); background: var(--amber-dim); }
+.callout.amber b { color: var(--amber); }
+
+.alert { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--brand); border-radius: 12px; padding: 15px 22px; margin-bottom: 13px; }
+.alert.warn { border-left-color: var(--amber); }
+.alert.crit { border-left-color: var(--red); }
+.alert.ok { border-left-color: var(--accent); }
+.alert .h { font-size: 21px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+.alert .s { margin-top: 5px; font-size: 19px; color: var(--ink-dim); line-height: 1.45; }
+.alert .cap { margin-top: 7px; font-family: var(--font-mono); font-size: 16.5px; color: var(--ink-faint); }
+
+/* 플로우 */
+.flow { display: flex; align-items: stretch; gap: 0; }
+.fnode { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; text-align: center; flex: 1; box-shadow:0 4px 14px rgba(20,30,50,.05); }
+.fnode .fi { font-size: 30px; }
+.fnode .fn-t { margin-top:6px; font-size: 21px; font-weight: 700; color: var(--ink); }
+.fnode .fn-s { margin-top: 5px; font-size: 17px; color: var(--ink-dim); line-height: 1.4; }
+.fnode.hot { border-color: rgba(59,91,219,.45); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+.farrow { display: flex; align-items: center; padding: 0 12px; color: var(--brand); font-size: 26px; font-family: var(--font-mono); }
+
+.divlbl { font-family: var(--font-mono); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 18px 0 11px; }
+
+/* 터미널 목업 (다크) */
+.term { background:#0E1420; border-radius:14px; border:1px solid #1E2A3A; overflow:hidden; box-shadow:0 12px 34px rgba(15,25,45,.16); }
+.term .bar { display:flex; align-items:center; gap:9px; padding:11px 16px; background:#141E2C; border-bottom:1px solid #1E2A3A; }
+.term .bar .d { width:12px; height:12px; border-radius:50%; }
+.term .bar .d.r{ background:#ff5f56;} .term .bar .d.y{ background:#ffbd2e;} .term .bar .d.g{ background:#27c93f;}
+.term .bar .ttl { margin-left:8px; font-family:var(--font-mono); font-size:15.5px; color:#5F6E80; letter-spacing:.06em; }
+.term pre { margin:0; padding:20px 24px; font-family:var(--font-mono); font-size:19px; line-height:1.62; color:#C7D3E2; white-space:pre-wrap; word-break:break-word; }
+.term.sm pre { font-size:17px; line-height:1.6; padding:16px 20px; }
+.term .p { color:#4FD1A1; } .term .cmd { color:#F0F5FB; font-weight:500; }
+.term .ok { color:#4FD1A1; } .term .warn { color:#FFC061; } .term .dim { color:#5F6E80; } .term .cmt { color:#5F6E80; font-style:italic; }
+.term .kw { color:#8CB4FF; }
+
+/* 코드(라이트) */
+.code { background:#0E1420; border-radius:12px; border:1px solid #1E2A3A; padding:18px 22px; font-family:var(--font-mono); font-size:19px; color:#C7D3E2; line-height:1.6; white-space:pre-wrap; }
+.code .k { color:#8CB4FF; } .code .s { color:#4FD1A1; } .code .c { color:#5F6E80; }
+
+/* 스크린샷 프레임(브라우저 크롬) */
+.shot { border-radius:14px; border:1px solid var(--line); overflow:hidden; background:#fff; box-shadow:0 12px 34px rgba(20,30,50,.12); }
+.shot .cap { display:flex; align-items:center; gap:8px; padding:10px 15px; background:var(--paper-2); border-bottom:1px solid var(--line); }
+.shot .cap .d { width:11px; height:11px; border-radius:50%; background:#cfd6df; }
+.shot .cap .u { margin-left:10px; font-family:var(--font-mono); font-size:15px; color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.shot img { display:block; width:100%; height:auto; }
+
+/* 캡처 대기 placeholder (강사 캡처 자리) */
+.ph { border:2px dashed var(--brand); border-radius:16px; background:var(--brand-dim); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:26px; }
+.ph .ic { font-size:44px; }
+.ph .id { font-family:var(--font-mono); font-weight:600; font-size:22px; color:var(--brand); margin-top:8px; letter-spacing:.04em; }
+.ph .ds { color:var(--ink-dim); font-size:18.5px; margin-top:8px; max-width:560px; line-height:1.5; }
+.ph .fn { font-family:var(--font-mono); font-size:15px; color:var(--ink-faint); margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:4px 12px; }
+
+/* 미션 카드 */
+.mission { background: linear-gradient(180deg, var(--brand-dim), #fff); border:1px solid rgba(59,91,219,.35); border-radius:18px; padding:26px 30px; }
+.mission .mh { font-size:24px; font-weight:700; color:var(--brand); display:flex; align-items:center; gap:10px; }
+.mstep { display:flex; gap:16px; align-items:flex-start; margin-top:18px; }
+.mstep .n { flex:none; width:42px; height:42px; border-radius:11px; background:var(--brand); color:#fff; font-family:var(--font-mono); font-weight:600; font-size:22px; display:flex; align-items:center; justify-content:center; }
+.mstep .mt { font-size:22px; font-weight:600; color:var(--ink); }
+.mstep .md { font-size:18.5px; color:var(--ink-dim); margin-top:3px; line-height:1.45; }
+
+/* 스텝 배지 */
+.stepbadge { display:inline-flex; align-items:center; gap:12px; margin-bottom:6px; }
+.stepbadge .b { font-family:var(--font-mono); font-size:20px; font-weight:600; color:#fff; background:var(--brand); border-radius:10px; padding:5px 14px; }
+
+/* ===========================================
+   TITLE SLIDE
+   =========================================== */
+.slide.title .inner { justify-content: center; padding-top: 40px; }
+.title-status { display: flex; gap: 12px; margin-bottom: 40px; }
+.title-kicker { font-family: var(--font-mono); font-size: 23px; letter-spacing: .3em; color: var(--brand); text-transform: uppercase; margin-bottom: 26px; }
+h1.title-h { font-size: 104px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; }
+h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
+.title-sub { margin-top: 28px; font-size: 31px; color: var(--ink-dim); line-height: 1.5; max-width: 1450px; }
+.title-sub b { color: var(--ink); font-weight: 600; }
+.title-meta { margin-top: 52px; display: flex; gap: 34px; font-family: var(--font-mono); font-size: 21px; color: var(--ink-faint); }
+.title-meta span b { color: var(--ink-dim); font-weight: 500; }
+
+/* 엔딩 */
+.slide.end .inner { justify-content:center; align-items:flex-start; }
+.end-h { font-size: 88px; font-weight:700; letter-spacing:-.02em; }
+.end-h .thin { color: var(--ink-dim); font-weight:300; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s var(--ease), transform .55s var(--ease); }
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1){transition-delay:.05s}.reveal:nth-child(2){transition-delay:.12s}.reveal:nth-child(3){transition-delay:.19s}.reveal:nth-child(4){transition-delay:.26s}.reveal:nth-child(5){transition-delay:.33s}.reveal:nth-child(6){transition-delay:.40s}.reveal:nth-child(7){transition-delay:.47s}.reveal:nth-child(8){transition-delay:.54s}
+
+/* Deck chrome */
+.deck-progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--brand); width: 0%; z-index: 1001; transition: width .3s var(--ease); }
+.deck-page { position: fixed; right: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 14px; color: var(--ink-faint); letter-spacing: .1em; }
+.deck-hint { position: fixed; left: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); letter-spacing: .05em; opacity: .7; }
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle { position: fixed; top: 18px; left: 18px; z-index: 10001; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 20px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { border-color: var(--brand); color: var(--brand); }
+/* ===========================================
+   MOCK UI — 재현용 (터미널 / omp / 브라우저)
+   보내준 실제 캡처를 레퍼런스로 HTML 재현
+   =========================================== */
+/* Windows Terminal 프레임 */
+.wt { border-radius:12px; overflow:hidden; background:#0C0C0C; border:1px solid #2A2A2A; box-shadow:0 14px 40px rgba(15,25,45,.20); font-family:var(--font-mono); }
+.wt .tb { display:flex; align-items:center; height:40px; background:#1F1F1F; padding-left:8px; }
+.wt .tb .tab { display:flex; align-items:center; gap:8px; height:30px; padding:0 16px; background:#2D2D2D; border-radius:8px 8px 0 0; color:#E6E6E6; font-size:15px; }
+.wt .tb .tab .ti { color:#4FC3F7; }
+.wt .tb .plus { color:#B8B8B8; margin:0 12px; font-size:18px; }
+.wt .tb .win { margin-left:auto; color:#C8C8C8; letter-spacing:.55em; font-size:14px; padding-right:14px; }
+.wt pre { margin:0; padding:16px 20px; color:#CCCCCC; font-size:18px; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+.wt pre .p { color:#16C60C; } .wt pre .cmd { color:#F2F2F2; } .wt pre .dim { color:#767676; } .wt pre .lnk { color:#3B78FF; }
+/* omp 웰컴 화면 */
+.omp { border-radius:12px; overflow:hidden; background:#0C0C0C; border:1px solid #2A2A2A; box-shadow:0 14px 40px rgba(15,25,45,.20); font-family:var(--font-mono); color:#CFCFCF; }
+.omp .tb { display:flex; align-items:center; height:36px; background:#1F1F1F; padding:0 14px; font-size:14px; color:#CFCFCF; }
+.omp .tb .ti { color:#C792EA; margin-right:8px; }
+.omp .tb .win { margin-left:auto; color:#C8C8C8; letter-spacing:.5em; }
+.omp .body2 { padding:14px 16px 0; }
+.omp .vlabel { color:#8B96A6; font-size:13px; padding:0 2px 6px; }
+.omp .card2 { border:1px solid #333B47; border-radius:6px; display:grid; grid-template-columns:240px 1fr; }
+.omp .lft { padding:16px 12px; text-align:center; border-right:1px solid #26303B; }
+.omp .lft .wb { color:#E6E6E6; font-size:16px; }
+.omp .pi { font-size:56px; font-weight:700; line-height:1; margin:6px 0; background:linear-gradient(135deg,#C792EA,#7AA2F7,#4FD1C5); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.omp .lft .md { color:#E6E6E6; font-size:16px; } .omp .lft .md small { display:block; color:#5F6E80; font-size:12px; }
+.omp .rgt { padding:14px 18px; font-size:15px; line-height:1.5; }
+.omp .rgt .hd { color:#7AA2F7; font-weight:600; }
+.omp .rgt .sep { border-top:1px solid #26303B; margin:10px 0; }
+.omp .rgt .dim { color:#5F6E80; } .omp .rgt .tm { color:#5F6E80; }
+.omp .tip { padding:10px 18px 4px; color:#8B96A6; font-style:italic; font-size:14px; line-height:1.45; }
+.omp .mcp { padding:4px 18px 12px; color:#6E7A8A; font-size:14px; line-height:1.5; }
+.omp .mcp .ok { color:#16C60C; } .omp .mcp .warn { color:#E5C07B; }
+.omp .sbar { display:flex; align-items:center; gap:8px; background:#141A24; border-top:1px solid #26303B; padding:9px 16px; font-size:14.5px; color:#8B96A6; }
+.omp .sbar .pi2 { background:linear-gradient(135deg,#C792EA,#7AA2F7); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; font-weight:700; }
+.omp .sbar .g { color:#16C60C; } .omp .sbar .b { color:#7AA2F7; }
+/* omp 대화(입력 → 출력) */
+.oconv { border-radius:12px; overflow:hidden; background:#0C0C0C; border:1px solid #2A2A2A; box-shadow:0 12px 34px rgba(15,25,45,.18); font-family:var(--font-mono); }
+.oconv .tb { display:flex; align-items:center; height:34px; background:#1F1F1F; padding:0 14px; font-size:13.5px; color:#CFCFCF; }
+.oconv .tb .ti { color:#C792EA; margin-right:8px; }
+.oconv .in { padding:13px 20px; border-bottom:1px solid #26303B; color:#F2F2F2; font-size:18px; }
+.oconv .in .pr { color:#C792EA; margin-right:8px; }
+.oconv .out { padding:14px 20px; color:#CCCCCC; font-size:16px; line-height:1.55; }
+.oconv .out .hd { color:#7AA2F7; font-weight:600; }
+.oconv .out .lnk { color:#4FD1A1; }
+.oconv .out .dim { color:#5F6E80; }
+.oconv .out .dt { color:#7AA2F7; font-weight:600; margin-top:8px; }
+.oconv .out ul { list-style:none; margin:4px 0 0; padding:0; }
+.oconv .out li { padding-left:16px; position:relative; margin-bottom:5px; color:#B8C2CE; }
+.oconv .out li::before { content:'•'; position:absolute; left:0; color:#5F6E80; }
+.oconv .badge { display:inline-block; background:#15351F; color:#16C60C; border:1px solid #1F5A30; border-radius:5px; padding:1px 9px; font-size:14px; }
+/* 브라우저 로그인 목업 */
+.mockwin { border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#fff; box-shadow:0 12px 34px rgba(20,30,50,.14); }
+.mockwin .bb { display:flex; align-items:center; gap:7px; padding:9px 14px; background:#EDEFF3; border-bottom:1px solid var(--line); }
+.mockwin .bb .d { width:11px; height:11px; border-radius:50%; background:#cfd6df; }
+.mockwin .bb .ad { margin-left:10px; flex:1; background:#fff; border:1px solid var(--line); border-radius:100px; padding:5px 14px; font-family:var(--font-mono); font-size:14px; color:var(--ink-faint); }
+.mockwin .cc { padding:20px 26px; }
+.mockwin .mt { font-size:22px; font-weight:600; color:var(--ink); }
+.mockwin .ms { font-size:15px; color:var(--ink-faint); margin-top:3px; }
+.acct { display:flex; align-items:center; gap:14px; padding:12px 6px; border-top:1px solid var(--line-soft); }
+.acct .av { flex:none; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px; font-weight:600; }
+.acct .nm { font-size:19px; color:var(--ink); font-weight:500; } .acct .em { font-size:15px; color:var(--ink-faint); }
+
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===================== 01 표지 ===================== -->
+<section class="slide title active">
+    <div class="inner">
+        <div class="title-status reveal">
+            <span class="chip br">실습반 · 1반 (월·수)</span>
+            <span class="chip n">3주 · 총 6회</span>
+            <span class="chip">첫 강의 2026-07-27</span>
+        </div>
+        <div class="title-kicker reveal">삼삼엠투 AI 교육 · 실습반 1강</div>
+        <h1 class="title-h reveal">작업환경 <span class="thin">구축</span></h1>
+        <p class="title-sub reveal">터미널 · 클로드 · <b>OMP</b> · 스킬 · MCP —<br>오늘, 각자 노트북에 <b>AI 에이전트 실습 환경</b>을 처음부터 끝까지 세팅합니다.</p>
+        <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
+            <div class="fnode"><div class="fi">⌨️</div><div class="fn-t">터미널</div><div class="fn-s">명령을 주고받는 창</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🤖</div><div class="fn-t">Claude Code</div><div class="fn-s">터미널 속 AI</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode hot"><div class="fi">🚀</div><div class="fn-t">OMP</div><div class="fn-s">AI 에이전트 하네스</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🧩</div><div class="fn-t">스킬 · MCP</div><div class="fn-s">도구와 외부 연결</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>DATE <b>2026-07-27 (월)</b></span><span>강사 <b>박현웅</b></span><span>반 <b>실습 1반 · 월·수</b></span><span>ORG <b>삼삼엠투</b></span>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 02 커리큘럼 조감 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 1강 — 작업환경 구축</span><span class="sec">02 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Course Map</div>
+            <h2 class="t">3주 · 6회 실습 과정 — <span class="hl">오늘은 그 출발점(1강)</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🗺️</span> 실습반 커리큘럼</h3>
+                <table class="tbl tight">
+                    <tr class="hot"><td><b>1강 (오늘)</b></td><td><b>작업환경 구축</b> — OMP·스킬·MCP·터미널·클로드</td></tr>
+                    <tr><td>2강</td><td>커스텀 스킬 도구 생성 — 데이터 수집·분석, 인사이트 추출</td></tr>
+                    <tr><td>3강</td><td>하네스 엔지니어링 — 하지 말아야 할 것</td></tr>
+                    <tr><td>4강</td><td>실습 과제 선정 — 개인/파트 단위 과제</td></tr>
+                    <tr><td>5강</td><td>과제 진행사항 + 강사 피드백</td></tr>
+                    <tr><td>6강</td><td>과제 진행사항 + 강사 피드백</td></tr>
+                    <tr><td>합동</td><td>실습 1·2반 합동 공유회 — 최우수 1명 수상</td></tr>
+                </table>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🎯</span> 1강의 역할</h3>
+                <ul class="list">
+                    <li>2강부터는 <b>도구를 '만들고'</b> 실무 과제를 진행합니다.</li>
+                    <li>그 모든 실습이 돌아갈 <b>기반 환경</b>을 오늘 완성합니다.</li>
+                    <li>강사 1명 · 수강생 <b>최대 4명</b> — 각자 노트북으로 직접 따라 세팅.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:22px;">오늘의 성공 = 각자 노트북에서 <b>OMP가 실행되고, 스킬·MCP가 붙어 첫 작업이 도는 것</b></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 03 오늘의 목표 (Before→After) ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 1강 — 오늘의 목표</span><span class="sec">03 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Goal</div>
+            <h2 class="t">오늘 끝나면 — 빈 터미널이 <span class="hl">'AI 에이전트 작업실'</span>이 됩니다</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">🕳️</span> Before — 지금</h3>
+                <ul class="list">
+                    <li>터미널을 열어본 적이 거의 없음</li>
+                    <li>AI는 웹 채팅(브라우저)으로만 사용</li>
+                    <li>내 파일·데이터·도구와 <b>연결 안 됨</b></li>
+                    <li>반복 업무를 매번 손으로</li>
+                </ul>
+            </div>
+            <div class="panel reveal" style="border-color:rgba(12,166,120,.4); background:linear-gradient(180deg,var(--accent-dim),#fff);">
+                <h3><span class="ic">✅</span> After — 오늘 완료 기준</h3>
+                <ul class="check">
+                    <li>Claude Code 설치 · 로그인 완료</li>
+                    <li>OMP(Oh My Pi) 실행 성공</li>
+                    <li>스킬 1개를 실제로 사용</li>
+                    <li>MCP 1개 연결 확인 (<span class="mono">✔ Connected</span>)</li>
+                    <li>첫 작업(미니 실습) 성공</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 04 5키워드 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 1강 — 오늘의 단어</span><span class="sec">04 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Keywords</div>
+            <h2 class="t">오늘의 다섯 단어 — 이것만 잡으면 됩니다</h2>
+        </div>
+        <div class="body grid-5" style="align-content:center;">
+            <div class="card reveal"><div class="ic">⌨️</div><div class="ct">터미널<span class="mono">Terminal</span></div><div class="cd">컴퓨터에 '글로 명령'하는 검은 창</div></div>
+            <div class="card reveal"><div class="ic">🤖</div><div class="ct">클로드<span class="mono">Claude</span></div><div class="cd">명령을 이해하는 AI(두뇌)</div></div>
+            <div class="card hot reveal"><div class="ic">🚀</div><div class="ct">OMP<span class="mono">Oh My Pi</span></div><div class="cd">AI가 실제로 일하게 만드는 하네스</div></div>
+            <div class="card reveal"><div class="ic">🧩</div><div class="ct">스킬<span class="mono">Skill</span></div><div class="cd">AI에게 주는 '업무 매뉴얼'</div></div>
+            <div class="card reveal"><div class="ic">🔌</div><div class="ct">MCP<span class="mono">Model Context Protocol</span></div><div class="cd">외부 도구·데이터 연결 규격</div></div>
+        </div>
+        <div class="callout reveal" style="margin-top:6px;">비개발자에게 낯선 단어지만 — 오늘은 <b>'설치하고 한 번 써보는 것'</b>까지가 목표입니다. 원리는 다음 강의에서 깊게.</div>
+    </div>
+</section>
+
+<!-- ===================== N1 비개발자 안심 · AI팀 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 왜 우리가 할 수 있나</span><span class="sec">05 / 35</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Why You Can Do This</div>
+            <h2 class="t">코딩 실력이 아니라 — <span class="hl">'내 일을 말로 설명하는 능력'</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>필요한 건 프로그래밍이 아니라 <b>내 업무를 정확히 아는 것</b>.</li>
+                        <li>AI에게 "이 일을 이렇게 해줘"라고 <b>말(자연어)로</b> 지시합니다.</li>
+                        <li>번역·리서치·문서·데이터 정리… <b>여러 전문 에이전트로 팀</b>을 꾸리는 셈.</li>
+                    </ul>
+                </div>
+                <div class="callout ok reveal" style="margin-top:16px;">할루시네이션·낮은 품질도 — <b>내 업무에 맞게 세팅</b>하면 대부분 잡힙니다. (다음 강의들의 목표)</div>
+            </div>
+            <div class="reveal">
+                <div class="panel">
+                    <h3><span class="ic">👥</span> 자연어로 꾸리는 나만의 AI 팀</h3>
+                    <div class="flow" style="margin-top:6px;">
+                        <div class="fnode"><div class="fi">🧑‍💼</div><div class="fn-t">나</div><div class="fn-s">말로 지시</div></div>
+                        <div class="farrow">→</div>
+                        <div class="fnode hot"><div class="fi">🚀</div><div class="fn-t">OMP</div><div class="fn-s">팀장·오케스트라</div></div>
+                        <div class="farrow">→</div>
+                        <div class="fnode"><div class="fi">🧩</div><div class="fn-t">전문 에이전트</div><div class="fn-s">번역·리서치·정리</div></div>
+                    </div>
+                    <ul class="list tight" style="margin-top:16px;">
+                        <li>ChatGPT·Gemini = <b>대화·조언</b>까지</li>
+                        <li>Claude Code + OMP = <b>실제 실행</b>까지 (파일·명령·검증)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 05 큰 그림 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 1강 — 큰 그림</span><span class="sec">05 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Big Picture</div>
+            <h2 class="t">다섯 개가 어떻게 연결되나 — <span class="hl">하나의 흐름</span></h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="margin-top:10px;">
+                <div class="fnode"><div class="fi">🧑‍💻</div><div class="fn-t">나 (사람)</div><div class="fn-s">"이거 해줘"라고 요청</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">⌨️</div><div class="fn-t">터미널</div><div class="fn-s">요청이 드나드는 입구</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">🤖</div><div class="fn-t">Claude (두뇌)</div><div class="fn-s">이해하고 판단</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">🚀</div><div class="fn-t">OMP (에이전트)</div><div class="fn-s">계획·실행·검증</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">🧩🔌</div><div class="fn-t">스킬 · MCP</div><div class="fn-s">도구와 외부 세계</div></div>
+            </div>
+            <div class="grid-3" style="margin-top:32px;">
+                <div class="panel plain reveal"><h3><span class="ic">🤖</span> Claude = 두뇌</h3><ul class="list tight"><li>말을 이해하고 답을 <b>생각</b>하는 부분</li><li>혼자서는 '말'만 할 수 있음</li></ul></div>
+                <div class="panel plain reveal"><h3><span class="ic">🚀</span> OMP = 손·몸</h3><ul class="list tight"><li>두뇌의 생각을 <b>실제 작업</b>으로</li><li>파일 읽기·명령 실행·검증까지</li></ul></div>
+                <div class="panel plain reveal"><h3><span class="ic">🧩</span> 스킬·MCP = 연장</h3><ul class="list tight"><li>스킬 = 정해진 <b>일하는 법</b></li><li>MCP = 바깥 <b>도구·데이터</b>와 연결</li></ul></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 06 터미널이란 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 개념 ① — 터미널</span><span class="sec">06 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Concept · Terminal</div>
+            <h2 class="t">터미널 — 컴퓨터에게 <span class="hl">'글로' 말을 거는 창</span></h2>
+        </div>
+        <div class="body cols-r">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>마우스 클릭 대신 <b>명령어(글)</b>로 컴퓨터를 다룹니다.</li>
+                        <li>AI 에이전트는 이 창 안에서 살아 움직입니다 — 우리 실습의 '작업실'.</li>
+                        <li>Windows에서는 <b>Windows Terminal</b> 또는 <b>PowerShell</b>을 씁니다.</li>
+                    </ul>
+                    <div class="callout reveal" style="margin-top:18px;">겁먹지 않기 — 오늘 칠 명령은 <b>대부분 복사·붙여넣기</b>입니다. 한 줄씩 따라 치면 됩니다.</div>
+                </div>
+                <div class="alert ok reveal" style="margin-top:16px;"><div class="h">💡 프롬프트 읽는 법</div><div class="s"><span class="mono">PS C:\Users\...&gt;</span> 처럼 생긴 줄이 "명령을 기다린다"는 뜻. 여기에 명령을 칩니다.</div></div>
+            </div>
+            <div class="wt reveal">
+                <div class="tb"><span class="tab"><span class="ti">▧</span> Windows PowerShell</span><span class="plus">+</span><span class="win">—  ▢  ✕</span></div>
+<pre>Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! <span class="lnk">https://aka.ms/PSWindows</span>
+
+<span class="p">PS C:\Users\user></span> </pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 07 클로드 & Claude Code ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 개념 ② — 클로드</span><span class="sec">07 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Concept · Claude</div>
+            <h2 class="t">'클로드'와 'Claude Code'는 <span class="hl">다릅니다</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🧠</span> 한 문장 정리</h3>
+                <ul class="list">
+                    <li><b>클로드(Claude)</b> = Anthropic이 만든 AI 그 자체(두뇌).</li>
+                    <li><b>Claude Code</b> = 그 클로드를 <b>터미널에서</b> 쓰게 해주는 도구 — 파일 읽고, 명령 실행하고, 코드를 다룸.</li>
+                </ul>
+                <div class="callout amber reveal" style="margin-top:20px;"><b>클로드 = 조언해 주는 친구, Claude Code = 직접 일해 주는 팀원.</b> 웹 채팅(claude.ai)은 '대화'까지 · Claude Code는 내 컴퓨터에서 <b>실제 작업</b>까지. 오늘 설치하는 건 이 Claude Code.</div>
+            </div>
+            <div class="panel plain reveal">
+                <table class="tbl">
+                    <tr><th></th><th>웹 채팅</th><th>Claude Code</th></tr>
+                    <tr><td><b>위치</b></td><td>브라우저</td><td>터미널(내 PC)</td></tr>
+                    <tr><td><b>할 수 있는 것</b></td><td>대화·글쓰기</td><td>파일·명령·자동화</td></tr>
+                    <tr><td><b>내 데이터</b></td><td>붙여넣기만</td><td>직접 읽고 수정</td></tr>
+                    <tr><td><b>오늘 대상</b></td><td>—</td><td><span class="chip">설치</span></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 08 OMP(하네스) ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 개념 ③ — OMP</span><span class="sec">08 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Concept · Oh My Pi</div>
+            <h2 class="t">OMP — 클로드를 <span class="hl">'일하는 에이전트'</span>로 만드는 하네스</h2>
+        </div>
+        <div class="body cols-r">
+            <div class="reveal">
+                <div class="panel plain">
+                    <h3><span class="ic">🚗</span> 비유: 엔진 vs 자동차</h3>
+                    <ul class="list">
+                        <li><b>클로드 = 엔진.</b> 강력하지만 그 자체로는 어디 못 감.</li>
+                        <li><b>OMP = 자동차.</b> 엔진에 바퀴·핸들·계기판을 달아 <b>실제로 목적지까지</b>.</li>
+                        <li>OMP가 얹어주는 것: <b>도구(파일·터미널·검색), 기억(세션), 규칙, 스킬·MCP, 자동화</b>.</li>
+                    </ul>
+                </div>
+                <div class="callout reveal" style="margin-top:16px;">그래서 이 과정은 그냥 챗봇이 아니라 <b>OMP(Oh My Pi)</b> 위에서 진행합니다 — 실제 업무를 끝까지 수행하니까.</div>
+            </div>
+            <div class="panel reveal">
+                <table class="tbl">
+                    <tr><th>상황</th><th>클로드 단독</th><th>OMP</th></tr>
+                    <tr><td>파일 수정</td><td>불가(복붙)</td><td><b>직접 수정</b></td></tr>
+                    <tr><td>여러 단계 작업</td><td>사람이 이어줌</td><td><b>스스로 진행</b></td></tr>
+                    <tr><td>외부 도구</td><td>없음</td><td><b>MCP로 연결</b></td></tr>
+                    <tr><td>반복 노하우</td><td>매번 설명</td><td><b>스킬로 재사용</b></td></tr>
+                    <tr><td>검증</td><td>사람 몫</td><td><b>실행·확인</b></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 09 스킬 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 개념 ④ — 스킬</span><span class="sec">09 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Concept · Skill</div>
+            <h2 class="t">스킬 — AI에게 건네는 <span class="hl">'업무 매뉴얼'</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>스킬 = 특정 업무를 <b>어떻게 하는지 적어둔 문서</b>(<span class="mono">SKILL.md</span>).</li>
+                        <li>신입에게 "이 일은 이렇게 해" 매뉴얼을 주는 것과 같음.</li>
+                        <li>필요할 때 AI가 <b>자동으로 꺼내 씀</b> — 매번 설명할 필요 없음.</li>
+                        <li>2강에서 우리가 <b>직접 스킬을 만듭니다.</b> 오늘은 '있는 스킬 써보기'.</li>
+                    </ul>
+                </div>
+                <div class="callout ok reveal" style="margin-top:16px;">예: '리서치', '커밋 메시지', '회의록 정리' 같은 반복 업무를 스킬로 만들면 <b>버튼 하나처럼</b> 재사용.</div>
+            </div>
+            <div class="shot reveal">
+                <div class="cap"><span class="d"></span><span class="d"></span><span class="d"></span><span class="u">docs.claude.com/en/docs/claude-code/skills</span></div>
+                <img src="assets/web-05-claudecode-skills.png" alt="스킬 공식 문서">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 10 MCP ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 개념 ⑤ — MCP</span><span class="sec">10 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Concept · MCP</div>
+            <h2 class="t">MCP — AI를 위한 <span class="hl">'USB-C 단자'</span></h2>
+        </div>
+        <div class="body cols-r">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>MCP = AI를 <b>외부 도구·데이터에 연결</b>하는 표준 규격.</li>
+                        <li>USB-C처럼 — <b>한 번 꽂으면</b> 구글시트·피그마·DB·n8n 등 무엇이든 연결.</li>
+                        <li>연결하면 AI가 그 도구를 <b>직접 조회·조작</b>할 수 있음.</li>
+                    </ul>
+                </div>
+                <div class="alert reveal" style="margin-top:16px;"><div class="h">🔌 우리 회사에서 쓰는 MCP 예</div><div class="s"><span class="mono">n8n</span>(자동화) · <span class="mono">context7</span>(문서) · <span class="mono">filesystem</span>(파일) · <span class="mono">TalkToFigma</span>(디자인) — 뒤에서 실제 연결 확인.</div></div>
+            </div>
+            <div class="shot reveal">
+                <div class="cap"><span class="d"></span><span class="d"></span><span class="d"></span><span class="u">modelcontextprotocol.io</span></div>
+                <img src="assets/web-06-mcp-intro.png" alt="MCP 공식 개념도">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== N2 3가지 진입 방법 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 시작 전 — 진입 방법</span><span class="sec">12 / 35</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Ways In</div>
+            <h2 class="t">클로드를 쓰는 <span class="hl">3가지 방법</span> — 우리는 ③으로</h2>
+        </div>
+        <div class="body">
+            <div class="grid-3" style="margin-top:8px;">
+                <div class="card reveal"><div class="ic">🖥️</div><div class="ct">① 데스크톱 앱<span class="mono">가장 쉬움</span></div><div class="cd">설치하고 클릭으로 사용. 터미널이 부담될 때 좋은 첫걸음.</div></div>
+                <div class="card reveal"><div class="ic">🧩</div><div class="ct">② VS Code 확장<span class="mono">에디터 안에서</span></div><div class="cd">코드 에디터에 확장 설치. 파일 다루기 편함.</div></div>
+                <div class="card hot reveal"><div class="ic">⌨️</div><div class="ct">③ 터미널 + OMP<span class="mono">우리 실습 방식</span></div><div class="cd">스킬·MCP·자동화를 <b>가장 강력하게</b>. 이 과정의 방식.</div></div>
+            </div>
+            <div class="grid-2" style="margin-top:24px;">
+                <div class="callout reveal">왜 ③인가 — 스킬·MCP·서브에이전트·자동화를 <b>제대로</b> 쓰려면 터미널+OMP가 가장 자유롭습니다.</div>
+                <div class="callout ok reveal">겁먹지 않기 — 방법만 다를 뿐 <b>같은 클로드</b>입니다. 앱·확장도 언제든 병행 OK.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 11 준비물 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 설치 — 준비물</span><span class="sec">11 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Checklist</div>
+            <h2 class="t">시작 전 준비물 — <span class="hl">이 5가지</span>만 확인</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">💻</span> 내 PC · 계정</h3>
+                <ul class="check">
+                    <li>Windows 10 (1809+) 또는 11 <span class="s">4GB+ RAM · 인터넷 연결</span></li>
+                    <li>Claude 계정 <span class="s">Pro / Max / Team / Console — <b>무료 플랜은 불가</b></span></li>
+                    <li>회사 제공 인증 정보 <span class="s">로그인 방식/키는 강사 안내대로</span></li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🧰</span> 알아두면 좋은 것</h3>
+                <ul class="list">
+                    <li><b>관리자 권한 불필요</b> — 일반 사용자로 설치됩니다.</li>
+                    <li>(권장) <b>Git for Windows</b> — Claude가 Bash 도구를 쓰게 해줌.</li>
+                    <li>(권장) <b>Python</b> — 엑셀·데이터 작업의 '엔진'. Node.js와 함께 깔아두면 든든.</li>
+                    <li>사내 <b>방화벽/프록시</b> 환경이면 미리 강사에게 공유.</li>
+                </ul>
+                <div class="callout amber reveal" style="margin-top:18px;">계정 등급이 <b>무료</b>면 Claude Code가 안 됩니다. 오늘 전에 <b>Pro 이상 / 회사 계정</b> 확인!</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 12 설치 로드맵 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 설치 — 로드맵</span><span class="sec">12 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Roadmap</div>
+            <h2 class="t">설치는 <span class="hl">5단계</span> — 한 스텝씩 같이 갑니다</h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="margin-top:20px;">
+                <div class="fnode"><div class="fi">1️⃣</div><div class="fn-t">터미널 열기</div><div class="fn-s">Windows Terminal</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">2️⃣</div><div class="fn-t">Node.js</div><div class="fn-s">기반 런타임</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">3️⃣</div><div class="fn-t">Claude Code</div><div class="fn-s">설치 · 로그인</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">4️⃣</div><div class="fn-t">OMP</div><div class="fn-s">Bun + omp</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">5️⃣</div><div class="fn-t">첫 실행</div><div class="fn-s">폴더 만들고 omp</div></div>
+            </div>
+            <div class="grid-2" style="margin-top:34px;">
+                <div class="callout reveal">막히면 <b>바로 손들기</b> — 다 같이 맞춰 갑니다. 한 명이 막히면 잠깐 멈춰서 함께 해결.</div>
+                <div class="callout ok reveal">각 스텝 끝엔 <b>'확인 명령'</b>이 있습니다. 버전이 출력되면 성공 → 다음 스텝.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 13 STEP1 터미널 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> STEP 1 — 터미널 열기</span><span class="sec">13 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="stepbadge"><span class="b">STEP 1</span></div>
+            <h2 class="t">터미널 열기 — <span class="hl">Windows Terminal</span></h2>
+        </div>
+        <div class="body cols-r">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>시작 버튼 → <b>"Windows Terminal"</b> 또는 <b>"PowerShell"</b> 검색 → 실행.</li>
+                        <li>검은(또는 파란) 창이 뜨고 <span class="mono">PS C:\Users\...&gt;</span> 가 보이면 준비 완료.</li>
+                    </ul>
+                    <div class="divlbl">헷갈리지 않기</div>
+                    <div class="alert reveal"><div class="h">PowerShell vs CMD</div><div class="s">줄 앞에 <span class="mono">PS</span> 가 있으면 <b>PowerShell</b>, 없으면 <b>CMD</b>. STEP 3·4 명령이 다르니 확인!</div></div>
+                </div>
+            </div>
+            <div class="wt reveal">
+                <div class="tb"><span class="tab"><span class="ti">▧</span> Windows PowerShell</span><span class="plus">+</span><span class="win">—  ▢  ✕</span></div>
+<pre>Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! <span class="lnk">https://aka.ms/PSWindows</span>
+
+<span class="p">PS C:\Users\user></span> </pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 14 STEP2 Node.js ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> STEP 2 — Node.js</span><span class="sec">14 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="stepbadge"><span class="b">STEP 2</span></div>
+            <h2 class="t">Node.js 설치 — <span class="hl">도구들이 도는 기반</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="shot">
+                    <div class="cap"><span class="d"></span><span class="d"></span><span class="d"></span><span class="u">nodejs.org/en/download</span></div>
+                    <img src="assets/web-01-nodejs-download.png" alt="Node.js 다운로드">
+                </div>
+                <div class="alert reveal" style="margin-top:14px;"><div class="h">① nodejs.org 접속 → ② 초록색 <span class="mono">Windows Installer (.msi)</span> 클릭 → ③ 다운받은 파일 실행 → 계속 '다음'</div></div>
+            </div>
+            <div class="reveal">
+                <div class="divlbl">설치 후 — 터미널에서 확인</div>
+                <div class="term">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">PowerShell</span></div>
+<pre><span class="p">PS C:\&gt;</span> <span class="cmd">node -v</span>
+v22.14.0
+<span class="p">PS C:\&gt;</span> <span class="cmd">npm -v</span>
+10.9.2</pre>
+                </div>
+                <div class="callout ok reveal" style="margin-top:16px;">이렇게 <b>버전 숫자</b>가 나오면 성공. 안 나오면 터미널을 <b>새 창</b>으로 다시 열어보세요.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 15 STEP3 Claude Code ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> STEP 3 — Claude Code</span><span class="sec">15 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="stepbadge"><span class="b">STEP 3</span></div>
+            <h2 class="t">Claude Code 설치 · 로그인</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="divlbl">① 설치 (PowerShell에 붙여넣기)</div>
+                <div class="term sm">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">Windows PowerShell</span></div>
+<pre><span class="p">PS C:\&gt;</span> <span class="cmd">irm https://claude.ai/install.ps1 | iex</span>
+<span class="dim"># (또는) winget install Anthropic.ClaudeCode</span></pre>
+                </div>
+                <div class="divlbl">② 확인 · ③ 로그인</div>
+                <div class="term sm">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">PowerShell</span></div>
+<pre><span class="p">PS C:\&gt;</span> <span class="cmd">claude --version</span>
+2.1.181 (Claude Code)
+<span class="p">PS C:\&gt;</span> <span class="cmd">claude</span>   <span class="dim"># 실행 → 브라우저에서 로그인</span></pre>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="mockwin reveal">
+                    <div class="bb"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ad">accounts.google.com · Claude 로그인</span></div>
+                    <div class="cc">
+                        <div class="mt">계정을 선택하세요</div>
+                        <div class="ms">Claude(으)로 이동</div>
+                        <div class="acct"><span class="av" style="background:#5C7CFA;">현</span><span><div class="nm">박현웅</div><div class="em">h•••••@company.com</div></span></div>
+                        <div class="acct"><span class="av" style="background:#E8890C;">33</span><span><div class="nm">삼삼엠투</div><div class="em">team•••@company.com</div></span></div>
+                        <div class="acct"><span class="av" style="background:#EDEFF3; color:#8B97A6;">+</span><span class="nm" style="color:var(--ink-dim);">다른 계정 사용</span></div>
+                    </div>
+                </div>
+                <div class="alert warn reveal" style="margin-top:16px;"><div class="h">⚠️ 계정 등급 필수</div><div class="s">Pro · Max · Team · Enterprise · Console 계정만 가능. <b>무료 Claude.ai 플랜은 로그인해도 안 됩니다.</b></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 16 STEP4 OMP ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> STEP 4 — OMP</span><span class="sec">16 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="stepbadge"><span class="b">STEP 4</span></div>
+            <h2 class="t">OMP(Oh My Pi) 설치 — <span class="hl">Bun</span>으로</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="divlbl">① Bun 설치 → ② OMP 설치</div>
+                <div class="term sm">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">Windows PowerShell</span></div>
+<pre><span class="cmt"># ① Bun 설치 (공식)</span>
+<span class="p">PS C:\&gt;</span> <span class="cmd">powershell -c "irm bun.sh/install.ps1 | iex"</span>
+<span class="p">PS C:\&gt;</span> <span class="cmd">bun --version</span>
+1.3.14
+<span class="cmt"># ② OMP 설치</span>
+<span class="p">PS C:\&gt;</span> <span class="cmd">bun add -g @oh-my-pi/pi-coding-agent</span></pre>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="divlbl">③ 확인 · ④ 온보딩</div>
+                <div class="term sm">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">PowerShell</span></div>
+<pre><span class="p">PS C:\&gt;</span> <span class="cmd">omp --version</span>
+omp/16.3.15
+<span class="p">PS C:\&gt;</span> <span class="cmd">omp setup</span>   <span class="dim"># 온보딩·인증 안내</span></pre>
+                </div>
+                <div class="callout reveal" style="margin-top:14px;">인증은 <span class="mono">omp setup</span> 이 안내합니다. 회사 계정/키 방식은 <b>강사 안내대로</b> 진행하세요.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 17 STEP5 첫 실행 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> STEP 5 — 첫 실행</span><span class="sec">17 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="stepbadge"><span class="b">STEP 5</span></div>
+            <h2 class="t">작업 폴더 만들고 <span class="hl">omp 실행</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="divlbl">폴더 만들기 → 들어가기 → 실행</div>
+                <div class="term">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">PowerShell</span></div>
+<pre><span class="p">PS C:\&gt;</span> <span class="cmd">mkdir ai-lab</span>
+<span class="p">PS C:\&gt;</span> <span class="cmd">cd ai-lab</span>
+<span class="p">PS C:\ai-lab&gt;</span> <span class="cmd">omp</span>
+<span class="dim"># 대화형 화면이 뜨면 첫 프롬프트를 입력</span>
+<span class="kw">›</span> 안녕! 이 폴더에 hello.txt 파일 하나 만들어줘</pre>
+                </div>
+                <div class="callout ok reveal" style="margin-top:16px;">폴더를 먼저 만드는 이유 — AI가 <b>그 폴더 안에서만</b> 작업하게 해서 안전하게.</div>
+            </div>
+            <div class="omp reveal">
+                <div class="tb"><span class="ti">π</span> ai-lab — omp<span class="win">—  ▢  ✕</span></div>
+                <div class="body2">
+                    <div class="vlabel">omp v16.3.15</div>
+                    <div class="card2">
+                        <div class="lft">
+                            <div class="wb">Welcome back!</div>
+                            <div class="pi">π</div>
+                            <div class="md">Claude Opus 4.8<small>anthropic</small></div>
+                        </div>
+                        <div class="rgt">
+                            <div class="hd">Tips</div>
+                            <div><span class="dim">#</span> for prompt actions &nbsp; <span class="dim">/</span> for commands</div>
+                            <div><span class="dim">!</span> to run bash &nbsp; <span class="dim">$</span> to run python</div>
+                            <div class="sep"></div>
+                            <div class="hd">Recent sessions</div>
+                            <div>• hello.txt 파일 만들기 <span class="tm">(just now)</span></div>
+                            <div>• 회의록 요약 정리 <span class="tm">(5m ago)</span></div>
+                            <div>• 매출 데이터 표로 정리 <span class="tm">(1h ago)</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tip">Tip: Say ‘orchestrate’ to drive a multi-phase task with parallel subagents</div>
+                <div class="mcp"><span class="ok">Connected:</span> context7, filesystem, playwright &nbsp;·&nbsp; <span class="warn">! Needs auth:</span> airbridge</div>
+                <div class="sbar"><span class="pi2">π</span> › <span class="b">Opus 4.8</span> · auto · 📁 ~/ai-lab · <span class="g">main</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== N3 프로젝트=폴더 규칙 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 작업 습관 — 폴더 규칙</span><span class="sec">20 / 35</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">One Task, One Folder</div>
+            <h2 class="t">프로젝트 = <span class="hl">폴더 = 업무 하나</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>작업 하나에 <b>폴더 하나</b> — AI가 그 안에서만 일해 혼선이 없습니다.</li>
+                        <li>업무마다 폴더를 따로: <b>논문 번역 / 유튜브 리서치 / 회의록 정리</b> …</li>
+                        <li>필요하면 <b>여러 창</b>을 띄워 동시에(병렬) 진행.</li>
+                    </ul>
+                </div>
+                <div class="callout amber reveal" style="margin-top:16px;">조직 전체를 한 폴더에 몰아넣지 않기 — <b>업무 단위</b>가 품질과 안전에 유리.</div>
+            </div>
+            <div class="reveal">
+                <div class="wt">
+                    <div class="tb"><span class="tab"><span class="ti">▧</span> PowerShell</span><span class="plus">+</span><span class="win">—  ▢  ✕</span></div>
+<pre><span class="p">PS C:\work></span> <span class="cmd">mkdir 논문번역</span>
+<span class="p">PS C:\work></span> <span class="cmd">mkdir 유튜브리서치</span>
+<span class="p">PS C:\work></span> <span class="cmd">mkdir 회의록정리</span>
+<span class="dim"># 작업할 폴더로 들어가서 omp 실행</span>
+<span class="p">PS C:\work></span> <span class="cmd">cd 논문번역</span>
+<span class="p">PS C:\work\논문번역></span> <span class="cmd">omp</span></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 18 설치 점검 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 설치 — 최종 점검</span><span class="sec">18 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Checkpoint</div>
+            <h2 class="t">이 네 줄이 다 나오면 — <span class="hl">환경 준비 끝</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="term">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">PowerShell — 설치 점검</span></div>
+<pre><span class="p">PS C:\ai-lab&gt;</span> <span class="cmd">node -v</span>
+v22.14.0
+<span class="p">PS C:\ai-lab&gt;</span> <span class="cmd">npm -v</span>
+10.9.2
+<span class="p">PS C:\ai-lab&gt;</span> <span class="cmd">claude --version</span>
+2.1.181 (Claude Code)
+<span class="p">PS C:\ai-lab&gt;</span> <span class="cmd">omp --version</span>
+omp/16.3.15</pre>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="panel plain">
+                    <h3><span class="ic">🩺</span> 안 되면 — 진단 명령</h3>
+                    <ul class="list">
+                        <li><span class="mono">claude doctor</span> — Claude Code 설치 상태 점검</li>
+                        <li>버전이 안 뜨면 → 터미널 <b>새 창</b>으로 다시 시도</li>
+                        <li>그래도 안 되면 → 다음 <b>트러블슈팅</b> 슬라이드 참고</li>
+                    </ul>
+                </div>
+                <div class="callout ok reveal" style="margin-top:16px;">여기까지 오면 절반 이상 성공 — 이제 <b>스킬</b>과 <b>MCP</b>를 붙여봅니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== N4 권한·자동실행 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 권한 — 얼마나 맡길까</span><span class="sec">22 / 35</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Approval Mode</div>
+            <h2 class="t">AI에게 <span class="hl">권한을 얼마나</span> 줄지 정하기</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <h3><span class="ic">🎚️</span> 3단계 승인 모드</h3>
+                    <table class="tbl tight">
+                        <tr><th>모드</th><th>동작</th></tr>
+                        <tr><td><b>always-ask</b></td><td>매 작업마다 물어봄 <span class="chip">처음 권장</span></td></tr>
+                        <tr><td><b>write</b></td><td>파일 수정은 자동, 위험한 건 확인</td></tr>
+                        <tr><td><b>auto</b></td><td>대부분 스스로 진행 <span class="chip a">숙련·전용 폴더</span></td></tr>
+                    </table>
+                    <div class="code" style="margin-top:14px; font-size:17px;"><span class="c"># 자동 승인으로 실행 (익숙해진 뒤)</span>
+omp --auto-approve</div>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="alert ok"><div class="h">🚀 왜 자동이 편한가</div><div class="s">에이전트가 멈추지 않고 <b>여러 단계를 스스로</b> 끝냄 — 반복 업무에 강력.</div></div>
+                <div class="alert warn"><div class="h">⚠️ 대신 이렇게</div><div class="s"><b>전용 폴더</b>에서만 · <b>민감정보 없는</b> 작업에서만 · 결과는 <b>사람이 확인</b>.</div></div>
+                <div class="callout reveal" style="margin-top:8px;">처음엔 <b>always-ask</b>로 눈에 익히고, 익숙해지면 <b>auto</b>로 — 상태바의 <span class="mono">auto</span> 표시로 현재 모드 확인.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 19 스킬 사용 ① ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 스킬 — 어디에 있나</span><span class="sec">19 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Skills · Discover</div>
+            <h2 class="t">스킬은 <span class="hl">자동으로 발견</span>되어 필요할 때 불려옵니다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>스킬은 정해진 <b>폴더</b>에 <span class="mono">SKILL.md</span> 파일로 존재.</li>
+                        <li>OMP가 <b>알아서 목록화</b> → 관련 작업이 나오면 자동으로 참고.</li>
+                        <li>내가 "이 스킬 써서 해줘"라고 <b>지목</b>할 수도 있음.</li>
+                    </ul>
+                </div>
+                <div class="term sm reveal" style="margin-top:16px;">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">설치된 스킬 예시</span></div>
+<pre><span class="dim"># 이 환경에 준비된 스킬(일부)</span>
+handoff        recall         recap
+session-history  commit-history  remember ...</pre>
+                </div>
+            </div>
+            <div class="shot reveal">
+                <div class="cap"><span class="d"></span><span class="d"></span><span class="d"></span><span class="u">docs.claude.com/.../skills</span></div>
+                <img src="assets/web-05-claudecode-skills.png" alt="스킬 문서">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 20 스킬 사용 ② ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 스킬 — 실제로 써보기</span><span class="sec">20 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Skills · Run</div>
+            <h2 class="t">스킬 하나 실행해보기 — <span class="hl">실습</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <h3><span class="ic">▶️</span> 이렇게 시켜봅니다</h3>
+                    <div class="code reveal"><span class="c"># omp 대화창에서</span>
+› recap 스킬로 최근 작업 요약해줘</div>
+                    <ul class="list" style="margin-top:16px;">
+                        <li>스킬 이름을 말하면 OMP가 그 <b>매뉴얼대로</b> 수행.</li>
+                        <li>결과가 나오면 — 스킬이 어떻게 동작했는지 함께 봅니다.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="oconv reveal">
+                    <div class="tb"><span class="ti">π</span> recap · 스킬 실행</div>
+                    <div class="in"><span class="pr">›</span> recap 스킬로 최근 작업 요약해줘</div>
+                    <div class="out">
+                        <span class="hd">📋 Recap — 최근 세션 요약</span>
+                        <div class="dt">2026-07-14</div>
+                        <ul>
+                            <li>발표 슬라이드 초안 작성 <span class="dim">(메시지 32)</span></li>
+                            <li>매출 데이터 정리 · 표 생성 <span class="dim">(메시지 18)</span></li>
+                        </ul>
+                        <div class="dt">2026-07-13</div>
+                        <ul>
+                            <li>회의록 요약 → 액션아이템 추출</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 21 MCP ① 설정 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> MCP — 연결하기</span><span class="sec">21 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">MCP · Setup</div>
+            <h2 class="t">MCP 연결 — <span class="hl">설정 파일 한 개</span>면 됩니다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <ul class="list">
+                        <li>프로젝트 폴더에 <span class="mono">.mcp.json</span> 파일을 두면 자동 연결.</li>
+                        <li>또는 명령으로 추가: <span class="mono">claude mcp add ...</span></li>
+                        <li>연결 대상은 회사가 정해둔 MCP를 <b>강사 안내</b>대로.</li>
+                    </ul>
+                </div>
+                <div class="callout amber reveal" style="margin-top:16px;">키가 필요한 MCP도 있음 — 회사 제공 키는 <b>공유 채널에 올리지 말고</b> 설정 파일/환경변수에만.</div>
+            </div>
+            <div class="reveal">
+                <div class="divlbl">.mcp.json — 실제 예시</div>
+                <div class="code reveal">{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"airbridge"</span>: {
+      <span class="k">"type"</span>: <span class="s">"http"</span>,
+      <span class="k">"url"</span>: <span class="s">"https://mcp.airbridge.io/mcp"</span>
+    }
+  }
+}</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 22 MCP ② 연결 확인 (실물) ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> MCP — 연결 확인</span><span class="sec">22 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">MCP · Verify</div>
+            <h2 class="t"><span class="mono" style="color:var(--accent)">✔ Connected</span> — 연결되면 이렇게 보입니다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="term">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">claude mcp list — 실제 출력</span></div>
+<pre><span class="p">PS C:\ai-lab&gt;</span> <span class="cmd">claude mcp list</span>
+<span class="dim">Checking MCP server health…</span>
+
+n8n-mcp        npx n8n-mcp                <span class="ok">✔ Connected</span>
+context7       @upstash/context7-mcp      <span class="ok">✔ Connected</span>
+filesystem     server-filesystem          <span class="ok">✔ Connected</span>
+TalkToFigma    cursor-talk-to-figma-mcp   <span class="ok">✔ Connected</span>
+mem0-mcp       mcp.mem0.ai (HTTP)         <span class="ok">✔ Connected</span>
+playwright     @playwright/mcp            <span class="ok">✔ Connected</span>
+airbridge      mcp.airbridge.io (HTTP)    <span class="warn">! Needs auth</span></pre>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="panel plain">
+                    <h3><span class="ic">🔎</span> 상태 읽는 법</h3>
+                    <ul class="list">
+                        <li><span class="chip">✔ Connected</span> — 연결 성공, 바로 사용 가능.</li>
+                        <li><span class="chip a">! Needs auth</span> — 로그인/키 필요.</li>
+                        <li><span class="chip r">✘ Failed</span> — 설정/네트워크 확인.</li>
+                    </ul>
+                </div>
+                <div class="callout ok reveal" style="margin-top:16px;">하나라도 <b>✔ Connected</b> 가 뜨면 — MCP 연결 성공 경험 완료!</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 23 MCP ③ 사용 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> MCP — 실제로 써보기</span><span class="sec">23 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">MCP · Use</div>
+            <h2 class="t">연결한 MCP로 <span class="hl">외부 데이터 1건</span> 가져오기</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="reveal">
+                <div class="panel plain">
+                    <h3><span class="ic">▶️</span> 이렇게 시켜봅니다</h3>
+                    <div class="code reveal"><span class="c"># omp 대화창에서 (예: context7)</span>
+› context7로 'Claude Code' 문서에서
+  MCP 추가 방법 찾아줘</div>
+                    <ul class="list" style="margin-top:16px;">
+                        <li>AI가 <b>연결된 MCP를 통해</b> 바깥 정보를 직접 가져옵니다.</li>
+                        <li>사용할 MCP는 강사가 지정해 함께 실행.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="oconv reveal">
+                <div class="tb"><span class="ti">π</span> context7 · MCP 사용</div>
+                <div class="in"><span class="pr">›</span> context7로 Claude Code 문서에서 MCP 추가법 찾아줘</div>
+                <div class="out">
+                    <span class="badge">🔌 MCP 호출 · context7</span>
+                    <div style="margin-top:10px;">문서에서 찾은 내용:</div>
+                    <ul>
+                        <li><span class="lnk">.mcp.json</span> 에 서버를 추가하면 자동 연결</li>
+                        <li>또는 <span class="lnk">claude mcp add</span> 명령으로 추가</li>
+                        <li>연결 상태는 <span class="lnk">claude mcp list</span> 로 확인</li>
+                    </ul>
+                    <div class="dim" style="margin-top:8px;">출처: docs.claude.com/…/mcp</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 24 미니 실습 미션 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 미니 실습 — 미션</span><span class="sec">24 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Mission</div>
+            <h2 class="t">오늘의 미션 — <span class="hl">각자 직접 성공</span>시키기</h2>
+        </div>
+        <div class="body">
+            <div class="mission reveal">
+                <div class="mh">🎯 3단계를 모두 성공하면 오늘 미션 클리어</div>
+                <div class="mstep"><div class="n">1</div><div><div class="mt">폴더 만들고 omp 실행</div><div class="md"><span class="mono">mkdir ai-lab → cd ai-lab → omp</span> · 첫 프롬프트로 파일 1개 만들기</div></div></div>
+                <div class="mstep"><div class="n">2</div><div><div class="mt">스킬 1개로 간단 작업</div><div class="md">스킬 이름을 지목해 실행 — 결과 확인</div></div></div>
+                <div class="mstep"><div class="n">3</div><div><div class="mt">MCP로 외부 데이터 1건 가져오기</div><div class="md"><span class="mono">✔ Connected</span> 된 MCP로 정보 1건 조회</div></div></div>
+            </div>
+            <div class="callout ok reveal" style="margin-top:22px;">완료한 사람은 <b>결과 화면을 캡처</b>해두기 — 다음 시간(2강) 과제와 이어집니다.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 25 실습 성공 예시 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 미니 실습 — 성공 예시</span><span class="sec">25 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Done Looks Like</div>
+            <h2 class="t">'성공'은 이런 모습입니다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="oconv reveal">
+                <div class="tb"><span class="ti">π</span> ai-lab · 미션 완료</div>
+                <div class="out">
+                    <span class="hd">🏁 오늘의 미션 결과</span>
+                    <ul style="margin-top:10px;">
+                        <li><span class="badge">✓</span> &nbsp;<span class="lnk">hello.txt</span> 파일 생성 완료</li>
+                        <li><span class="badge">✓</span> &nbsp;recap 스킬 실행 → 최근 작업 요약 출력</li>
+                        <li><span class="badge">✓</span> &nbsp;context7 MCP 조회 → 외부 문서 1건 가져옴</li>
+                    </ul>
+                    <div class="dim" style="margin-top:12px;">→ AI 에이전트 실습 환경 준비 완료.</div>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="panel plain">
+                    <h3><span class="ic">🏁</span> 성공 체크</h3>
+                    <ul class="check">
+                        <li>폴더 안에 <span class="mono">hello.txt</span> 가 생겼다</li>
+                        <li>스킬이 실행되어 결과를 냈다</li>
+                        <li>MCP로 가져온 정보가 화면에 보인다</li>
+                    </ul>
+                </div>
+                <div class="callout reveal" style="margin-top:16px;">여기까지가 오늘의 핵심 — <b>"내가 AI 에이전트를 돌렸다"</b>는 경험.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 26 트러블슈팅 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 트러블슈팅</span><span class="sec">26 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Troubleshooting</div>
+            <h2 class="t">자주 나는 오류 — <span class="hl">대부분 6가지</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="reveal">
+                <div class="alert crit"><div class="h">‘command not found’ / ‘인식할 수 없는 …’</div><div class="s">설치 후 <b>터미널 새 창</b>으로 다시 열기. 그래도면 재설치.</div></div>
+                <div class="alert crit"><div class="h">‘irm’이 안 됨</div><div class="s">지금 <b>CMD</b>임 — PowerShell을 열어서 다시. (줄 앞 <span class="mono">PS</span> 확인)</div></div>
+                <div class="alert warn"><div class="h">로그인 실패</div><div class="s">계정 등급(무료 아님?)·지원 국가 확인. <span class="mono">claude doctor</span> 로 점검.</div></div>
+            </div>
+            <div class="reveal">
+                <div class="alert warn"><div class="h">omp / bun 명령이 안 뜸</div><div class="s">Bun 설치 후 <b>새 터미널</b>. <span class="mono">bun --version</span> 부터 확인.</div></div>
+                <div class="alert"><div class="h">MCP가 ! Needs auth / ✘ Failed</div><div class="s">키/로그인 필요하거나 네트워크·설정 문제. <span class="mono">.mcp.json</span> 오타 확인.</div></div>
+                <div class="alert warn"><div class="h">명령을 계속 못 찾음 (PATH)</div><div class="s">새 창으로도 안 되면 — <b>시스템 환경 변수 편집 → Path</b>에 설치 경로 추가 후 재부팅.</div></div>
+                <div class="callout amber" style="margin-top:6px;">막히면 <b>3분 룰</b> — 3분 넘게 헤매면 바로 손들기. 같이 봅니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 27 안전·주의 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 안전하게 쓰기</span><span class="sec">27 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Safety</div>
+            <h2 class="t">시작부터 몸에 붙일 <span class="hl">4가지 습관</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">🔒</span> 데이터 · 보안</h3>
+                <ul class="list">
+                    <li><b>사내 민감정보</b>(고객·계약·키)는 함부로 입력 금지 — 회사 정책 우선.</li>
+                    <li>MCP 키·토큰은 <b>공유 채널 금지</b>, 설정 파일/환경변수에만.</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">🧭</span> 작업 · 검증</h3>
+                <ul class="list">
+                    <li>AI에게 <b>작업 폴더를 정해</b>주고 그 안에서만.</li>
+                    <li>결과는 <b>사람이 확인</b> — AI도 틀립니다(할루시네이션). '자동 승인'은 신중히.</li>
+                </ul>
+            </div>
+            <div class="callout amber reveal" style="grid-column:1/-1;">보안·저작권·할루시네이션은 <b>이론 4강</b>에서 더 깊게 — 오늘은 "위험을 아는 상태로 시작"이 목표.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 28 오늘 요약 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 오늘 요약</span><span class="sec">28 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Recap</div>
+            <h2 class="t">오늘 완료한 것 — <span class="hl">체크</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal" style="border-color:rgba(12,166,120,.4); background:linear-gradient(180deg,var(--accent-dim),#fff);">
+                <h3><span class="ic">✅</span> 완료 기준</h3>
+                <ul class="check">
+                    <li>터미널 · Node.js 준비</li>
+                    <li>Claude Code 설치 · 로그인</li>
+                    <li>OMP 실행 성공</li>
+                    <li>스킬 1개 사용 · MCP 1개 연결</li>
+                    <li>미니 실습 성공</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🧠</span> 개념 한 줄 정리</h3>
+                <ul class="list tight">
+                    <li><b>터미널</b> = 글로 명령하는 창</li>
+                    <li><b>클로드</b> = 두뇌 / <b>Claude Code</b> = 터미널 속 클로드</li>
+                    <li><b>OMP</b> = 클로드를 일하게 만드는 하네스</li>
+                    <li><b>스킬</b> = 업무 매뉴얼 / <b>MCP</b> = 외부 연결 단자</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== N5 다음 강의 미리보기 5단계 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앞으로 배울 것 — 미리보기</span><span class="sec">33 / 35</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Preview</div>
+            <h2 class="t">다음 강의부터 — <span class="hl">나만의 AI 에이전트 5단계</span></h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="margin-top:14px;">
+                <div class="fnode"><div class="fi">📁</div><div class="fn-t">① 프로젝트</div><div class="fn-s">업무 폴더 생성</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">📝</div><div class="fn-t">② 설계서</div><div class="fn-s">What · Why · How</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">🔍</div><div class="fn-t">③ 계획 검토</div><div class="fn-s">Plan 모드로 확인</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">⚙️</div><div class="fn-t">④ 세팅</div><div class="fn-s">스킬·서브에이전트</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">🔁</div><div class="fn-t">⑤ 실행·개선</div><div class="fn-s">피드백으로 성장</div></div>
+            </div>
+            <div class="grid-2" style="margin-top:28px;">
+                <div class="panel plain reveal"><h3><span class="ic">🧱</span> 설계서 = AI의 '건축 도면'</h3><ul class="list tight"><li><b>What</b> 무슨 단계로 · <b>Why</b> 왜 · <b>How</b> 어떤 도구로</li><li>잘 쓴 설계서가 좋은 에이전트를 만듭니다.</li></ul></div>
+                <div class="panel plain reveal"><h3><span class="ic">🧑‍✈️</span> 사람은 '판단', AI는 '실행'</h3><ul class="list tight"><li>중요한 결정 지점엔 <b>사람이 개입</b> (Human-in-the-loop).</li><li>피드백을 주면 에이전트가 <b>신입처럼 성장</b>.</li></ul></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 29 과제 + 다음 시간 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 과제 · 다음 시간</span><span class="sec">29 / 30</span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Homework &amp; Next</div>
+            <h2 class="t">다음 시간 전까지 — <span class="hl">이것만</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">📝</span> 과제</h3>
+                <ul class="list">
+                    <li>오늘 환경이 <b>내 노트북에서 다시 켜지는지</b> 한 번 더 확인.</li>
+                    <li>스킬·MCP를 <b>각각 1개씩</b> 더 붙여보기(자유).</li>
+                    <li>막힌 지점·에러를 <b>메모/캡처</b>해서 가져오기.</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">➡️</span> 2강 예고 — 커스텀 스킬 도구 생성</h3>
+                <ul class="list">
+                    <li>오늘 '써본' 스킬을 <b>직접 만듭니다.</b></li>
+                    <li>데이터 <b>수집·분석</b>, 인사이트 추출 실습.</li>
+                    <li>오늘 만든 <span class="mono">ai-lab</span> 환경을 그대로 사용.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:16px;">즉, <b>오늘 환경이 곧 다음 실습의 무대</b>입니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 30 마무리 ===================== -->
+<section class="slide end">
+    <div class="inner">
+        <div class="title-kicker reveal">삼삼엠투 AI 교육 · 실습반 1강</div>
+        <h1 class="end-h reveal">수고하셨습니다 <span class="thin">— 환경 완성!</span></h1>
+        <p class="title-sub reveal" style="margin-top:24px;">이제 각자 노트북이 <b>AI 에이전트 작업실</b>이 되었습니다.<br>다음 시간엔 이 위에서 <b>나만의 도구(스킬)</b>를 만듭니다.</p>
+        <div class="flow reveal" style="margin-top:44px; max-width:900px;">
+            <div class="fnode hot"><div class="fi">🧩</div><div class="fn-t">Q &amp; A</div><div class="fn-s">막힌 곳 지금 해결</div></div>
+            <div class="farrow">·</div>
+            <div class="fnode"><div class="fi">💬</div><div class="fn-t">문의</div><div class="fn-s">실습 1반 채널</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>강사 <b>박현웅</b></span><span>실습 1반 · 월·수</span><span>NEXT <b>2강 — 커스텀 스킬 도구 생성</b></span>
+        </div>
+    </div>
+</section>
+<!-- APPEND:SLIDES -->
+</main>
+</div>
+
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-page" id="deckPage">01 / 30</div>
+<div class="deck-hint">← → 이동 · E 편집 · Ctrl+S 저장 · F11 전체화면</div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="편집 모드 (E)">✏️</button>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   고정 1920×1080 스테이지 스케일링 + 내비게이션
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.stage = document.getElementById('deckStage');
+        this.progress = document.getElementById('deckProgress');
+        this.page = document.getElementById('deckPage');
+        this.current = 0;
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        const fromHash = parseInt((location.hash || '').replace('#', ''), 10);
+        this.showSlide(isNaN(fromHash) ? 0 : fromHash - 1);
+        this.slides.forEach((s, k) => {
+            const sec = s.querySelector('.chrome .sec');
+            if (sec) sec.textContent = String(k + 1).padStart(2, '0') + ' / ' + this.slides.length;
+        });
+    }
+    setupStageScale() {
+        const scale = () => {
+            const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * f) / 2;
+            const y = (window.innerHeight - 1080 * f) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.isContentEditable || document.designMode === 'on' && e.key !== 'Escape') {
+                if (!(e.ctrlKey || e.metaKey)) return;
+            }
+            switch (e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+                    e.preventDefault(); this.next(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+                    e.preventDefault(); this.prev(); break;
+                case 'Home': e.preventDefault(); this.showSlide(0); break;
+                case 'End': e.preventDefault(); this.showSlide(this.slides.length - 1); break;
+            }
+        });
+    }
+    setupTouchNav() {
+        let sx = 0;
+        document.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - sx;
+            if (Math.abs(dx) > 60) dx < 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    setupWheelNav() {
+        let lock = false;
+        document.addEventListener('wheel', (e) => {
+            if (document.designMode === 'on') return;
+            if (lock || Math.abs(e.deltaY) < 24) return;
+            lock = true; setTimeout(() => lock = false, 550);
+            e.deltaY > 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    next() { this.showSlide(this.current + 1); }
+    prev() { this.showSlide(this.current - 1); }
+    showSlide(i) {
+        this.current = Math.max(0, Math.min(i, this.slides.length - 1));
+        this.slides.forEach((s, k) => {
+            s.classList.toggle('active', k === this.current);
+            s.classList.toggle('visible', k === this.current);
+        });
+        const n = this.current + 1, total = this.slides.length;
+        this.progress.style.width = (n / total * 100) + '%';
+        this.page.textContent = String(n).padStart(2, '0') + ' / ' + total;
+        history.replaceState(null, '', '#' + n);
+    }
+}
+
+/* ===========================================
+   INLINE EDITOR — E 키/좌상단 핫존, Ctrl+S 저장
+   =========================================== */
+const editor = {
+    isActive: false,
+    KEY: 'practical-lab1-setup-edits',
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.designMode = this.isActive ? 'on' : 'off';
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        if (!this.isActive) this.persist();
+    },
+    persist() {
+        try { localStorage.setItem(this.KEY, document.getElementById('deckStage').innerHTML); } catch (e) {}
+    },
+    restore() {
+        try {
+            const saved = localStorage.getItem(this.KEY);
+            if (saved) document.getElementById('deckStage').innerHTML = saved;
+        } catch (e) {}
+    },
+    exportFile() {
+        this.persist();
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '실습1강_작업환경구축_edited.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+};
+editor.restore();
+const deck = new SlidePresentation();
+
+const hotzone = document.getElementById('editHotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+const showBtn = () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); };
+const hideBtn = () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400); };
+hotzone.addEventListener('mouseenter', showBtn);
+hotzone.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('mouseenter', showBtn);
+editToggle.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !e.target.isContentEditable && document.designMode !== 'on') editor.toggleEditMode();
+    if (e.key === 'Escape' && editor.isActive) editor.toggleEditMode();
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); editor.exportFile(); }
+});
+</script>
+</body>
+</html>

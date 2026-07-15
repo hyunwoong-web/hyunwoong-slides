@@ -2,6 +2,18 @@
   "owner": "박현웅",
   "decks": [
     {
+      "slug": "practical-lab1-setup",
+      "title": "실습 1강 — 작업환경 구축 (OMP·스킬·MCP)",
+      "desc": "삼삼엠투 AI 교육 실습반 1강. 비개발자 대상으로 터미널·Claude Code·OMP(Oh My Pi)·스킬·MCP를 실제 화면 재현과 실측 명령으로 처음부터 세팅 — Windows 기준 35장.",
+      "date": "2026-07-27",
+      "tags": [
+        "AI 교육",
+        "실습반 1강",
+        "환경 구축"
+      ],
+      "extras": []
+    },
+    {
       "slug": "aitf-external-metrics",
       "title": "외부 지표 AI 모니터링 — 삼삼엠투 EMM",
       "desc": "자사·경쟁사 지표 자동 수집부터 이상 감지·자동 검토·정기 리포트까지 완전 무인화. AI 에이전트 주도 개발·운영 및 회귀 테스트 172케이스 탑재 — 33장.",
