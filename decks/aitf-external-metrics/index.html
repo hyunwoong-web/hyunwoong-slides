@@ -699,7 +699,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <h3><span class="mono">WHAT</span>플랫폼별 수집 방식</h3>
                 <table class="tbl tight">
                     <tr><td><b>네이버</b></td><td>키워드도구 30일 절대량(PC/MO) × 데이터랩 일별 지수 → <b>하루치 절대량 추정</b>(기기별 분해)</td></tr>
-                    <tr><td><b>구글</b></td><td>Trends 0~100 상대지수 — 절대량은 Ads Basic Access 승인 시 자동 추가(코드 준비 완료)</td></tr>
+                    <tr><td><b>구글</b></td><td>Trends 0~100 상대지수 — 절대량은 Ads Basic Access 승인 시 자동 추가(코드 준비 완료). <b>평소 지수가 대부분 0인 저볼륨 키워드(예: 미스터멘션)는 0↔100 플래핑</b>이라 급증 감지에서 제외(07-15)</td></tr>
                     <tr><td><b>유튜브</b></td><td>Trends YouTube 필터 지수 — <b>알림 의도적 미연결</b>: 저볼륨 0↔36 플래핑 실측 → 기록·추세 관측만</td></tr>
                 </table>
                 <div class="divlbl">키워드 구성</div>
@@ -711,7 +711,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <h3><span class="mono">SIGNAL</span>알림 규칙 + 실물 규모</h3>
                 <ul class="list tight">
                     <li>📈 네이버 — 추정 절대량 <b>중앙값×1.5 AND +100회/일</b></li>
-                    <li>📈 구글 — 지수 ≥20 AND (<b>×1.5 OR +30pt</b> — 지수 100 포화 대응)</li>
+                    <li>📈 구글 — 지수 ≥20 AND <b>기준선&gt;0</b> AND (×1.5 OR +30pt) — 평소 0인 저볼륨 키워드(0↔100 플래핑)는 제외</li>
                     <li>공통 통계 게이트 — 수정 z&gt;3.5 (극단값 내성)</li>
                 </ul>
                 <div class="divlbl">실물 규모 — 연관 신호로도 활용</div>
@@ -719,7 +719,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <div class="h">에어비앤비 브랜드 38,935회/일 (+23%) · 리브애니웨어 981회 (+15%)</div>
                     <div class="s">↳ 순위 역전·기사 알림에 "브랜드 검색량 동반 상승" 맥락으로 자동 첨부</div>
                 </div>
-                <div class="callout" style="margin-top:16px;">"유튜브는 왜 알림이 없나" — <b>데이터 품질이 기준 미달이면 연결하지 않는다</b>는 원칙</div>
+                <div class="callout" style="margin-top:16px;"><b>미스터멘션 오탐(07-15)</b> — 저검색 구글 키워드가 상대지수 <b>0↔100 플래핑</b>으로 급증 오알림(직전 8일 중앙값 0) → <b>'평소 지수&gt;0' 조건</b> 추가로 저볼륨 제외. "유튜브는 왜 알림이 없나"와 같은 원칙 — <b>데이터 품질이 기준 미달이면 연결하지 않는다</b></div>
             </div>
         </div>
     </div>
@@ -892,7 +892,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             </div>
             <div class="reveal">
                 <div class="alert warn"><div class="h">🧯 [전환 추적 고장] — ₩5만↑ 집행 중 전환이 7일 중앙값의 20% 이하</div><div class="s">↳ 해소까지 <b>매일 재알림</b> — 중대 사고 예외 (전환 태그·연동 고장은 조용히 손실 누적)</div></div>
-                <div class="alert warn"><div class="h">🚫 [소재 비승인] — 구글 DISAPPROVED + 메타 WITH_ISSUES</div><div class="s">↳ 신규 비승인만 1회 — 지속돼도 도배 없음, 해소 후 재비승인 시에만 새 사건</div></div>
+                <div class="alert warn"><div class="h">🚫 [소재 비승인] — 구글 DISAPPROVED + 메타 WITH_ISSUES</div><div class="s">↳ 신규 비승인만 1회 — 지속돼도 도배 없음, 해소 후 재비승인 시에만 새 사건. <b>반려·게재 사유 자동 첨부</b>(소재·사유 줄 분리 — 07-15)</div></div>
                 <div class="panel" style="margin-top:18px;">
                     <h3><span class="mono">NOTE</span>임계는 전부 실사고 후 조정값</h3>
                     <ul class="list tight">
@@ -925,7 +925,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             </div>
             <div class="reveal">
                 <div class="divlbl">검색 수요·자연검색</div>
-                <div class="alert"><div class="h">📈 [검색량 급증] 네이버 — 절대량 추정 ×1.5 AND +100회/일</div><div class="s">↳ 구글은 지수 ≥20 AND (×1.5 OR +30pt)</div></div>
+                <div class="alert"><div class="h">📈 [검색량 급증] 네이버 — 절대량 추정 ×1.5 AND +100회/일</div><div class="s">↳ 구글은 지수 ≥20 AND 기준선&gt;0 AND (×1.5 OR +30pt) — 저볼륨 플래핑 제외</div></div>
                 <div class="alert warn"><div class="h">🔻 [자연검색 노출 급감] — 7일 중앙값 −30%</div><div class="s">↳ 디인덱싱·페널티 조기 경보 — 색인/패널티 확인 안내 첨부</div></div>
                 <div class="panel" style="margin-top:18px;">
                     <h3><span class="mono">CASE</span>콜드스타트 기간의 수동 대응</h3>
