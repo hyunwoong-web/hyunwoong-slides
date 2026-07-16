@@ -211,7 +211,7 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
     <tr><th style="width:120px">계정</th><th>구조</th><th>30일 실측</th><th style="width:250px">액션</th></tr>
     <tr><td><b>국내 결제</b></td><td>UA_판매(광타겟) + RE_판매(리타겟)</td><td>UA 801 · RE 1,499건 — 학습 임계(주 50 <a href="https://www.facebook.com/business/help/112167992830700" target="_blank">[M1]</a>) 상회*</td><td class="pos">유지</td></tr>
     <tr><td><b>국내 설치</b></td><td>게스트_앱설치 AOS/iOS</td><td>설치 12,600건/30일</td><td>애드셋 6종 표준화 (SL 13)</td></tr>
-    <tr><td><b>해외 결제</b></td><td>해외_판매 + 판매_ALL <b>2개 병렬</b></td><td>278건 vs <span class="neg">13건 (임계 대폭 미달)</span></td><td class="neg">판매_ALL → 해외_판매 즉시 통합</td></tr>
+    <tr><td><b>해외 결제</b></td><td>해외_판매 + 판매_ALL(국가 확대형) <b>2개 병렬</b></td><td>278건 vs <span class="neg">13건 (임계 대폭 미달)</span></td><td class="neg">국가 확대형 OFF(저효율) → 타겟팅 앱 설치 전환 · 해외_판매로 단일화</td></tr>
     <tr><td><b>해외 설치</b></td><td>AOS / iOS</td><td>3,400건/30일</td><td>AOS 우선 증액 (SL 16)</td></tr>
   </table>
   <div class="card" style="margin-top:14px"><h3>내부 실험 증거</h3><p><b>UA_판매_여행 (테스트) = PAUSED</b> — 세그먼트 분리 캠페인이 통합 구조를 이기지 못하고 중단된 자사 선례.</p></div></div>
@@ -447,7 +447,34 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
   <div class="note">게이트 기준의 "제안 기준" 표기 항목은 이 자리에서 조정·확정.</div>
 </section>
 
-<!-- 23 부록 A -->
+<!-- 23 7월 운영 조정 -->
+<section class="slide">
+  <div class="eyebrow">July Execution</div>
+  <div class="sl-head"><h2>7월 운영 전략 조정 — <span class="hl">이번 달 당장 바꾸는 것</span></h2><div class="tagpill">전략(SL 3~19)의 7월 실행분</div></div>
+  <div class="fill"><div class="three">
+    <div class="card"><h3>① 공통 — 풀 주입</h3>
+      <p>판매 <b>앞단 앱 설치 캠페인을 증액</b>해 판매(리타겟) 캠페인의 <b>풀에 신규 모수를 계속 부어준다</b>.</p>
+      <p style="margin-top:8px;color:var(--light)">근거 — 상위 확장 = 리타겟 효율의 상한 (SL 5·7·17)</p>
+    </div>
+    <div class="card"><h3>② 임차인 해외</h3>
+      <p>• <b>국가 확대 캠페인 OFF</b> — 호주·캐나다·미국 + K-pop 관심사 무효, <span class="neg">ROAS 15% 저효율 종료</span></p>
+      <p style="margin-top:6px">• 해당 <b>타겟팅 → 앱 설치 캠페인으로 전환</b></p>
+      <p style="margin-top:6px">• <b>DSP 확장</b> — 한국거주 외국인·교포 (SL 18)</p>
+      <p style="margin-top:6px">• <b>방한예정</b> — Meta·Google 앱 설치로 <b>신규 시드 확보</b> (SL 15)</p>
+      <p style="margin-top:6px">• 앱 설치 예산 확대 <span class="badge warn">규모 검토</span> — 채널 전체 ROAS 유지선 내에서</p>
+    </div>
+    <div class="card"><h3>③ 임차인 국내</h3>
+      <p>• <b>주력 ACa 유지</b>, 그 외 ACa <b>통합 테스트</b> <span class="badge warn">구조 검토</span> (SL 12) — 학습이 효과적 타겟을 자동 탐색·수렴</p>
+      <p style="margin-top:6px">• 핵심 타겟 <b>세분화</b> — 이사/인테리어 → 이사·인테리어 (SL 13)</p>
+      <p style="margin-top:6px">• 앱 설치에서 <b>타겟팅 정교화·신규 타겟 발굴</b> (SL 13·14)</p>
+      <p style="margin-top:6px">• 판매 캠페인이 <b>확대된 풀을 수확</b>하도록 구조화 (SL 10·17)</p>
+      <p style="margin-top:6px">• ACa <b>그룹(타겟)별 맞춤 소재</b> 노출로 디벨롭</p>
+    </div>
+  </div></div>
+  <div class="note">"확장은 상위 퍼널에서, 수확은 하위에서"(SL 3 원칙)의 7월 적용 — <span class="badge warn">검토</span> 항목(해외 앱설치 예산 규모 · 국내 ACa 통합 구조)은 이 자리에서 확정.</div>
+</section>
+
+<!-- 24 부록 A -->
 <section class="slide">
   <div class="eyebrow">Appendix A</div>
   <div class="sl-head"><h2>공식 근거 링크</h2><div class="tagpill">✅ = 링크 생존 확인 2026-07-14</div></div>
@@ -465,7 +492,7 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
   <div class="note"></div>
 </section>
 
-<!-- 24 부록 B -->
+<!-- 25 부록 B -->
 <section class="slide">
   <div class="eyebrow">Appendix B</div>
   <div class="sl-head"><h2>데이터 기준 (Q&amp;A 대비)</h2><div class="tagpill">조회일 2026-07-14</div></div>
