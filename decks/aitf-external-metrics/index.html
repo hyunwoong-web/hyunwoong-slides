@@ -364,7 +364,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="body grid-3" style="grid-template-rows: 1fr 1fr;">
             <div class="stat reveal"><div class="num">8<small>개사</small></div><div class="lbl">추적 대상</div><div class="sub">자사 삼삼엠투 + 경쟁 7사 — 리브애니웨어·자리톡·에어비앤비·단단홈즈·미스터멘션·엔코스테이·직방(스테이 부분)</div></div>
             <div class="stat reveal"><div class="num">23<small>탭</small></div><div class="lbl">수집기 23개 모듈 → 시트 23탭</div><div class="sub">전 지표 시계열 누적 · 자연키 중복 0% 상시 감사</div></div>
-            <div class="stat reveal"><div class="num">30<small>회/일</small></div><div class="lbl">수집 리듬 5개</div><div class="sub">매시(GA4) · 하루 4회(당일 광고·동향) · 매일 9시(확정치) · 11시(DSP) · 17시(소진)</div></div>
+            <div class="stat reveal"><div class="num">30<small>회/일</small></div><div class="lbl">수집 리듬 5개</div><div class="sub">매시(GA4) · 하루 4회(당일 광고·동향) · 매일 9시(확정치) · 11시(DSP) · 15시(실적)</div></div>
             <div class="stat reveal"><div class="num">30<small>+4종</small></div><div class="lbl">이벤트 알림 ~30종 + 정기 리포트 4종</div><div class="sub">주제별 Google Chat 스페이스 9개로 라우팅</div></div>
             <div class="stat reveal"><div class="num">0<small>건</small></div><div class="lbl">무인 운영 스케줄 실패</div><div class="sub">07-09 이후 GitHub Actions + n8n — 노트북이 꺼져 있어도 동작</div></div>
             <div class="stat reveal"><div class="num">172<small>케이스</small></div><div class="lbl">AI 에이전트 주도 개발·운영</div><div class="sub">감지·알림 로직 회귀 테스트로 품질 방어 — 사람은 정책 결정만</div></div>
@@ -453,7 +453,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         </div>
         <div class="body">
             <div class="flow reveal">
-                <div class="fnode"><div class="fn-t">n8n 스케줄</div><div class="fn-s">+ 17:00 cron<br>+ 워치독 10:30 백스톱</div></div>
+                <div class="fnode"><div class="fn-t">n8n 스케줄</div><div class="fn-s">+ 15:00 cron<br>+ 워치독 10:30 백스톱</div></div>
                 <div class="farrow">→</div>
                 <div class="fnode hot"><div class="fn-t">GitHub Actions 러너</div><div class="fn-s">run.py 수집기 23종<br>시크릿 = EMM_DOTENV · 세션 gpg</div></div>
                 <div class="farrow">→</div>
@@ -537,7 +537,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><td class="mono"><b>10:05 / 14:05 / 18:05 / 22:05</b></td><td><span class="chip" style="font-size:17px;">intraday</span></td><td>당일 광고 스냅샷 3채널 + 뉴스·공지·앱버전 증분</td><td>당일 페이스(R4)+자동 검토 · 신규 기사·공지</td></tr>
                     <tr><td class="mono"><b>10:30</b></td><td><span class="chip n" style="font-size:17px;">watchdog</span></td><td>daily 미실행 감지 시 재기동 (백스톱)</td><td>—</td></tr>
                     <tr><td class="mono"><b>11:00</b></td><td><span class="chip" style="font-size:17px;">dsp</span></td><td>DSP 확정치 — 몰로코·애피어·RTB House·스마덱스</td><td>DSP 신규·소멸·급증</td></tr>
-                    <tr><td class="mono"><b>17:00</b></td><td><span class="chip a" style="font-size:17px;">spend</span></td><td>당일 광고 스냅샷 3채널 (17시 시점)</td><td>💰 소진 현황 카드 (정기)</td></tr>
+                    <tr><td class="mono"><b>15:00</b></td><td><span class="chip a" style="font-size:17px;">spend</span></td><td>14시 스냅샷 재사용 (추가 수집 없음)</td><td>💰 실적 현황 카드 (정기)</td></tr>
                     <tr><td class="mono"><b>매주 월 10시대</b></td><td><span class="chip n" style="font-size:17px;">편승</span></td><td>—</td><td>📦 매물 주간리뷰 + 📊 주간 광고 성과 + 🔍 GSC 주간</td></tr>
                 </table>
             </div>
@@ -596,7 +596,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <div class="divlbl">주기</div>
                 <ul class="list tight">
                     <li>확정치 = 매일 09:00 <b>(DSP만 11:00</b> — 매체→에어브릿지 반영 지연)</li>
-                    <li>당일 누적 = 10·14·17·18·22시 스냅샷 (시각 컬럼 · 누적 단조성 검증)</li>
+                    <li>당일 누적 = 10·14·18·22시 스냅샷 (시각 컬럼 · 누적 단조성 검증)</li>
                 </ul>
             </div>
             <div class="panel reveal">
@@ -604,7 +604,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <ul class="list tight">
                     <li>🆕 R1 신규 캠페인 / ⚠️ R2 소멸·0원 / 🚨 R3 확정 급증 / 🚨 R4 당일 페이스 <b>(+자동 검토 첨부)</b></li>
                     <li>🧯 전환 추적 고장 / 🚫 소재 비승인 — 계정 건강 점검</li>
-                    <li>💰 소진 현황(매일 17시) / 📊 주간 다이제스트(월)</li>
+                    <li>💰 실적 현황(매일 15시) / 📊 주간 다이제스트(월)</li>
                 </ul>
                 <div class="divlbl">데이터 특성 — 실측</div>
                 <div class="alert warn">
@@ -650,6 +650,9 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <div class="h">07-13 밤새 급증 알림 8건 도배 사고</div>
                     <div class="s">↳ 지속 상승을 매 시각 새 이상처럼 재알림 → <b>지표당 하루 1회</b> 게이트 + 하한 30→100건 상향</div>
                     <div class="s corr">시뮬레이션 검증: 최근 3일 12건 → 1건</div>
+                </div>
+                <div class="alert warn">
+                    <div class="h">07-16 일간 유입 급증 '지속 고원' 재발송 → 전일 대비 1.2배 게이트로 억제</div>
                 </div>
                 <div class="callout" style="margin-top:16px;">"알림은 계속 조정된다" — 규칙은 고정물이 아니라 <b>운영하며 조율하는 시스템</b></div>
             </div>
@@ -1026,7 +1029,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         </div>
         <div class="body">
             <div class="grid-2" style="gap:22px;">
-                <div class="stat reveal"><div class="num" style="font-size:34px;">💰 광고비 소진 현황</div><div class="lbl">매일 17:00 · 전용 서식 카드</div><div class="sub">채널·계정별 당일 누계 + 전일 같은 시각 대비 %(구글·메타) · 네이버는 집계 지연 각주 · DSP 포함<br><span class="mono" style="color:var(--ink);">실물: 구글 ₩3.31M · 메타 $1,639 · 네이버 ₩394k · 기타 ₩560k</span></div></div>
+                <div class="stat reveal"><div class="num" style="font-size:34px;">💰 광고 채널별 실적 현황</div><div class="lbl">매일 15:00 · 전용 서식 카드</div><div class="sub">채널별 광고비 / 공헌이익 / ROAS + 전일 같은 시각 대비 3중 증감 · VAT 제외 통일 · 네이버 집계 지연 각주<br><span class="mono" style="color:var(--ink);">실물(07-14 14시): 구글 ₩2.19M·ROAS 427% · 메타 ROAS 231% · 공헌이익(App+Web) 기준</span></div></div>
                 <div class="stat reveal"><div class="num" style="font-size:34px;">📊 주간 광고 성과</div><div class="lbl">매주 월 10시 · 지난주 vs 전주</div><div class="sub">채널 그룹별 비용·설치·가입·결제·공헌이익 ROAS<br><span class="mono" style="color:var(--ink);">실물: 전체 ₩99.8M(+11%) · 설치 33,389(+28%) · 결제 5,308건 · ROAS 581%</span></div></div>
                 <div class="stat reveal"><div class="num" style="font-size:34px;">📦 매물 시장 주간리뷰</div><div class="lbl">매주 월 10시</div><div class="sub">시장 전체 증감 · 최대 확장/축소 지역 · 회사별 현황 + 신규 추적·수집 중단 명시<br><span class="mono" style="color:var(--ink);">실물(첫 발송): 시장 +139개(+0.21%) · 총 65,634개 · "신규 추적: 직방 1,210개"</span></div></div>
                 <div class="stat reveal"><div class="num" style="font-size:34px;">🔍 자연검색 주간 요약</div><div class="lbl">매주 월 10시 · 첫 발송 07-20</div><div class="sub">브랜드/논브랜드 성과 · 상승/하락/신규 쿼리 · 노출 가중 순위 변동 — 일일 순위 알림의 대체재</div></div>
@@ -1036,13 +1039,13 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     </div>
 </section>
 
-<!-- ===================== 22 소진 현황 카드 개선안 ===================== -->
+<!-- ===================== 22 실적 현황 카드 ===================== -->
 <section class="slide">
     <div class="inner">
-        <div class="chrome"><span><span class="dot">●</span> EMM — 소진 현황 개선안</span><span class="sec">22 / 33</span></div>
+        <div class="chrome"><span><span class="dot">●</span> EMM — 실적 현황 카드</span><span class="sec">22 / 33</span></div>
         <div class="t-wrap reveal">
-            <div class="kicker">💰 Spend Card · Next</div>
-            <h2 class="t">소진 현황 카드 개선안 — <span style="color:var(--sig)">채널별 비용 / 공헌이익 / ROAS</span> 한 줄에</h2>
+            <div class="kicker">💰 Performance Card</div>
+            <h2 class="t">광고 채널별 실적 현황 카드 — <span style="color:var(--sig)">채널별 광고비 / 공헌이익 / ROAS</span> 한 줄에</h2>
         </div>
         <div class="body grid-2">
             <div class="panel reveal" style="background:var(--panel-2);">
@@ -1055,26 +1058,26 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
 &nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">$1,455.50</span> — 임차인 $1,155.72 · 해외 $249.82 · 임대인 $49.96<br>
 <span style="color:var(--ink-faint);">네이버 검색광고 · 집계 지연 각주</span><br>
 &nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">₩481,479</span> — MO ₩320,353 · PC ₩161,126<br>
-<span style="color:var(--ink-faint);">그 외 채널(에어브리지)</span><br>
+<span style="color:var(--ink-faint);">그 외 채널(에어브릿지)</span><br>
 &nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">₩750,242</span> — rtbhouse ₩427,714 · appier ₩187,886 · smadex ₩134,643
                 </div>
             </div>
             <div class="reveal">
                 <div class="panel" style="border-color:rgba(20,86,240,.4); margin-bottom:16px;">
-                    <h3><span class="mono">TO-BE</span>확정 형식 — 07-14 실측 값 <span class="chip" style="font-size:16px;">구현 완료 · 내일 17시부터</span></h3>
+                    <h3><span class="mono">LIVE</span>확정 형식 — 07-14 실측 값 <span class="chip" style="font-size:16px;">매일 15:00 발송</span></h3>
                     <div style="font-family:var(--font-mono); font-size:18px; line-height:1.75; color:var(--ink-dim); background:var(--panel-2); border:1px solid rgba(20,86,240,.3); border-radius:10px; padding:16px 20px;">
 <span style="color:var(--ink-faint);">구글 · 14:00 수집 · 전일 같은 시각 대비 -7%</span><br>
 &nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">₩2,194,043</span> / <span style="color:var(--sig);font-weight:600;">₩9,379,113</span> / <span style="color:var(--sig);font-weight:600;">ROAS 427%</span><br>
 <span style="color:var(--ink-faint);">메타 · 14:00 수집 · 전일 같은 시각 대비 +23%</span><br>
 &nbsp;&nbsp;<span style="color:var(--ink);font-weight:600;">$1,455.50</span> / <span style="color:var(--sig);font-weight:600;">₩4,383,070</span> / <span style="color:var(--sig);font-weight:600;">ROAS 231%</span><br>
-&nbsp;&nbsp;<span style="color:var(--ink-faint);">비용(채널 API 실시간) / 에어브리지 공헌이익(App+Web) / ROAS(공헌이익 기준)</span>
+&nbsp;&nbsp;<span style="color:var(--ink-faint);">광고비(채널 API·VAT 제외) / 에어브릿지 공헌이익(App+Web) / ROAS(공헌이익 기준)</span>
                     </div>
                 </div>
                 <ul class="list tight">
-                    <li><b>비용 = 채널 API 실시간</b> · 공헌이익·ROAS = 에어브리지 당일 매칭(매출 없으면 비용만)</li>
+                    <li><b>광고비 = 채널 API 실시간 · VAT 제외 통일</b>(네이버는 부가세 포함이라 /1.1) · 공헌이익·ROAS = 에어브릿지 당일 매칭</li>
                     <li><b>당일 비용 미적재 채널(몰로코 등)은 제외</b> — 사용자 확정 07-14</li>
-                    <li>메타 ROAS는 <b>에어브리지 ₩ 비용 기준</b> — 표시 통화($) 불일치 회피, 실측 231%</li>
-                    <li>하단 경고에 <b>동기화 지연 1줄 추가</b>(익일 06시 보정) · 회귀 176케이스 통과</li>
+                    <li>메타 ROAS는 <b>에어브릿지 ₩ 비용 기준</b> — 표시 통화($) 불일치 회피, 실측 231%</li>
+                    <li><b>전일 같은 시각 대비 광고비/공헌이익/ROAS 3중 증감</b> · 하단 동기화 지연 각주(익일 06시 보정) · 회귀 176케이스</li>
                 </ul>
             </div>
         </div>
@@ -1100,7 +1103,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             </div>
             <div class="reveal">
                 <div class="divlbl">정기 서식 카드</div>
-                <div class="alert"><div class="h">💰 17시 소진 현황 — 채널·계정별 누계 + 전일 대비</div><div class="cap">매일 17:00 · 광고비 봇 방</div></div>
+                <div class="alert"><div class="h">💰 15시 실적 현황 — 채널별 광고비/공헌이익/ROAS</div><div class="cap">매일 15:00 · 광고비 봇 방</div></div>
                 <div class="alert"><div class="h">📊 주간 다이제스트 — 비용·설치·가입·결제·ROAS</div><div class="cap">월 10시 · 광고비 방</div></div>
                 <div class="alert"><div class="h">📦 매물 주간리뷰 — "+139개 · 신규 추적: 직방"</div><div class="cap">월 10시 · 매물 방</div></div>
                 <div class="alert warn"><div class="h">🧯/🚫 광고 점검 — 전환 추적·소재 비승인</div><div class="s">↳ 현재 무발화 = <b>정상 상태</b> (문제 있을 때만 오는 알림)</div><div class="cap">매일 09시대 1회 점검</div></div>
@@ -1294,7 +1297,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <table class="tbl tight">
                         <tr><th style="width:220px;">웹훅 키</th><th>수신 내용</th></tr>
                         <tr><td class="mono"><b>…_ADS</b></td><td>광고 4채널 확정·당일 7탭(네이버·구글·메타·DSP) + 광고_점검(전환추적·비승인) + 📊 주간 광고 성과</td></tr>
-                        <tr><td class="mono"><b>…_SPEND</b></td><td>💰 매일 17시 소진 현황 카드 (전용 — 폴백 ADS→기본)</td></tr>
+                        <tr><td class="mono"><b>…_SPEND</b></td><td>💰 매일 15시 실적 현황 카드 (전용 — 폴백 ADS→기본)</td></tr>
                         <tr><td class="mono"><b>…_NEWS</b></td><td>뉴스 · 경쟁사_공지 · 경쟁사_채용 · 검색량_네이버·구글 · SNS_팔로워 — 6탭</td></tr>
                         <tr><td class="mono"><b>…_APPMARKET</b></td><td>앱마켓_순위 · 카테고리순위 · 경쟁사_앱버전</td></tr>
                         <tr><td class="mono"><b>…_SUPPLY</b></td><td>경쟁사_매물수 (주간리뷰 포함)</td></tr>
@@ -1433,7 +1436,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel reveal" style="padding:16px 26px;">
                 <table class="tbl">
                     <tr><th>리포트</th><th style="width:200px;">주기</th><th style="width:200px;">채널</th><th style="width:180px;">형식</th></tr>
-                    <tr><td>💰 광고비 소진 현황</td><td>매일 17:00</td><td>광고비 봇 방</td><td>서식 카드</td></tr>
+                    <tr><td>💰 광고 채널별 실적 현황</td><td>매일 15:00</td><td>광고비 봇 방</td><td>서식 카드</td></tr>
                     <tr><td>📊 주간 광고 성과 (+결제·ROAS)</td><td>매주 월 10시</td><td>광고비 방</td><td>서식 카드</td></tr>
                     <tr><td>📦 매물 시장 주간리뷰</td><td>매주 월 10시</td><td>매물 방</td><td>카드</td></tr>
                     <tr><td>🔍 자연검색 주간 요약</td><td>매주 월 10시</td><td>자연검색 방</td><td>서식 카드 <span style="color:var(--ink-faint)">(첫 발송 07-20)</span></td></tr>
