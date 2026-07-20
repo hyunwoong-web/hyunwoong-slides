@@ -1458,33 +1458,36 @@ airbridge      mcp.airbridge.io (HTTP)    <span class="warn">! Needs auth</span>
         <div class="chrome"><span><span class="dot">●</span> MCP — 실제로 써보기</span><span class="sec">23 / 30</span></div>
         <div class="t-wrap reveal">
             <div class="kicker">MCP · Use</div>
-            <h2 class="t">연결한 MCP로 <span class="hl">외부 데이터 1건</span> 가져오기</h2>
+            <h2 class="t">말로 시키면 — <span class="hl">브라우저가 대신</span> 검색합니다</h2>
         </div>
         <div class="body cols-l">
             <div class="reveal">
                 <div class="panel plain">
                     <h3><span class="ic">▶️</span> 이렇게 시켜봅니다</h3>
-                    <div class="code reveal"><span class="c"># claude 대화창에서 (예: context7)</span>
-› context7로 'Claude Code' 문서에서
-  MCP 추가 방법 찾아줘</div>
+                    <div class="code reveal"><span class="c"># claude 대화창에서 (playwright MCP)</span>
+› 네이버에 가서 '맛집'을 검색하고
+  상위 결과 5개 가져와줘</div>
                     <ul class="list" style="margin-top:16px;">
-                        <li>AI가 <b>연결된 MCP를 통해</b> 바깥 정보를 직접 가져옵니다.</li>
-                        <li>사용할 MCP는 강사가 지정해 함께 실행.</li>
+                        <li><b>Playwright MCP = 브라우저를 손발처럼 부리는 MCP.</b> 코드 없이 말로 웹을 자동화.</li>
+                        <li>예전엔 이런 자동화에 <b>테스트 스크립트(코드)</b>를 직접 짜야 했습니다.</li>
+                        <li>이제는 <b>자연어 한마디</b>로 — AI가 <b>진짜 브라우저</b>를 열어 검색·클릭까지 수행.</li>
+                        <li>API가 없어도 <b>사람이 보는 화면 그대로</b> 결과를 가져옵니다.</li>
                     </ul>
                 </div>
             </div>
             <div class="oconv reveal">
-                <div class="tb"><span class="ti">π</span> context7 · MCP 사용</div>
-                <div class="in"><span class="pr">›</span> context7로 Claude Code 문서에서 MCP 추가법 찾아줘</div>
+                <div class="tb"><span class="ti">π</span> playwright · MCP 사용</div>
+                <div class="in"><span class="pr">›</span> 네이버에 가서 '맛집' 검색해줘</div>
                 <div class="out">
-                    <span class="badge">🔌 MCP 호출 · context7</span>
-                    <div style="margin-top:10px;">문서에서 찾은 내용:</div>
+                    <span class="badge">🔌 MCP 호출 · playwright</span>
+                    <div class="dim" style="margin-top:8px;">브라우저 실행 → naver.com → '맛집' 입력 → 검색 🔎</div>
+                    <div style="margin-top:10px;">'네이버 · 맛집' 상위 결과</div>
                     <ul>
-                        <li><span class="lnk">.mcp.json</span> 에 서버를 추가하면 자동 연결</li>
-                        <li>또는 <span class="lnk">claude mcp add</span> 명령으로 추가</li>
-                        <li>연결 상태는 <span class="lnk">claude mcp list</span> 로 확인</li>
+                        <li>성수동 파스타 맛집 BEST 5 <span class="dim">(블로그)</span></li>
+                        <li>강남 회식 맛집 추천 리스트 <span class="dim">(블로그)</span></li>
+                        <li>내 주변 맛집 · 리뷰 많은 순 <span class="lnk">(플레이스)</span></li>
                     </ul>
-                    <div class="dim" style="margin-top:8px;">출처: docs.claude.com/…/mcp</div>
+                    <div class="dim" style="margin-top:8px;">출처: search.naver.com · <b>예시</b></div>
                 </div>
             </div>
         </div>
