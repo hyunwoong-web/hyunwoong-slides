@@ -1286,32 +1286,36 @@ session-history  commit-history  remember ...</pre>
         <div class="body cols-l">
             <div class="reveal">
                 <div class="panel plain">
-                    <h3><span class="ic">▶️</span> 이렇게 시켜봅니다</h3>
+                    <h3><span class="ic">▶️</span> 이렇게 시켜봅니다 — <b>PPT 만들기</b></h3>
+                    <div class="divlbl">① 스킬 설치 (한 번만)</div>
+                    <div class="code reveal"><span class="c"># claude 대화창 또는 터미널에서</span>
+npx skills add https://github.com/lewislulu/html-ppt-skill</div>
+                    <div class="divlbl" style="margin-top:14px;">② claude에게 시키기</div>
                     <div class="code reveal"><span class="c"># claude 대화창에서</span>
-› recap 스킬로 최근 작업 요약해줘</div>
-                    <ul class="list" style="margin-top:16px;">
-                        <li>스킬 이름을 말하면 Claude Code가 그 <b>매뉴얼대로</b> 수행.</li>
-                        <li>결과가 나오면 — 스킬이 어떻게 동작했는지 함께 봅니다.</li>
+› html-ppt 스킬로 catalog.md 기획안을
+  8장 발표자료로 만들어줘 (tokyo-night 테마)</div>
+                    <ul class="list" style="margin-top:14px;">
+                        <li>스킬 이름(<b>html-ppt</b>)을 말하면 Claude Code가 <b>매뉴얼(SKILL.md)대로</b> 수행.</li>
+                        <li>앞서 정리한 <b>MD(catalog.md)</b>가 그대로 <b>발표자료의 재료</b> — 36테마·발표자 모드.</li>
                     </ul>
                 </div>
             </div>
             <div class="reveal">
-                <div class="oconv reveal">
-                    <div class="tb"><span class="ti">π</span> recap · 스킬 실행</div>
-                    <div class="in"><span class="pr">›</span> recap 스킬로 최근 작업 요약해줘</div>
-                    <div class="out">
-                        <span class="hd">📋 Recap — 최근 세션 요약</span>
-                        <div class="dt">2026-07-14</div>
-                        <ul>
-                            <li>발표 슬라이드 초안 작성 <span class="dim">(메시지 32)</span></li>
-                            <li>매출 데이터 정리 · 표 생성 <span class="dim">(메시지 18)</span></li>
+                <div class="shot reveal">
+                    <div class="cap"><span class="d"></span><span class="d"></span><span class="d"></span><span class="u">외부-지표-모니터링/index.html</span></div>
+                    <div style="padding:34px 40px 22px; background:radial-gradient(1100px 480px at 12% -20%, #24283b, #1a1b26 62%); color:#c0caf5; font-family:var(--font-code); min-height:292px;">
+                        <div style="font-size:13.5px; letter-spacing:.24em; color:#7aa2f7;">01 · OVERVIEW</div>
+                        <div style="font-size:34px; font-weight:800; color:#fff; margin-top:10px; line-height:1.15; font-family:var(--font-body);">외부 지표 모니터링</div>
+                        <div style="font-size:16px; color:#565f89; margin-top:8px; font-family:var(--font-body);">자사·경쟁사 지표 자동 수집·모니터링</div>
+                        <ul style="list-style:none; padding:0; margin:22px 0 0; font-size:16.5px; line-height:1.95; font-family:var(--font-body);">
+                            <li><span style="color:#9ece6a;">▸</span> 경쟁사 <b style="color:#fff;">6개사</b> 지표 매일 자동 수집</li>
+                            <li><span style="color:#9ece6a;">▸</span> Google Sheets <b style="color:#fff;">20+ 탭</b>에 누적</li>
+                            <li><span style="color:#9ece6a;">▸</span> 이상 징후 → 자동 알림(Google Chat)</li>
                         </ul>
-                        <div class="dt">2026-07-13</div>
-                        <ul>
-                            <li>회의록 요약 → 액션아이템 추출</li>
-                        </ul>
+                        <div style="margin-top:24px; font-size:13px; color:#565f89; border-top:1px solid #2a2e42; padding-top:10px;">1 / 8 &nbsp;·&nbsp; ← → 이동 &nbsp;·&nbsp; F 전체화면 &nbsp;·&nbsp; S 발표자 모드</div>
                     </div>
                 </div>
+                <div class="callout ok reveal" style="margin-top:14px;">🎨 36 테마 · 31 레이아웃 · 47 애니메이션 · 발표자 모드(S) — 순수 HTML이라 <b>브라우저로 바로 발표</b>.</div>
             </div>
         </div>
     </div>
