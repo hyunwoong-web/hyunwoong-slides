@@ -1792,14 +1792,24 @@ const editor = {
         if (!this.isActive) this.persist();
     },
     persist() {
-        try { localStorage.setItem(this.KEY, document.getElementById('deckStage').innerHTML); } catch (e) {}
+        try { localStorage.setItem(this.KEY, JSON.stringify({ base: this._baseSig, html: document.getElementById('deckStage').innerHTML })); } catch (e) {}
     },
     restore() {
         try {
-            const saved = localStorage.getItem(this.KEY);
-            if (saved) document.getElementById('deckStage').innerHTML = saved;
+            const stage = document.getElementById('deckStage');
+            this._baseSig = this._sig(stage.innerHTML);           // fingerprint of this file's own content
+            const raw = localStorage.getItem(this.KEY);
+            if (!raw) return;
+            let obj = null;
+            try { obj = JSON.parse(raw); } catch (e) {}
+            if (obj && obj.base === this._baseSig && obj.html) {   // saved edits still match this file version
+                stage.innerHTML = obj.html;
+            } else {
+                localStorage.removeItem(this.KEY);                // file changed since last edit -> drop stale copy
+            }
         } catch (e) {}
     },
+    _sig(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; } return s.length + ':' + h; },
     exportFile() {
         this.persist();
         const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
