@@ -749,7 +749,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel reveal">
                 <h3><span class="mono">WHAT</span>3개 지표 수집 방식</h3>
                 <table class="tbl tight">
-                    <tr><td><b>뉴스</b><br><span style="font-size:18px;color:var(--ink-faint)">일 5회</span></td><td>네이버뉴스 API + 구글뉴스 RSS — 브랜드 쿼리+제목 필터, <b>신디케이션 병합</b>(여러 매체 동일 기사) + <b>주제ID 클러스터링</b>(후속보도를 같은 스레드로), 발행 14일 초과 알림 제외</td></tr>
+                    <tr><td><b>뉴스</b><br><span style="font-size:18px;color:var(--ink-faint)">일 5회</span></td><td>네이버뉴스 API + 구글뉴스 RSS — 브랜드 쿼리+제목 필터, <b>에어비앤비 해외 기사 제외</b>(미 증시·해외 한정 보도 — 국내 시장 기사는 유지), <b>신디케이션 병합</b>(여러 매체 동일 기사) + <b>주제ID 클러스터링</b>(후속보도를 같은 스레드로), 발행 14일 초과 알림 제외</td></tr>
                     <tr><td><b>공지·프로모션</b><br><span style="font-size:18px;color:var(--ink-faint)">6개사 · 일 5회</span></td><td>공식 소스 직접 — 미스터=이벤트 JSON · 에어비앤비=뉴스룸 RSS · 엔코=Zendesk · 단단=백엔드 · 리브=Playwright · <b>직방=Next.js 빌드 매니페스트 라우트 열거</b>(목록 API 부재 우회). 자리톡=소스 미발견(보류)</td></tr>
                     <tr><td><b>채용</b><br><span style="font-size:18px;color:var(--ink-faint)">4개사 · 일 1회</span></td><td>원티드(자리톡·리브·엔코) + 사람인(미스터멘션) — 처음 보는 포지션만, 포지션당 1회</td></tr>
                 </table>
