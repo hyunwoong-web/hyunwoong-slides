@@ -1066,10 +1066,14 @@ v22.14.0
         <div class="body cols-l">
             <div class="reveal">
                 <div class="panel plain">
-                    <ul class="list">
-                        <li><b>VS Code</b>(무료 · <span class="mono">code.visualstudio.com</span>)로 폴더를 열면 제일 편합니다.</li>
-                        <li><span class="mono">.md</span> 파일 열고 → <b>Ctrl+Shift+V</b> = 렌더된 <b>미리보기</b>.</li>
-                        <li>오른쪽 위 <b>미리보기 아이콘</b>(또는 <span class="mono">Ctrl+K V</span>) = 원문·미리보기 <b>나란히</b>.</li>
+                    <div style="font-size:21px; color:var(--ink-dim); margin-bottom:14px;"><b style="color:var(--ink);">VS Code</b>(무료 · <span class="mono">code.visualstudio.com</span>)로 폴더 열기 → <b style="color:var(--ink);">미리보기 여는 4가지 방법</b></div>
+                    <table class="tbl tight">
+                        <tr><td style="white-space:nowrap;"><b>① 단축키</b> <span class="chip br">가장 빠름</span></td><td><span class="mono"><b>Ctrl+Shift+V</b></span> <span style="color:var(--ink-faint);">(Mac: ⌘⇧V)</span> — 지금 탭이 미리보기로 바뀜</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>② 나란히 보기</b></td><td><span class="mono"><b>Ctrl+K</b></span> 뗐다가 <span class="mono"><b>V</b></span> — 원문 오른쪽에 미리보기 (오른쪽 그림)</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>③ 아이콘 클릭</b></td><td><span class="mono">.md</span> 열고 <b>오른쪽 위 미리보기 아이콘</b> 클릭</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>④ 우클릭</b></td><td>파일(탭) <b>우클릭 → Open Preview</b> 선택</td></tr>
+                    </table>
+                    <ul class="list tight" style="margin-top:14px;">
                         <li>그냥 읽기만: <b>GitHub</b>은 <span class="mono">.md</span>를 자동으로 예쁘게 렌더링. 메모장으로도 열림(원문).</li>
                         <li>텍스트라 <b>누구나 수정</b> — AI가 쓴 MD를 사람이 검토·보완.</li>
                     </ul>
@@ -1078,7 +1082,7 @@ v22.14.0
             </div>
             <div class="reveal">
                 <div class="wt">
-                    <div class="tb"><span class="tab"><span class="ti">▧</span> README.md — Visual Studio Code</span><span class="plus">⋯</span><span class="win">Ctrl+Shift+V</span></div>
+                    <div class="tb"><span class="tab"><span class="ti">▧</span> README.md — Visual Studio Code</span><span class="plus">⋯</span><span class="win">Ctrl+K V</span></div>
                     <div style="display:grid; grid-template-columns:1fr 1fr;">
                         <div style="padding:14px 16px; border-right:1px solid #1E2A3A; font-family:var(--font-code); font-size:15px; line-height:1.65; color:#C7D3E2; white-space:pre-wrap;"><span style="color:#5F6E80;">원문(.md)</span>
 <span style="color:#8CB4FF;"># 외부 지표 모니터링</span>
@@ -1098,7 +1102,7 @@ v22.14.0
                         </div>
                     </div>
                 </div>
-                <div class="alert ok reveal" style="margin-top:14px;"><div class="h">💡 원문(왼쪽) → 미리보기(오른쪽)</div><div class="s">같은 파일인데 <b>Ctrl+Shift+V</b> 하나로 문서처럼 보입니다.</div></div>
+                <div class="alert ok reveal" style="margin-top:14px;"><div class="h">💡 원문(왼쪽) → 미리보기(오른쪽)</div><div class="s">같은 파일인데 단축키 하나(<b>Ctrl+K V</b> 나란히 · <b>Ctrl+Shift+V</b> 전체)로 문서처럼 보입니다.</div></div>
             </div>
         </div>
     </div>
@@ -1126,7 +1130,7 @@ v22.14.0
    ├─ n8n-scheduling.md     <span class="dim">운영 가이드</span>
    └─ 자동이슈검토_양식.md    <span class="dim">알림 출력 규칙</span></pre>
                 </div>
-                <div class="callout ok reveal" style="margin-top:14px;">이 예시는 우리 <b>aitf-external-metrics 발표</b>의 실제 사내 프로젝트 — <b>코드만큼 MD 문서</b>가 시스템의 뼈대입니다. (비공개 repo)</div>
+                <div class="callout ok reveal" style="margin-top:14px;">이 예시는 실제 사내 프로젝트 <b>'외부지표 AI 모니터링'</b> — <b>코드만큼 MD 문서</b>가 시스템의 뼈대입니다. (비공개 repo)</div>
             </div>
             <div class="reveal">
                 <div class="panel">
