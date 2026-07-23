@@ -2,6 +2,18 @@
   "owner": "박현웅",
   "decks": [
     {
+      "slug": "brand-performance-synergy",
+      "title": "브랜드 캠페인 × 인하우스 퍼포먼스 시너지 — 국내 앱 서비스 3사",
+      "desc": "토스·여기어때·오늘의집 — 메인 크리에이티브를 인하우스 마케팅이 시퀀싱·소재 변주·증분 측정으로 운영해 시너지를 낸 사례 조사. Google/Meta 공식 성공사례·자사 1차 소스 기반, 소스 등급 전 슬라이드 표기 — 14장.",
+      "date": "2026-07-23",
+      "tags": [
+        "리서치",
+        "브랜드×퍼포먼스",
+        "고관여 앱"
+      ],
+      "extras": []
+    },
+    {
       "slug": "practical-lab1-setup",
       "title": "실습 1강 — 작업환경 구축 (Claude Code·OMC·스킬·MCP)",
       "desc": "삼삼엠투 AI 교육 실습반 1강. 비개발자 대상으로 터미널·Claude Code·OMC·Orca·스킬·MCP를 실제 화면 재현·실측 명령으로 처음부터 세팅. MD 파일 정리 습관과 마켓플레이스·MEM0 추천, 사내 실사용 스킬(하이웍스 자동기안·광고 소재·airbridge)과 MCP 사례 포함. OMP(Oh My Pi)는 참고용으로 소개 — Windows 기준 42장.",
