@@ -1,5 +1,6 @@
 /* 댓글 패널 — 전 덱 공용.
  * 기본: 팀 댓글(Apps Script 백엔드) — GitHub 로그인 없이 이름 선택 + @이름 멘션 이메일 알림.
+ * 슬라이드 내 특정 지점에 핀(📍)을 찍거나, 텍스트를 드래그해 인용과 함께 댓글 작성 가능.
  * CONFIG.endpoint가 비어 있으면 giscus(GitHub Discussions)로 폴백.
  * 팀원 이메일은 백엔드(Script Properties)에만 저장되어 프런트에 노출되지 않음. */
 (() => {
@@ -63,14 +64,22 @@ style.textContent = `
 .cmt-reply-chip{display:none;align-items:center;gap:6px;font-size:12px;color:#1e2bfa;margin-bottom:8px}
 .cmt-reply-chip.on{display:flex}
 .cmt-reply-chip button{border:0;background:none;color:#999;cursor:pointer;font-size:14px;padding:0 2px}
-.cmt-send-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.cmt-send-row .tip{font-size:11px;color:#aaa}
+#cmt-anchor{display:none;align-items:flex-start;gap:6px;font-size:12px;color:#1e2bfa;margin-bottom:8px;
+  background:rgba(30,43,250,.06);border-radius:8px;padding:7px 9px;line-height:1.5}
+#cmt-anchor.on{display:flex}
+#cmt-anchor .q{color:#555;font-style:italic;word-break:break-word}
+#cmt-anchor button{border:0;background:none;color:#999;cursor:pointer;font-size:14px;padding:0 2px;flex:none}
+.cmt-send-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px}
+#cmt-pin-btn{border:1px solid rgba(30,43,250,.3);background:#fff;color:#1e2bfa;padding:7px 12px;border-radius:8px;
+  font:600 12px 'Pretendard',sans-serif;cursor:pointer}
+#cmt-pin-btn:hover{background:rgba(30,43,250,.06)}
 #cmt-send{border:0;background:#1e2bfa;color:#fff;padding:8px 18px;border-radius:8px;
-  font:600 13px 'Pretendard',sans-serif;cursor:pointer}
+  font:600 13px 'Pretendard',sans-serif;cursor:pointer;margin-left:auto}
 #cmt-send:disabled{background:#c5c9f5;cursor:default}
 #cmt-err{color:#d6336c;font-size:12px;margin-top:6px;display:none}
 /* list */
-.cmt-item{display:flex;gap:10px;padding:10px 2px}
+.cmt-item{display:flex;gap:10px;padding:10px 2px;border-radius:10px;transition:background .4s}
+.cmt-item.flash{background:rgba(30,43,250,.1)}
 .cmt-item.reply{margin-left:34px;padding-top:2px}
 .cmt-av{flex:none;width:30px;height:30px;border-radius:50%;background:rgba(30,43,250,.12);color:#1e2bfa;
   display:flex;align-items:center;justify-content:center;font:700 13px 'Pretendard',sans-serif}
@@ -78,6 +87,9 @@ style.textContent = `
 .cmt-meta{display:flex;align-items:baseline;gap:8px}
 .cmt-meta .nm{font-weight:700;font-size:13px;color:#111}
 .cmt-meta .tm{font-size:11px;color:#aaa}
+.cmt-pin-badge{font-size:11px;color:#fff;background:#1e2bfa;border-radius:100px;padding:1px 7px;font-weight:700;cursor:pointer}
+.cmt-q{border-left:3px solid rgba(30,43,250,.4);background:rgba(30,43,250,.05);color:#555;font-size:12.5px;
+  font-style:italic;padding:5px 9px;border-radius:0 6px 6px 0;margin:4px 0 2px;word-break:break-word}
 .cmt-txt{font-size:13.5px;line-height:1.6;color:#333;margin-top:2px;word-break:break-word;white-space:pre-wrap}
 .cmt-txt .cmt-m{color:#1e2bfa;font-weight:600}
 .cmt-actions{margin-top:3px}
@@ -85,6 +97,21 @@ style.textContent = `
 .cmt-actions button:hover{color:#1e2bfa}
 .cmt-empty,.cmt-load{color:#aaa;font-size:13px;text-align:center;padding:26px 0}
 .cmt-thread{border-bottom:1px solid #f2f2f2}
+/* 슬라이드 위 핀 */
+.cmt-pinlayer{position:absolute;inset:0;pointer-events:none;z-index:80}
+.cmt-pin{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;
+  width:34px;height:34px;border-radius:50% 50% 50% 4px;background:#1e2bfa;color:#fff;border:2.5px solid #fff;
+  display:flex;align-items:center;justify-content:center;font:700 14px 'Pretendard',sans-serif;
+  box-shadow:0 3px 10px rgba(0,0,0,.28)}
+.cmt-pin:hover{background:#0f1ac9}
+/* 선택 팝오버 + 토스트 */
+#cmt-selpop{position:fixed;z-index:99993;display:none;border:0;background:#1e2bfa;color:#fff;
+  padding:7px 13px;border-radius:100px;font:600 12.5px 'Pretendard',sans-serif;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#cmt-toast{position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:99993;display:none;
+  background:#111;color:#fff;padding:10px 20px;border-radius:100px;font:500 13px 'Pretendard',sans-serif;
+  box-shadow:0 6px 18px rgba(0,0,0,.3)}
+body.cmt-picking, body.cmt-picking *{cursor:crosshair !important}
 @media (max-width:600px){#cmt-fab{top:auto;bottom:14px}}
 `;
 document.head.appendChild(style);
@@ -109,8 +136,18 @@ panel.innerHTML = `
   <div id="cmt-body"></div>
   <div class="cmt-hint" id="cmt-hint"></div>`;
 
+const selpop = document.createElement('button');
+selpop.id = 'cmt-selpop';
+selpop.type = 'button';
+selpop.textContent = '💬 이 내용에 댓글';
+
+const toast = document.createElement('div');
+toast.id = 'cmt-toast';
+
 document.body.appendChild(fab);
 document.body.appendChild(panel);
+document.body.appendChild(selpop);
+document.body.appendChild(toast);
 
 const body = panel.querySelector('#cmt-body');
 const hint = panel.querySelector('#cmt-hint');
@@ -137,6 +174,7 @@ const curSlide = () => {
 const term = () => mode === 'deck'
   ? `[${slug}] 덱 전체 논의`
   : `[${slug}] p.${String(curSlide()).padStart(2, '0')}`;
+const activeSlideEl = () => document.querySelector('.slide.active');
 
 /* ================= 팀 댓글 모드 ================= */
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -145,6 +183,9 @@ let roster = [];         // 이름 목록 (이메일은 서버에만 있음)
 let items = [];
 let replyTo = null;      // {id, author}
 let mentionRe = null;
+let draftText = '';      // 탭 전환·재렌더에도 입력 보존
+let anchorDraft = null;  // {x, y, quote, term} — 작성 중인 핀/인용
+let pinPicking = false;
 
 function fmtTime(iso) {
   const d = new Date(iso), diff = (Date.now() - d.getTime()) / 1000;
@@ -174,28 +215,109 @@ function composerHTML() {
   const opts = roster.map((n) => `<option${localStorage.getItem('cmt-author') === n ? ' selected' : ''}>${esc(n)}</option>`).join('');
   return `<div class="cmt-composer">
     <div class="cmt-reply-chip" id="cmt-chip">↩ <b id="cmt-chip-nm"></b>님에게 답글 <button id="cmt-chip-x" type="button" title="답글 취소">×</button></div>
+    <div id="cmt-anchor"></div>
     <select id="cmt-author"><option value="">이름 선택…</option>${opts}</select>
     <div class="cmt-ta-wrap">
-      <textarea id="cmt-ta" placeholder="댓글 입력 — @이름 을 쓰면 이메일로 알림이 갑니다"></textarea>
+      <textarea id="cmt-ta" placeholder="댓글 입력 — @이름 을 쓰면 이메일로 알림이 갑니다">${esc(draftText)}</textarea>
       <div class="cmt-ac" id="cmt-ac" hidden></div>
     </div>
-    <div class="cmt-send-row"><span class="tip">@ 입력 시 팀원 자동완성</span><button id="cmt-send" type="button">등록</button></div>
+    <div class="cmt-send-row">
+      <button id="cmt-pin-btn" type="button" title="슬라이드의 특정 지점에 핀을 찍고 댓글 달기">📍 위치 지정</button>
+      <button id="cmt-send" type="button">등록</button>
+    </div>
     <div id="cmt-err"></div>
   </div>
   <div id="cmt-list"></div>`;
 }
 
+function updateAnchorChip() {
+  const el = body.querySelector('#cmt-anchor');
+  if (!el) return;
+  if (anchorDraft && anchorDraft.term === term()) {
+    el.innerHTML = `<span>📍 p.${curSlide()} 위치 지정됨${anchorDraft.quote
+      ? ` — <span class="q">"${esc(anchorDraft.quote.slice(0, 80))}${anchorDraft.quote.length > 80 ? '…' : ''}"</span>` : ''}</span>
+      <button type="button" id="cmt-anchor-x" title="위치 지정 해제">×</button>`;
+    el.classList.add('on');
+    el.querySelector('#cmt-anchor-x').addEventListener('click', () => { anchorDraft = null; updateAnchorChip(); renderPins(); });
+  } else {
+    el.classList.remove('on');
+    el.innerHTML = '';
+  }
+}
+
+/* 핀 번호: 앵커 있는 루트 댓글, 오래된 순으로 1번부터 */
+function pinMap() {
+  const map = {};
+  items.filter((c) => !c.parentId && c.anchor)
+    .sort((a, b) => a.ts.localeCompare(b.ts))
+    .forEach((c, i) => { map[c.id] = i + 1; });
+  return map;
+}
+
+function renderPins() {
+  document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
+  if (!ENDPOINT || !isOpen || mode !== 'slide') return;
+  const slide = activeSlideEl();
+  if (!slide) return;
+  if (getComputedStyle(slide).position === 'static') slide.style.position = 'relative';
+  const layer = document.createElement('div');
+  layer.className = 'cmt-pinlayer';
+  const map = pinMap();
+  for (const c of items) {
+    const n = map[c.id];
+    if (!n) continue;
+    const pin = document.createElement('div');
+    pin.className = 'cmt-pin';
+    pin.style.left = c.anchor.x + '%';
+    pin.style.top = c.anchor.y + '%';
+    pin.textContent = n;
+    pin.title = `${c.author}: ${c.text.slice(0, 60)}`;
+    pin.addEventListener('click', (e) => {
+      e.stopPropagation();
+      focusComment(c.id);
+    });
+    layer.appendChild(pin);
+  }
+  /* 작성 중인 핀 미리보기 */
+  if (anchorDraft && anchorDraft.term === term()) {
+    const pv = document.createElement('div');
+    pv.className = 'cmt-pin';
+    pv.style.left = anchorDraft.x + '%';
+    pv.style.top = anchorDraft.y + '%';
+    pv.style.background = '#d6336c';
+    pv.textContent = '+';
+    pv.title = '작성 중인 댓글 위치';
+    layer.appendChild(pv);
+  }
+  slide.appendChild(layer);
+}
+
+function focusComment(id) {
+  const el = body.querySelector(`[data-id="${id}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1200);
+}
+
 function renderList() {
   const list = body.querySelector('#cmt-list');
   if (!list) return;
-  if (!items.length) { list.innerHTML = '<div class="cmt-empty">아직 댓글이 없습니다 — 첫 의견을 남겨보세요.</div>'; return; }
+  if (!items.length) {
+    list.innerHTML = '<div class="cmt-empty">아직 댓글이 없습니다 — 첫 의견을 남겨보세요.</div>';
+    renderPins();
+    return;
+  }
   const roots = items.filter((c) => !c.parentId).sort((a, b) => b.ts.localeCompare(a.ts));
   const kids = {};
   items.filter((c) => c.parentId).sort((a, b) => a.ts.localeCompare(b.ts))
     .forEach((c) => (kids[c.parentId] = kids[c.parentId] || []).push(c));
-  const node = (c, reply) => `<div class="cmt-item${reply ? ' reply' : ''}">
+  const map = pinMap();
+  const node = (c, reply) => `<div class="cmt-item${reply ? ' reply' : ''}" data-id="${c.id}">
     <div class="cmt-av">${esc(c.author.charAt(0))}</div>
-    <div class="cmt-c"><div class="cmt-meta"><span class="nm">${esc(c.author)}</span><span class="tm">${fmtTime(c.ts)}</span></div>
+    <div class="cmt-c"><div class="cmt-meta"><span class="nm">${esc(c.author)}</span><span class="tm">${fmtTime(c.ts)}</span>${
+      map[c.id] ? `<span class="cmt-pin-badge" data-pin="${c.id}" title="슬라이드에서 위치 보기">📍${map[c.id]}</span>` : ''}</div>
+    ${c.quote ? `<div class="cmt-q">"${esc(c.quote)}"</div>` : ''}
     <div class="cmt-txt">${renderText(c.text)}</div>
     ${reply ? '' : `<div class="cmt-actions"><button type="button" data-reply="${c.id}" data-author="${esc(c.author)}">답글</button></div>`}</div></div>`;
   list.innerHTML = roots.map((r) =>
@@ -206,9 +328,20 @@ function renderList() {
     chip.classList.add('on');
     body.querySelector('#cmt-chip-nm').textContent = replyTo.author;
     const ta = body.querySelector('#cmt-ta');
-    if (!ta.value.includes('@' + replyTo.author)) ta.value = `@${replyTo.author} ` + ta.value;
+    if (!ta.value.includes('@' + replyTo.author)) { ta.value = `@${replyTo.author} ` + ta.value; draftText = ta.value; }
     body.scrollTop = 0; ta.focus();
   }));
+  list.querySelectorAll('[data-pin]').forEach((b) => b.addEventListener('click', () => {
+    const c = items.find((i) => i.id === b.dataset.pin);
+    if (!c) return;
+    const layerPin = [...document.querySelectorAll('.cmt-pin')].find((p) => p.textContent === String(pinMap()[c.id]));
+    if (layerPin) {
+      layerPin.style.transition = 'transform .18s';
+      layerPin.style.transform = 'translate(-50%,-100%) scale(1.45)';
+      setTimeout(() => { layerPin.style.transform = 'translate(-50%,-100%)'; }, 500);
+    }
+  }));
+  renderPins();
 }
 
 function showErr(msg) {
@@ -224,7 +357,9 @@ function bindComposer() {
   body.querySelector('#cmt-chip-x').addEventListener('click', () => {
     replyTo = null; body.querySelector('#cmt-chip').classList.remove('on');
   });
+  body.querySelector('#cmt-pin-btn').addEventListener('click', startPinPick);
   sel.addEventListener('change', () => localStorage.setItem('cmt-author', sel.value));
+  updateAnchorChip();
 
   /* @자동완성 */
   const closeAc = () => { ac.hidden = true; };
@@ -236,10 +371,12 @@ function bindComposer() {
     const pos = ta.selectionStart, t = token();
     if (t === null) return closeAc();
     ta.value = ta.value.slice(0, pos - t.length) + name + ' ' + ta.value.slice(pos);
+    draftText = ta.value;
     const np = pos - t.length + name.length + 1;
     ta.setSelectionRange(np, np); ta.focus(); closeAc();
   };
   ta.addEventListener('input', () => {
+    draftText = ta.value;
     const t = token();
     if (t === null) return closeAc();
     const found = roster.filter((n) => n.startsWith(t));
@@ -266,11 +403,17 @@ function bindComposer() {
     if (!author) return showErr('이름을 먼저 선택해 주세요.');
     if (!text) return showErr('내용을 입력해 주세요.');
     send.disabled = true; showErr('');
+    const anchored = anchorDraft && anchorDraft.term === term();
     try {
       const j = await api({ action: 'add', deck: slug, term: term(), author, text,
-        parentId: replyTo ? replyTo.id : '', code: CONFIG.code }, true);
+        parentId: replyTo ? replyTo.id : '',
+        anchor: anchored ? { x: anchorDraft.x, y: anchorDraft.y } : null,
+        quote: anchored ? (anchorDraft.quote || '') : '',
+        code: CONFIG.code }, true);
       items.push(j.item);
-      ta.value = ''; replyTo = null; body.querySelector('#cmt-chip').classList.remove('on');
+      ta.value = ''; draftText = ''; replyTo = null; anchorDraft = null;
+      body.querySelector('#cmt-chip').classList.remove('on');
+      updateAnchorChip();
       renderList();
     } catch (e) { showErr(e.message); }
     send.disabled = false;
@@ -298,6 +441,83 @@ async function loadTeam(force) {
     body.querySelector('#cmt-retry').addEventListener('click', () => loadTeam(true));
   }
 }
+
+/* ---------- 핀 찍기 (Figma 스타일) ---------- */
+function showToast(msg) { toast.textContent = msg; toast.style.display = 'block'; }
+function hideToast() { toast.style.display = 'none'; }
+
+function startPinPick() {
+  if (mode !== 'slide') setMode('slide');
+  pinPicking = true;
+  document.body.classList.add('cmt-picking');
+  showToast('📍 핀을 찍을 위치를 슬라이드에서 클릭하세요 (Esc 취소)');
+}
+function endPinPick() {
+  pinPicking = false;
+  document.body.classList.remove('cmt-picking');
+  hideToast();
+}
+document.addEventListener('click', (e) => {
+  if (!pinPicking) return;
+  if (panel.contains(e.target) || e.target === fab) return; // 패널 조작은 허용
+  e.preventDefault(); e.stopPropagation();
+  const slide = activeSlideEl();
+  if (!slide) { endPinPick(); return; }
+  const r = slide.getBoundingClientRect();
+  const x = ((e.clientX - r.left) / r.width) * 100;
+  const y = ((e.clientY - r.top) / r.height) * 100;
+  if (x < 0 || x > 100 || y < 0 || y > 100) { endPinPick(); return; } // 슬라이드 밖 클릭 → 취소
+  anchorDraft = { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, quote: '', term: term() };
+  endPinPick();
+  updateAnchorChip();
+  renderPins();
+  const ta = body.querySelector('#cmt-ta');
+  if (ta) ta.focus();
+}, true);
+
+/* ---------- 텍스트 드래그 → 인용 댓글 (구글 문서 스타일) ---------- */
+document.addEventListener('mouseup', (e) => {
+  if (!ENDPOINT || pinPicking) return;
+  if (panel.contains(e.target) || e.target === selpop) return;
+  setTimeout(() => {
+    const s = window.getSelection();
+    const text = s ? String(s).trim() : '';
+    const slide = activeSlideEl();
+    if (!text || text.length < 2 || !slide || s.rangeCount === 0
+        || !slide.contains(s.getRangeAt(0).commonAncestorContainer)) {
+      selpop.style.display = 'none';
+      return;
+    }
+    selpop.style.display = 'block';
+    selpop.style.left = Math.min(e.clientX, innerWidth - 150) + 'px';
+    selpop.style.top = Math.max(8, e.clientY - 44) + 'px';
+    selpop.dataset.quote = text.slice(0, 300);
+    const rect = s.getRangeAt(0).getBoundingClientRect();
+    const r = slide.getBoundingClientRect();
+    selpop.dataset.x = String(Math.round(((rect.left + rect.width / 2 - r.left) / r.width) * 1000) / 10);
+    selpop.dataset.y = String(Math.round(((rect.top + rect.height / 2 - r.top) / r.height) * 1000) / 10);
+  }, 0);
+});
+document.addEventListener('mousedown', (e) => {
+  if (e.target !== selpop) selpop.style.display = 'none';
+});
+selpop.addEventListener('mousedown', (e) => e.preventDefault());
+selpop.addEventListener('click', () => {
+  anchorDraft = {
+    x: Number(selpop.dataset.x), y: Number(selpop.dataset.y),
+    quote: selpop.dataset.quote, term: null,             // term은 slide 모드 확정 후 기록
+  };
+  selpop.style.display = 'none';
+  window.getSelection().removeAllRanges();
+  if (!isOpen) openPanel();
+  if (mode !== 'slide') setMode('slide'); else { anchorDraft.term = term(); updateAnchorChip(); renderPins(); }
+  anchorDraft.term = term();
+  setTimeout(() => {
+    updateAnchorChip(); renderPins();
+    const ta = body.querySelector('#cmt-ta');
+    if (ta) ta.focus();
+  }, 350);
+});
 
 /* ================= giscus 폴백 (endpoint 미설정 시) ================= */
 function loadGiscus() {
@@ -327,13 +547,14 @@ function loadGiscus() {
 /* ================= 공통 동작 ================= */
 const load = (force) => (ENDPOINT ? loadTeam(force) : loadGiscus());
 hint.innerHTML = ENDPOINT
-  ? '이름을 선택해 바로 댓글을 남길 수 있어요. <b>@이름</b>을 쓰면 해당 팀원에게 <b>이메일 알림</b>이 갑니다. 답글을 달면 원 댓글 작성자에게도 알림이 가요.'
+  ? '이름을 선택해 바로 댓글을 남길 수 있어요. <b>@이름</b> 멘션 시 이메일 알림. <b>📍 위치 지정</b>이나 <b>슬라이드 텍스트 드래그</b>로 특정 내용에 댓글을 달 수 있습니다.'
   : '<b>GitHub 계정</b>으로 로그인하면 댓글·답글·이모지 반응을 남길 수 있어요. 스레드는 저장소 <b>Discussions</b>에 저장됩니다.';
 
 /* 슬라이드 전환 감지 (replaceState 래핑 + hashchange, 디바운스) */
 let reloadTimer = null;
 function onSlideChange() {
   tabSlide.textContent = `이 슬라이드 (p.${curSlide()})`;
+  document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
   if (isOpen && mode === 'slide') {
     clearTimeout(reloadTimer);
     reloadTimer = setTimeout(() => load(), 450);
@@ -346,19 +567,26 @@ onSlideChange();
 
 function openPanel() { isOpen = true; panel.classList.add('open'); load(); }
 function closePanel() {
+  if (pinPicking) { endPinPick(); return; }
   isOpen = false; panel.classList.remove('open');
+  document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
   if (panel.contains(document.activeElement)) document.activeElement.blur();
 }
 fab.addEventListener('click', () => (isOpen ? closePanel() : openPanel()));
 panel.querySelector('#cmt-close').addEventListener('click', closePanel);
 panel.querySelector('#cmt-refresh').addEventListener('click', () => load(true));
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) closePanel(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (pinPicking) { endPinPick(); return; }
+  if (isOpen) closePanel();
+});
 
 function setMode(m) {
   mode = m;
   tabDeck.classList.toggle('on', m === 'deck');
   tabSlide.classList.toggle('on', m === 'slide');
   if (isOpen) load();
+  if (m === 'deck') document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
 }
 tabDeck.addEventListener('click', () => setMode('deck'));
 tabSlide.addEventListener('click', () => setMode('slide'));

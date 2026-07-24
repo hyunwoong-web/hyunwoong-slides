@@ -44,8 +44,11 @@ function doGet(e) {
     var items = [];
     for (var i = 0; i < rows.length; i++) {
       if (rows[i][2] === deck && rows[i][3] === t) {
+        var anch = null;
+        try { anch = rows[i][7] ? JSON.parse(rows[i][7]) : null; } catch (ig) { anch = null; }
         items.push({ id: rows[i][0], ts: rows[i][1], parentId: rows[i][4] || null,
-                     author: rows[i][5], text: rows[i][6] });
+                     author: rows[i][5], text: rows[i][6],
+                     anchor: anch, quote: rows[i][8] || '' });
       }
     }
     return json({ ok: true, items: items, names: Object.keys(roster()) });
@@ -70,6 +73,13 @@ function doPost(e) {
   var deck = String(b.deck || '').slice(0, 100);
   var termStr = String(b.term || '').slice(0, 200);
   var parentId = String(b.parentId || '');
+  /* 핀 앵커(슬라이드 내 위치 %)와 인용문 — 선택 사항 */
+  var anchor = null;
+  if (b.anchor && isFinite(b.anchor.x) && isFinite(b.anchor.y)) {
+    anchor = { x: Math.max(0, Math.min(100, Number(b.anchor.x))),
+               y: Math.max(0, Math.min(100, Number(b.anchor.y))) };
+  }
+  var quote = String(b.quote || '').trim().slice(0, 300);
   var id = Utilities.getUuid();
   var ts = new Date().toISOString();
 
@@ -84,7 +94,8 @@ function doPost(e) {
         if (rows[i][0] === parentId) { parentAuthor = rows[i][5]; break; }
       }
     }
-    sh.appendRow([id, ts, deck, termStr, parentId, author, text]);
+    sh.appendRow([id, ts, deck, termStr, parentId, author, text,
+                  anchor ? JSON.stringify(anchor) : '', quote]);
   } finally { lock.releaseLock(); }
 
   /* 알림 수신자: @멘션된 팀원 + 답글의 원 댓글 작성자 (본인 제외) */
@@ -106,6 +117,7 @@ function doPost(e) {
           (mentioned ? '회원님을 언급했습니다' : '회원님 댓글에 답글을 남겼습니다') + ' — ' + where,
         body: nm + '님, 안녕하세요.\n\n' +
           author + '님이 ' + where + '에 남긴 댓글:\n\n' +
+          (quote ? '인용한 내용: "' + quote + '"\n\n' : '') +
           '───────────────────────\n' + text + '\n───────────────────────\n\n' +
           '바로 보기: ' + link + '\n\n' +
           '(hyunwoong-slides 댓글 알림 · 회신은 위 링크에서)',
@@ -113,6 +125,7 @@ function doPost(e) {
       notified.push(nm);
     } catch (err) { /* 개별 발송 실패는 무시 */ }
   }
-  return json({ ok: true, item: { id: id, ts: ts, parentId: parentId || null, author: author, text: text },
+  return json({ ok: true, item: { id: id, ts: ts, parentId: parentId || null, author: author, text: text,
+                                  anchor: anchor, quote: quote },
                 notified: notified });
 }
