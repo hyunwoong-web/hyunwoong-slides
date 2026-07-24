@@ -8,7 +8,7 @@
 
 const CONFIG = {
   /* Apps Script 웹앱 배포 URL(…/exec). 비어 있으면 giscus 폴백. */
-  endpoint: 'https://script.google.com/macros/s/AKfycbwrQG-W4teqkzZsnOnraVsH_mpALgSrwWKk5Pfze0lBLhBkrLK2tqUGLwowoNCwPFm4/exec',
+  endpoint: 'https://script.google.com/macros/s/AKfycbw8CdIV8OSLFGAERmz0vZ3cbshKKnsUJ51khcjGJrUx909CbS9Tk5vV6QdiaYE5XyM0/exec',
   /* 백엔드 Script Properties에 TEAM_CODE를 설정한 경우 동일 값 기입 */
   code: '',
   giscus: {
