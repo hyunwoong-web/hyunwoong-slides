@@ -136,8 +136,7 @@ panel.innerHTML = `
     <button id="cmt-refresh" type="button" title="새로고침">↻</button>
     <button id="cmt-close" type="button" title="닫기 (Esc)">×</button></div>
   <div class="cmt-tabs">
-    <button class="cmt-tab on" id="cmt-tab-deck" type="button">덱 전체</button>
-    <button class="cmt-tab" id="cmt-tab-slide" type="button">이 슬라이드 (p.1)</button>
+    <button class="cmt-tab on" id="cmt-tab-slide" type="button">이 슬라이드 (p.1)</button>
     <button class="cmt-tab" id="cmt-tab-all" type="button">모아보기</button>
   </div>
   <div id="cmt-body"></div>
@@ -158,7 +157,6 @@ document.body.appendChild(toast);
 
 const body = panel.querySelector('#cmt-body');
 const hint = panel.querySelector('#cmt-hint');
-const tabDeck = panel.querySelector('#cmt-tab-deck');
 const tabSlide = panel.querySelector('#cmt-tab-slide');
 const tabAll = panel.querySelector('#cmt-tab-all');
 
@@ -171,7 +169,7 @@ for (const ev of ['keydown', 'keyup', 'keypress', 'wheel']) {
 }
 
 /* ---------- 공통 상태 ---------- */
-let mode = 'deck';       // 'deck' | 'slide' | 'all'(모아보기)
+let mode = 'slide';      // 'slide'(현재 슬라이드) | 'all'(전 페이지 모아보기)
 let isOpen = false;
 let loadedTerm = null;
 
@@ -179,9 +177,8 @@ const curSlide = () => {
   const n = parseInt((location.hash || '').slice(1), 10);
   return Number.isFinite(n) && n > 0 ? n : 1;
 };
-const term = () => mode === 'deck'
-  ? `[${slug}] 덱 전체 논의`
-  : `[${slug}] p.${String(curSlide()).padStart(2, '0')}`;
+const deckTerm = `[${slug}] 덱 전체 논의`;   /* 레거시 덱 전체 스레드 — 모아보기에서 열람·답글 */
+const term = () => `[${slug}] p.${String(curSlide()).padStart(2, '0')}`;
 const activeSlideEl = () => document.querySelector('.slide.active');
 
 /* ================= 팀 댓글 모드 ================= */
@@ -585,7 +582,7 @@ selpop.addEventListener('click', () => {
 
 /* ================= giscus 폴백 (endpoint 미설정 시) ================= */
 function loadGiscus() {
-  const t = term();
+  const t = mode === 'all' ? deckTerm : term();   /* giscus는 모아보기 미지원 → 덱 전체 스레드 표시 */
   if (t === loadedTerm) return;
   loadedTerm = t;
   body.textContent = '';
@@ -647,17 +644,15 @@ document.addEventListener('keydown', (e) => {
 
 function setMode(m) {
   mode = m;
-  tabDeck.classList.toggle('on', m === 'deck');
   tabSlide.classList.toggle('on', m === 'slide');
   tabAll.classList.toggle('on', m === 'all');
   if (isOpen) load();
   if (m !== 'slide') document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
 }
-tabDeck.addEventListener('click', () => setMode('deck'));
 tabSlide.addEventListener('click', () => setMode('slide'));
 tabAll.addEventListener('click', () => setMode('all'));
 
 /* 이메일 링크로 진입: ?cmt=deck|slide|all → 패널 자동 열기 */
 const q = new URLSearchParams(location.search).get('cmt');
-if (q) { setMode(q === 'slide' || q === 'all' ? q : 'deck'); openPanel(); }
+if (q) { setMode(q === 'all' || q === 'deck' ? 'all' : 'slide'); openPanel(); }
 })();
