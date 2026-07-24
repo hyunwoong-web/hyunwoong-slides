@@ -98,11 +98,18 @@ style.textContent = `
   font-style:italic;padding:5px 9px;border-radius:0 6px 6px 0;margin:4px 0 2px;word-break:break-word}
 .cmt-txt{font-size:13.5px;line-height:1.6;color:#333;margin-top:2px;word-break:break-word;white-space:pre-wrap}
 .cmt-txt .cmt-m{color:#1e2bfa;font-weight:600}
-.cmt-actions{margin-top:3px}
+.cmt-actions{margin-top:3px;display:flex;gap:10px}
 .cmt-actions button{border:0;background:none;color:#999;font-size:11.5px;cursor:pointer;padding:0}
 .cmt-actions button:hover{color:#1e2bfa}
 .cmt-empty,.cmt-load{color:#aaa;font-size:13px;text-align:center;padding:26px 0}
 .cmt-thread{border-bottom:1px solid #f2f2f2}
+.cmt-meta .ed{font-size:10.5px;color:#bbb}
+.cmt-editbox textarea{width:100%;min-height:56px;padding:7px 8px;border:1px solid #1e2bfa;border-radius:8px;
+  font:400 13px/1.55 'Pretendard',sans-serif;resize:vertical;box-sizing:border-box;margin-top:4px}
+.cmt-editbox .row{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+.cmt-editbox .row button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:5px 12px;
+  font:600 11.5px 'Pretendard',sans-serif;cursor:pointer;color:#666}
+.cmt-editbox .row .save{background:#1e2bfa;border-color:#1e2bfa;color:#fff}
 /* 슬라이드 위 핀 */
 .cmt-pinlayer{position:absolute;inset:0;pointer-events:none;z-index:80}
 .cmt-pin{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;
@@ -191,6 +198,7 @@ let mentionRe = null;
 let draftText = '';      // 탭 전환·재렌더에도 입력 보존
 let anchorDraft = null;  // {x, y, quote, term} — 작성 중인 핀/인용
 let pinPicking = false;
+let editingId = null;    // 인라인 수정 중인 댓글 id
 
 /* 성능: 덱 전체 댓글을 1회만 받아 로컬 스토어로 운용.
  * 슬라이드 이동·탭 전환은 네트워크 없이 즉시 필터링, 백그라운드로만 최신화. */
@@ -203,6 +211,13 @@ try {
   const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
   if (c && Array.isArray(c.items)) { store = { names: c.names || [], items: c.items }; storePayload = JSON.stringify(store); }
 } catch (ig) { /* 캐시 무시 */ }
+
+/* 현재 사용자 이름 — 작성자 선택값 기준 (본인 댓글 수정·삭제 판단) */
+const myName = () => {
+  const sel = body.querySelector('#cmt-author');
+  return (sel && sel.value) || localStorage.getItem('cmt-author') || '';
+};
+function showToastMsg(msg) { showToast(msg); setTimeout(hideToast, 2500); }
 
 function fmtTime(iso) {
   const d = new Date(iso), diff = (Date.now() - d.getTime()) / 1000;
@@ -344,12 +359,20 @@ function renderList() {
     }
     return '';
   };
-  const node = (c, reply) => `<div class="cmt-item${reply ? ' reply' : ''}" data-id="${c.id}">
+  const my = myName();
+  const node = (c, reply) => {
+    const acts = [];
+    if (!reply) acts.push(`<button type="button" data-reply="${c.id}" data-author="${esc(c.author)}" data-term="${esc(c.term || '')}">답글</button>`);
+    if (my && c.author === my) acts.push(`<button type="button" data-edit="${c.id}">수정</button>`,
+                                         `<button type="button" data-del="${c.id}">삭제</button>`);
+    return `<div class="cmt-item${reply ? ' reply' : ''}" data-id="${c.id}">
     <div class="cmt-av">${esc(c.author.charAt(0))}</div>
-    <div class="cmt-c"><div class="cmt-meta"><span class="nm">${esc(c.author)}</span><span class="tm">${fmtTime(c.ts)}</span>${badge(c)}</div>
+    <div class="cmt-c"><div class="cmt-meta"><span class="nm">${esc(c.author)}</span><span class="tm">${fmtTime(c.ts)}</span>${
+      c.edited ? '<span class="ed">(수정됨)</span>' : ''}${badge(c)}</div>
     ${c.quote ? `<div class="cmt-q">"${esc(c.quote)}"</div>` : ''}
     <div class="cmt-txt">${renderText(c.text)}</div>
-    ${reply ? '' : `<div class="cmt-actions"><button type="button" data-reply="${c.id}" data-author="${esc(c.author)}" data-term="${esc(c.term || '')}">답글</button></div>`}</div></div>`;
+    ${acts.length ? `<div class="cmt-actions">${acts.join('')}</div>` : ''}</div></div>`;
+  };
   const thread = (r) => `<div class="cmt-thread">${node(r, false)}${(kids[r.id] || []).map((k) => node(k, true)).join('')}</div>`;
 
   let html = '';
@@ -409,6 +432,55 @@ function renderList() {
     jumpToSlide(Number(b.dataset.gotopin));
     setMode('slide');
   }));
+  /* 수정 (인라인) */
+  list.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => {
+    if (editingId) return;
+    const id = b.dataset.edit;
+    const c = items.find((i) => i.id === id);
+    const itemEl = list.querySelector(`.cmt-item[data-id="${id}"]`);
+    if (!c || !itemEl) return;
+    editingId = id;
+    const txt = itemEl.querySelector('.cmt-txt');
+    const actions = itemEl.querySelector('.cmt-actions');
+    txt.style.display = 'none';
+    if (actions) actions.style.display = 'none';
+    const ed = document.createElement('div');
+    ed.className = 'cmt-editbox';
+    ed.innerHTML = `<textarea>${esc(c.text)}</textarea>
+      <div class="row"><button type="button" class="cancel">취소</button><button type="button" class="save">저장</button></div>`;
+    txt.after(ed);
+    const ta2 = ed.querySelector('textarea');
+    ta2.focus(); ta2.setSelectionRange(ta2.value.length, ta2.value.length);
+    ed.querySelector('.cancel').addEventListener('click', () => {
+      editingId = null; ed.remove(); txt.style.display = ''; if (actions) actions.style.display = '';
+    });
+    ed.querySelector('.save').addEventListener('click', async () => {
+      const t2 = ta2.value.trim();
+      if (!t2) return;
+      const sv = ed.querySelector('.save');
+      sv.disabled = true; sv.textContent = '저장 중…';
+      try {
+        await api({ action: 'edit', id, author: myName(), text: t2, code: CONFIG.code }, true);
+        c.text = t2; c.edited = true;      /* items 항목은 store와 같은 객체 → 스토어에도 반영 */
+        saveCache();
+        editingId = null;
+        renderFromStore();
+      } catch (e) { sv.disabled = false; sv.textContent = '저장'; showToastMsg(e.message); }
+    });
+  }));
+  /* 삭제 (루트 삭제 시 답글 포함) */
+  list.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => {
+    const id = b.dataset.del;
+    const hasKids = store.items.some((i) => i.parentId === id);
+    if (!confirm('댓글을 삭제할까요?' + (hasKids ? '\n달린 답글도 함께 삭제됩니다.' : ''))) return;
+    b.disabled = true; b.textContent = '삭제 중…';
+    try {
+      await api({ action: 'del', id, author: myName(), code: CONFIG.code }, true);
+      store.items = store.items.filter((i) => i.id !== id && i.parentId !== id);
+      saveCache();
+      renderFromStore();
+    } catch (e) { b.disabled = false; b.textContent = '삭제'; showToastMsg(e.message); }
+  }));
   renderPins();
 }
 
@@ -427,7 +499,7 @@ function bindComposer() {
     if (mode === 'all') body.querySelector('.cmt-composer').style.display = 'none';
   });
   body.querySelector('#cmt-pin-btn').addEventListener('click', startPinPick);
-  sel.addEventListener('change', () => localStorage.setItem('cmt-author', sel.value));
+  sel.addEventListener('change', () => { localStorage.setItem('cmt-author', sel.value); renderList(); });
   updateAnchorChip();
 
   /* @자동완성 */
@@ -514,7 +586,7 @@ async function fetchAll(force) {
 /* 사용자가 작성 중이면 백그라운드 갱신으로 화면을 갈아엎지 않음 */
 function isComposing() {
   const ta = body.querySelector('#cmt-ta');
-  return !!(replyTo || draftText.trim() || (ta && document.activeElement === ta) || pinPicking || anchorDraft);
+  return !!(replyTo || editingId || draftText.trim() || (ta && document.activeElement === ta) || pinPicking || anchorDraft);
 }
 
 function renderFromStore() {

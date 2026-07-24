@@ -49,7 +49,7 @@ function doGet(e) {
         try { anch = rows[i][7] ? JSON.parse(rows[i][7]) : null; } catch (ig) { anch = null; }
         items.push({ id: rows[i][0], ts: rows[i][1], term: rows[i][3], parentId: rows[i][4] || null,
                      author: rows[i][5], text: rows[i][6],
-                     anchor: anch, quote: rows[i][8] || '' });
+                     anchor: anch, quote: rows[i][8] || '', edited: !!rows[i][9] });
       }
     }
     return json({ ok: true, items: items, names: Object.keys(roster()) });
@@ -61,10 +61,13 @@ function doPost(e) {
   var b;
   try { b = JSON.parse(e.postData.contents); }
   catch (err) { return json({ ok: false, error: '잘못된 요청 형식' }); }
-  if (b.action !== 'add') return json({ ok: false, error: 'unknown action' });
 
   var teamCode = props().getProperty('TEAM_CODE');
   if (teamCode && b.code !== teamCode) return json({ ok: false, error: '인증 코드가 올바르지 않습니다' });
+
+  if (b.action === 'edit') return editComment(b);
+  if (b.action === 'del') return delComment(b);
+  if (b.action !== 'add') return json({ ok: false, error: 'unknown action' });
 
   var R = roster();
   var author = String(b.author || '').trim();
@@ -129,4 +132,57 @@ function doPost(e) {
   return json({ ok: true, item: { id: id, ts: ts, term: termStr, parentId: parentId || null, author: author,
                                   text: text, anchor: anchor, quote: quote },
                 notified: notified });
+}
+
+/* 수정: 작성자 본인만 (이름 일치 검증). editedTs를 J열에 기록 → "(수정됨)" 표시 */
+function editComment(b) {
+  var author = String(b.author || '').trim();
+  if (!roster()[author]) return json({ ok: false, error: '등록된 팀원 이름이 아닙니다' });
+  var id = String(b.id || '');
+  var text = String(b.text || '').trim().slice(0, 4000);
+  if (!id || !text) return json({ ok: false, error: '내용이 비었습니다' });
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sh = sheet();
+    var rows = sh.getDataRange().getValues().slice(1);
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i][0] === id) {
+        if (rows[i][5] !== author) return json({ ok: false, error: '본인이 작성한 댓글만 수정할 수 있습니다' });
+        sh.getRange(i + 2, 7).setValue(text);
+        sh.getRange(i + 2, 10).setValue(new Date().toISOString());
+        return json({ ok: true, id: id, text: text });
+      }
+    }
+    return json({ ok: false, error: '댓글을 찾을 수 없습니다' });
+  } finally { lock.releaseLock(); }
+}
+
+/* 삭제: 작성자 본인만. 루트 댓글이면 달린 답글도 함께 삭제 */
+function delComment(b) {
+  var author = String(b.author || '').trim();
+  if (!roster()[author]) return json({ ok: false, error: '등록된 팀원 이름이 아닙니다' });
+  var id = String(b.id || '');
+  if (!id) return json({ ok: false, error: '대상이 없습니다' });
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sh = sheet();
+    var rows = sh.getDataRange().getValues().slice(1);
+    var target = null;
+    for (var i = 0; i < rows.length; i++) if (rows[i][0] === id) { target = i; break; }
+    if (target === null) return json({ ok: false, error: '댓글을 찾을 수 없습니다' });
+    if (rows[target][5] !== author) return json({ ok: false, error: '본인이 작성한 댓글만 삭제할 수 있습니다' });
+
+    var doomed = [target];                       /* 시트 인덱스(0-based, 헤더 제외) */
+    var removedIds = [id];
+    for (var k = 0; k < rows.length; k++) {
+      if (rows[k][4] === id) { doomed.push(k); removedIds.push(rows[k][0]); }
+    }
+    doomed.sort(function (a, c) { return c - a; });   /* 아래쪽부터 삭제해야 인덱스 안 밀림 */
+    for (var d = 0; d < doomed.length; d++) sh.deleteRow(doomed[d] + 2);
+    return json({ ok: true, removed: removedIds });
+  } finally { lock.releaseLock(); }
 }
