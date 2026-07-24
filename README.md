@@ -13,6 +13,8 @@ decks/
   <slug>/
     index.html      ← 슬라이드 덱 본체 (단일 HTML)
     ...             ← 차트 등 부속 파일
+assets/
+  comments.js       ← 전 덱 공용 댓글 위젯 (GitHub Discussions/giscus 기반)
 ```
 
 ## 새 덱 추가하는 법
@@ -36,3 +38,15 @@ decks/
 ## 조작
 
 덱 안에서: ← → / Space / PgUp·PgDn / Home·End · 전체화면(F11) 권장
+
+## 댓글 (giscus)
+
+모든 덱 우상단 **💬 댓글** 버튼 → 사이드 패널에서 GitHub 계정으로 댓글·답글·이모지 반응.
+
+- **덱 전체** / **이 슬라이드 (p.N)** 두 스코프 — 슬라이드별 스레드는 URL 해시(#N)에 앵커됨
+- 스레드는 이 저장소의 **Discussions** (Announcements 카테고리)에 저장 — 첫 댓글 시 giscus 앱이 스레드 자동 생성
+- 설정(repo ID·category ID 등)은 `assets/comments.js`의 `GISCUS` 상수 한 곳에서 관리
+- 새 덱을 추가하면 `index.html` 끝에 한 줄만 넣으면 됨:
+  `<script defer src="../../assets/comments.js"></script>`
+
+> 최초 1회: 저장소에 [giscus GitHub App](https://github.com/apps/giscus) 설치(리포 접근 허용) 필요.

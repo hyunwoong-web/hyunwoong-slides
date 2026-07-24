@@ -340,12 +340,13 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
 <script>
 const slides=[...document.querySelectorAll('.slide')];let cur=0;
 const bar=document.getElementById('bar'),counter=document.getElementById('counter');
-function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===cur));bar.style.width=((cur+1)/slides.length*100)+'%';counter.textContent=(String(cur+1).padStart(2,'0'))+' / '+slides.length;}
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===cur));bar.style.width=((cur+1)/slides.length*100)+'%';counter.textContent=(String(cur+1).padStart(2,'0'))+' / '+slides.length;history.replaceState(null,'','#'+(cur+1));}
 document.getElementById('prev').onclick=()=>show(cur-1);
 document.getElementById('next').onclick=()=>show(cur+1);
 addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key))show(cur+1);if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key))show(cur-1);if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1);});
 function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);document.getElementById('stage').style.transform=`scale(${s})`;}
-addEventListener('resize',fit);fit();show(0);
+addEventListener('resize',fit);fit();(()=>{const h=parseInt((location.hash||'').slice(1),10);show(isNaN(h)?0:h-1);})();
 </script>
+<script defer src="../../assets/comments.js"></script>
 </body>
 </html>

@@ -513,12 +513,12 @@ a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
 <script>
 const slides=[...document.querySelectorAll('.slide')];let cur=0;
 const bar=document.getElementById('bar'),counter=document.getElementById('counter');
-function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===cur));bar.style.width=((cur+1)/slides.length*100)+'%';counter.textContent=(String(cur+1).padStart(2,'0'))+' / '+slides.length;}
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===cur));bar.style.width=((cur+1)/slides.length*100)+'%';counter.textContent=(String(cur+1).padStart(2,'0'))+' / '+slides.length;history.replaceState(null,'','#'+(cur+1));}
 document.getElementById('prev').onclick=()=>show(cur-1);
 document.getElementById('next').onclick=()=>show(cur+1);
 addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key))show(cur+1);if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key))show(cur-1);if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1);});
 function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);document.getElementById('stage').style.transform=`scale(${s})`;}
-addEventListener('resize',fit);fit();show(0);
+addEventListener('resize',fit);fit();(()=>{const h=parseInt((location.hash||'').slice(1),10);show(isNaN(h)?0:h-1);})();
 /* slide 5 chart */
 const months=['25.01','25.02','25.03','25.04','25.05','25.06','25.07','25.08','25.09','25.10','25.11','25.12','26.01','26.02','26.03','26.04','26.05','26.06','26.07*'];
 const install=[1750,1860,2250,3150,4020,4600,4390,5090,3950,2150,2190,1700,1610,2150,3470,2070,1560,2250,810];
@@ -546,5 +546,6 @@ markPoint:{data:[{coord:['26.06',1749],symbol:'pin',symbolSize:1,label:{show:tru
 ]});
 }
 </script>
+<script defer src="../../assets/comments.js"></script>
 </body>
 </html>
