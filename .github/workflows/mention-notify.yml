@@ -1,0 +1,101 @@
+# @이름 멘션 이메일 알림
+#
+# giscus 댓글(= 이 저장소의 Discussions 댓글)에 "@이재영"처럼 한글 이름 멘션이 포함되면
+# 저장소 Variable MENTIONS_JSON({"이름":"이메일",...} — 비공개)에 따라 이메일을 발송한다.
+#
+# 필요한 저장소 설정 (Settings → Secrets and variables → Actions):
+#   Variable MENTIONS_JSON  이름→이메일 매핑 JSON (공개 리포에 이메일을 커밋하지 않기 위해 Variable 사용)
+#   Secret MAIL_USERNAME    발신 계정 (예: hyunwoong@spacev.kr)
+#   Secret MAIL_PASSWORD    앱 비밀번호 (Google Workspace: 계정 → 보안 → 앱 비밀번호)
+# 선택 Variables:
+#   MAIL_SERVER    SMTP 서버 (기본 smtp.gmail.com)
+#   MAIL_PORT      SMTP 포트 (기본 465)
+
+name: mention-notify
+
+on:
+  discussion_comment:
+    types: [created]
+  discussion:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse @mentions
+        id: parse
+        uses: actions/github-script@v7
+        env:
+          MENTIONS_JSON: ${{ vars.MENTIONS_JSON }}
+        with:
+          script: |
+            const map = JSON.parse(process.env.MENTIONS_JSON || '{}');
+            if (Object.keys(map).length === 0) {
+              core.info('MENTIONS_JSON Variable 미설정 — 종료');
+              return;
+            }
+
+            const isComment = !!context.payload.comment;
+            const body = (isComment ? context.payload.comment.body : context.payload.discussion.body) || '';
+            const url = isComment ? context.payload.comment.html_url : context.payload.discussion.html_url;
+            const author = (isComment ? context.payload.comment.user : context.payload.discussion.user).login;
+            const title = context.payload.discussion.title;
+
+            // giscus가 자동 생성하는 디스커션 본문(페이지 링크만 있음)은 무시
+            // 긴 이름 우선 매칭으로 부분 겹침 방지
+            const names = Object.keys(map).sort((a, b) => b.length - a.length);
+            const mentioned = [];
+            for (const name of names) {
+              if (body.includes('@' + name)) mentioned.push(name);
+            }
+            if (mentioned.length === 0) {
+              core.info('멘션 없음 — 종료');
+              return;
+            }
+            const emails = [...new Set(mentioned.map(n => map[n]))];
+
+            // 디스커션 제목 "[slug] p.NN" / "[slug] 덱 전체 논의" → 슬라이드 직행 링크
+            const m = title.match(/^\[([\w-]+)\](?:\s+p\.(\d+))?/);
+            const pageUrl = m
+              ? `https://hyunwoong-web.github.io/hyunwoong-slides/decks/${m[1]}/` + (m[2] ? `#${parseInt(m[2], 10)}` : '')
+              : 'https://hyunwoong-web.github.io/hyunwoong-slides/';
+
+            const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const excerpt = body.length > 800 ? body.slice(0, 800) + '…' : body;
+
+            core.setOutput('emails', emails.join(','));
+            core.setOutput('names', mentioned.join(', '));
+            core.setOutput('author', esc(author));
+            core.setOutput('title', esc(title));
+            core.setOutput('url', url);
+            core.setOutput('page_url', pageUrl);
+            core.setOutput('excerpt', esc(excerpt));
+
+      - name: Send mail
+        if: steps.parse.outputs.emails != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ vars.MAIL_SERVER || 'smtp.gmail.com' }}
+          server_port: ${{ vars.MAIL_PORT || 465 }}
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          from: Hyunwoong Slides <${{ secrets.MAIL_USERNAME }}>
+          to: ${{ steps.parse.outputs.emails }}
+          subject: '[슬라이드 댓글] ${{ steps.parse.outputs.author }}님이 회원님을 언급했습니다 — ${{ steps.parse.outputs.title }}'
+          convert_markdown: true
+          html_body: |
+            <div style="font-family:sans-serif;max-width:560px;line-height:1.6">
+              <p><b>${{ steps.parse.outputs.author }}</b>님이 슬라이드 댓글에서
+                 <b>${{ steps.parse.outputs.names }}</b>님을 언급했습니다.</p>
+              <p style="color:#666;font-size:13px">스레드: ${{ steps.parse.outputs.title }}</p>
+              <blockquote style="border-left:3px solid #1e2bfa;margin:12px 0;padding:8px 14px;background:#f6f7ff;white-space:pre-wrap">${{ steps.parse.outputs.excerpt }}</blockquote>
+              <p>
+                <a href="${{ steps.parse.outputs.url }}" style="color:#1e2bfa">💬 댓글 보러 가기 (GitHub)</a><br>
+                <a href="${{ steps.parse.outputs.page_url }}" style="color:#1e2bfa">📑 해당 슬라이드 열기</a>
+              </p>
+            </div>
