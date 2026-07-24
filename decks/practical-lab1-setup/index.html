@@ -1197,13 +1197,85 @@ v22.14.0
         </div>
         <div class="body">
             <div class="grid-3" style="margin-top:8px;">
-                <div class="card reveal"><div class="ic">🧩</div><div class="ct">여러 에이전트 병렬<span class="mono">worktree isolation</span></div><div class="cd">Claude Code·Codex·Gemini·Cursor를 <b>격리된 git worktree</b>에서 <b>동시에</b> 실행.</div></div>
-                <div class="card reveal"><div class="ic">⚡</div><div class="ct">빠른 터미널 + 에디터<span class="mono">Ghostty 기반</span></div><div class="cd">빠른 터미널 · 내장 파일 에디터 · <b>git diff 리뷰</b>가 한 화면에.</div></div>
-                <div class="card reveal"><div class="ic">🆓</div><div class="ct">무료·오픈소스<span class="mono">mac · win · linux</span></div><div class="cd">크로스플랫폼 · Y Combinator 지원 · GitHub 22k+★.</div></div>
+                <div class="card reveal"><div class="ic">🧩</div><div class="ct">멀티 에이전트 관리<span class="mono">status at a glance</span></div><div class="cd">여러 AI(Claude·Codex 등)를 <b>동시에 프로젝트에 투입</b>하고, 각각의 <b>작업 상태·대기 중인 응답</b>을 한눈에 추적.</div></div>
+                <div class="card reveal"><div class="ic">⚖️</div><div class="ct">결과 비교 · 최적 채택<span class="mono">side-by-side</span></div><div class="cd">같은 지시를 여러 AI에게 <b>동시에</b> 맡기고 결과를 <b>나란히 비교</b> — 가장 좋은 코드를 채택.</div></div>
+                <div class="card reveal"><div class="ic">🆓</div><div class="ct">무료 + 구독 그대로<span class="mono">mac · win · linux</span></div><div class="cd">프로그램 자체 <b>무료</b>(오픈소스·GitHub 22k+★). 쓰던 <b>Claude Code 구독을 그대로 연동</b> — 추가 비용 0.</div></div>
             </div>
             <div class="grid-2" style="margin-top:24px;">
                 <div class="callout reveal">한 업무 = 한 worktree(탭) — <b>여러 작업을 서로 안 섞이게, 동시에</b> 굴립니다. "브랜치마다 에이전트 한 명."</div>
                 <div class="callout ok reveal">지금은 <b>선택</b> — 기본 터미널(PowerShell)로 충분. 익숙해지면 Orca로 <b>병렬 효율</b>을 올립니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== ORCA 실제 화면 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> Orca — 실제 화면</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Orca · Split View</div>
+            <h2 class="t">터미널 동시 분할 — <span class="hl">에이전트 3명</span>이 한 화면에서 일합니다</h2>
+        </div>
+        <div class="body">
+            <div class="reveal" style="border-radius:16px; border:1px solid #1E2A3A; overflow:hidden; box-shadow:0 14px 40px rgba(15,25,45,.2); display:grid; grid-template-columns:270px 1fr 1fr 1fr; height:540px; font-family:var(--font-code); background:#0E1420;">
+                <!-- 사이드바 -->
+                <div style="background:#141E2C; border-right:1px solid #1E2A3A; padding:20px 18px; font-size:15.5px; color:#8B96A6; display:flex; flex-direction:column; gap:9px;">
+                    <div style="color:#5F6E80;">≡ 작업 &nbsp;·&nbsp; ⚙ 자동화</div>
+                    <div style="margin-top:8px; padding:7px 12px; border:1px solid #1E2A3A; border-radius:8px; color:#5F6E80;">🔍 검색</div>
+                    <div style="margin-top:14px; color:#5F6E80; letter-spacing:.12em; font-size:13.5px;">PROJECTS</div>
+                    <div style="padding:9px 12px; border-radius:8px; background:#1B2839; color:#E8EEF6;"><span style="color:#4FD1A1;">●</span> 외부지표 수집 <span style="color:#5F6E80;">master</span></div>
+                    <div style="padding:9px 12px; border-radius:8px;"><span style="color:#FFC061;">●</span> 에어브릿지 분석</div>
+                    <div style="padding:9px 12px; border-radius:8px;"><span style="color:#8CB4FF;">●</span> practical-lab1-setup <span style="color:#5F6E80;">main</span></div>
+                    <div style="padding:9px 12px; border-radius:8px;"><span style="color:#4FD1A1;">✓</span> 브랜드캠페인</div>
+                    <div style="margin-top:auto; font-size:13.5px; color:#5F6E80;">worktree마다 탭 하나<br>= 에이전트 한 명</div>
+                </div>
+                <!-- 패널 1: 작업 중 -->
+                <div style="border-right:1px solid #1E2A3A; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:#141E2C; border-bottom:1px solid #1E2A3A; font-size:14.5px;"><span style="color:#C7D3E2;">외부지표 수집 · Claude</span><span style="color:#8CB4FF;">● 작업 중</span></div>
+                    <pre style="margin:0; padding:16px 18px; font-size:15px; line-height:1.62; color:#C7D3E2; white-space:pre-wrap; flex:1;"><span style="color:#8CB4FF;">omp v17</span> · Claude
+
+<span style="color:#5F6E80;">지시: 어제 '리브애니웨어' 검색량
+급등 원인 분석해줘</span>
+
+수집기 12종 재조회 중…
+<span style="color:#4FD1A1;">✓</span> 네이버 데이터랩 조회 완료
+<span style="color:#4FD1A1;">✓</span> 구글 트렌드 연관검색어 조회
+▸ 원인 후보 3건 검증 중 <span style="color:#8CB4FF;">⣾</span></pre>
+                </div>
+                <!-- 패널 2: 응답 대기 -->
+                <div style="border-right:1px solid #1E2A3A; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:#141E2C; border-bottom:1px solid #1E2A3A; font-size:14.5px;"><span style="color:#C7D3E2;">에어브릿지 분석 · Codex</span><span style="color:#FFC061;">● 응답 대기</span></div>
+                    <pre style="margin:0; padding:16px 18px; font-size:15px; line-height:1.62; color:#C7D3E2; white-space:pre-wrap; flex:1;"><span style="color:#8CB4FF;">omp v17</span> · Codex
+
+<span style="color:#5F6E80;">지시: 7월 캠페인별 전환 리포트
+초안 작성</span>
+
+리포트 초안 완성.
+<span style="color:#FFC061;">? 기간을 7/1~7/23으로 할까요,
+  6/24~7/23(30일)로 할까요?</span>
+
+<span style="color:#FFC061;">→ 내 답을 기다리는 중</span></pre>
+                </div>
+                <!-- 패널 3: 완료 -->
+                <div style="display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:#141E2C; border-bottom:1px solid #1E2A3A; font-size:14.5px;"><span style="color:#C7D3E2;">브랜드캠페인 · Claude</span><span style="color:#4FD1A1;">✓ 완료</span></div>
+                    <pre style="margin:0; padding:16px 18px; font-size:15px; line-height:1.62; color:#C7D3E2; white-space:pre-wrap; flex:1;"><span style="color:#8CB4FF;">omp v17</span> · Claude
+
+<span style="color:#5F6E80;">지시: 소재 성과표 자동 생성
+스크립트 작성</span>
+
+<span style="color:#4FD1A1;">✓ 작업 완료</span>
+
+변경: <span style="color:#4FD1A1;">+128</span> <span style="color:#FF8080;">−42</span> · 파일 3개
+<span style="color:#5F6E80;">git diff 리뷰 → 채택/반려만
+결정하면 끝</span></pre>
+                </div>
+            </div>
+            <div class="grid-3" style="margin-top:20px;">
+                <div class="alert reveal"><div class="h"><b>상태 추적</b> — 일하는 중 <span style="color:#3b82f6;">●</span> / 내 답 대기 <span style="color:#E8890C;">●</span> / 완료 <span style="color:#0CA678;">✓</span> 를 한눈에.</div></div>
+                <div class="alert reveal"><div class="h"><b>동시 지시·비교</b> — 같은 일을 여러 AI에 맡겨 나란히 비교, 최적안 채택.</div></div>
+                <div class="alert reveal"><div class="h"><b>비용 0</b> — Orca 무료 + 기존 Claude Code 구독 그대로.</div></div>
             </div>
         </div>
     </div>
