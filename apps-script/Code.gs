@@ -40,13 +40,14 @@ function doGet(e) {
   var a = (e.parameter.action || '');
   if (a === 'list') {
     var deck = e.parameter.deck || '', t = e.parameter.term || '';
+    var all = e.parameter.all === '1';   /* all=1 → 덱의 모든 스레드 모아보기 */
     var rows = sheet().getDataRange().getValues().slice(1);
     var items = [];
     for (var i = 0; i < rows.length; i++) {
-      if (rows[i][2] === deck && rows[i][3] === t) {
+      if (rows[i][2] === deck && (all || rows[i][3] === t)) {
         var anch = null;
         try { anch = rows[i][7] ? JSON.parse(rows[i][7]) : null; } catch (ig) { anch = null; }
-        items.push({ id: rows[i][0], ts: rows[i][1], parentId: rows[i][4] || null,
+        items.push({ id: rows[i][0], ts: rows[i][1], term: rows[i][3], parentId: rows[i][4] || null,
                      author: rows[i][5], text: rows[i][6],
                      anchor: anch, quote: rows[i][8] || '' });
       }
@@ -125,7 +126,7 @@ function doPost(e) {
       notified.push(nm);
     } catch (err) { /* 개별 발송 실패는 무시 */ }
   }
-  return json({ ok: true, item: { id: id, ts: ts, parentId: parentId || null, author: author, text: text,
-                                  anchor: anchor, quote: quote },
+  return json({ ok: true, item: { id: id, ts: ts, term: termStr, parentId: parentId || null, author: author,
+                                  text: text, anchor: anchor, quote: quote },
                 notified: notified });
 }

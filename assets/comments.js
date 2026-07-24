@@ -42,10 +42,16 @@ style.textContent = `
 .cmt-head button{border:0;background:none;font-size:16px;line-height:1;color:#888;cursor:pointer;padding:2px 6px}
 .cmt-head button:hover{color:#111}
 #cmt-close{font-size:22px}
-.cmt-tabs{display:flex;gap:8px;padding:0 18px 12px}
-.cmt-tab{flex:1;padding:9px 10px;border-radius:9px;border:1.5px solid rgba(30,43,250,.22);background:#fff;
-  color:#555;font:600 12.5px 'Pretendard',sans-serif;cursor:pointer;transition:all .12s}
+.cmt-tabs{display:flex;gap:6px;padding:0 18px 12px}
+.cmt-tab{flex:1;padding:9px 4px;border-radius:9px;border:1.5px solid rgba(30,43,250,.22);background:#fff;
+  color:#555;font:600 12px 'Pretendard',sans-serif;cursor:pointer;transition:all .12s;white-space:nowrap}
 .cmt-tab.on{background:rgba(30,43,250,.08);color:#1e2bfa;border-color:#1e2bfa}
+.cmt-sec{display:flex;align-items:center;justify-content:space-between;margin:14px 0 2px;padding:6px 2px 6px 0;
+  border-bottom:2px solid rgba(30,43,250,.15)}
+.cmt-sec .t{font:700 13px 'Pretendard',sans-serif;color:#1e2bfa}
+.cmt-sec .t em{font-style:normal;color:#999;font-weight:600;font-size:11.5px;margin-left:5px}
+.cmt-goto{border:0;background:none;color:#888;font:600 11.5px 'Pretendard',sans-serif;cursor:pointer;padding:2px 0}
+.cmt-goto:hover{color:#1e2bfa}
 #cmt-body{flex:1;overflow-y:auto;padding:4px 16px 20px}
 .cmt-hint{padding:9px 18px 13px;font-size:11.5px;line-height:1.55;color:#999;border-top:1px solid #eee}
 .cmt-hint b{color:#666}
@@ -132,6 +138,7 @@ panel.innerHTML = `
   <div class="cmt-tabs">
     <button class="cmt-tab on" id="cmt-tab-deck" type="button">덱 전체</button>
     <button class="cmt-tab" id="cmt-tab-slide" type="button">이 슬라이드 (p.1)</button>
+    <button class="cmt-tab" id="cmt-tab-all" type="button">모아보기</button>
   </div>
   <div id="cmt-body"></div>
   <div class="cmt-hint" id="cmt-hint"></div>`;
@@ -153,6 +160,7 @@ const body = panel.querySelector('#cmt-body');
 const hint = panel.querySelector('#cmt-hint');
 const tabDeck = panel.querySelector('#cmt-tab-deck');
 const tabSlide = panel.querySelector('#cmt-tab-slide');
+const tabAll = panel.querySelector('#cmt-tab-all');
 
 /* 패널 안 키·휠 입력이 아래 덱 내비(Space/화살표/휠)로 새지 않도록 차단 */
 for (const ev of ['keydown', 'keyup', 'keypress', 'wheel']) {
@@ -163,7 +171,7 @@ for (const ev of ['keydown', 'keyup', 'keypress', 'wheel']) {
 }
 
 /* ---------- 공통 상태 ---------- */
-let mode = 'deck';       // 'deck' | 'slide'
+let mode = 'deck';       // 'deck' | 'slide' | 'all'(모아보기)
 let isOpen = false;
 let loadedTerm = null;
 
@@ -213,7 +221,8 @@ async function api(params, post) {
 
 function composerHTML() {
   const opts = roster.map((n) => `<option${localStorage.getItem('cmt-author') === n ? ' selected' : ''}>${esc(n)}</option>`).join('');
-  return `<div class="cmt-composer">
+  const hideComposer = mode === 'all' && !replyTo;
+  return `<div class="cmt-composer"${hideComposer ? ' style="display:none"' : ''}>
     <div class="cmt-reply-chip" id="cmt-chip">↩ <b id="cmt-chip-nm"></b>님에게 답글 <button id="cmt-chip-x" type="button" title="답글 취소">×</button></div>
     <div id="cmt-anchor"></div>
     <select id="cmt-author"><option value="">이름 선택…</option>${opts}</select>
@@ -222,7 +231,7 @@ function composerHTML() {
       <div class="cmt-ac" id="cmt-ac" hidden></div>
     </div>
     <div class="cmt-send-row">
-      <button id="cmt-pin-btn" type="button" title="슬라이드의 특정 지점에 핀을 찍고 댓글 달기">📍 위치 지정</button>
+      <button id="cmt-pin-btn" type="button" title="슬라이드의 특정 지점에 핀을 찍고 댓글 달기"${mode === 'all' ? ' style="display:none"' : ''}>📍 위치 지정</button>
       <button id="cmt-send" type="button">등록</button>
     </div>
     <div id="cmt-err"></div>
@@ -300,30 +309,74 @@ function focusComment(id) {
   setTimeout(() => el.classList.remove('flash'), 1200);
 }
 
+const slideNoOf = (t) => { const m = /p\.(\d+)$/.exec(t || ''); return m ? Number(m[1]) : null; };
+
+/* 슬라이드 점프 — 모든 덱이 ←/→ 키 내비를 지원하므로 키 이벤트로 이동 */
+function jumpToSlide(n) {
+  const d = n - curSlide();
+  const key = d > 0 ? 'ArrowRight' : 'ArrowLeft';
+  for (let i = 0; i < Math.abs(d); i++)
+    document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+}
+
 function renderList() {
   const list = body.querySelector('#cmt-list');
   if (!list) return;
-  if (!items.length) {
-    list.innerHTML = '<div class="cmt-empty">아직 댓글이 없습니다 — 첫 의견을 남겨보세요.</div>';
-    renderPins();
-    return;
-  }
-  const roots = items.filter((c) => !c.parentId).sort((a, b) => b.ts.localeCompare(a.ts));
+  const map = pinMap();
   const kids = {};
   items.filter((c) => c.parentId).sort((a, b) => a.ts.localeCompare(b.ts))
     .forEach((c) => (kids[c.parentId] = kids[c.parentId] || []).push(c));
-  const map = pinMap();
+  const badge = (c) => {
+    if (!c.anchor || c.parentId) return '';
+    if (mode !== 'all' && map[c.id]) return `<span class="cmt-pin-badge" data-pin="${c.id}" title="슬라이드에서 위치 보기">📍${map[c.id]}</span>`;
+    if (mode === 'all') {
+      const n = slideNoOf(c.term);
+      return n ? `<span class="cmt-pin-badge" data-gotopin="${n}" title="해당 슬라이드에서 핀 보기">📍p.${n}</span>` : '';
+    }
+    return '';
+  };
   const node = (c, reply) => `<div class="cmt-item${reply ? ' reply' : ''}" data-id="${c.id}">
     <div class="cmt-av">${esc(c.author.charAt(0))}</div>
-    <div class="cmt-c"><div class="cmt-meta"><span class="nm">${esc(c.author)}</span><span class="tm">${fmtTime(c.ts)}</span>${
-      map[c.id] ? `<span class="cmt-pin-badge" data-pin="${c.id}" title="슬라이드에서 위치 보기">📍${map[c.id]}</span>` : ''}</div>
+    <div class="cmt-c"><div class="cmt-meta"><span class="nm">${esc(c.author)}</span><span class="tm">${fmtTime(c.ts)}</span>${badge(c)}</div>
     ${c.quote ? `<div class="cmt-q">"${esc(c.quote)}"</div>` : ''}
     <div class="cmt-txt">${renderText(c.text)}</div>
-    ${reply ? '' : `<div class="cmt-actions"><button type="button" data-reply="${c.id}" data-author="${esc(c.author)}">답글</button></div>`}</div></div>`;
-  list.innerHTML = roots.map((r) =>
-    `<div class="cmt-thread">${node(r, false)}${(kids[r.id] || []).map((k) => node(k, true)).join('')}</div>`).join('');
+    ${reply ? '' : `<div class="cmt-actions"><button type="button" data-reply="${c.id}" data-author="${esc(c.author)}" data-term="${esc(c.term || '')}">답글</button></div>`}</div></div>`;
+  const thread = (r) => `<div class="cmt-thread">${node(r, false)}${(kids[r.id] || []).map((k) => node(k, true)).join('')}</div>`;
+
+  let html = '';
+  if (!items.length) {
+    html = mode === 'all'
+      ? '<div class="cmt-empty">이 덱에는 아직 댓글이 없습니다.</div>'
+      : '<div class="cmt-empty">아직 댓글이 없습니다 — 첫 의견을 남겨보세요.</div>';
+  } else if (mode === 'all') {
+    /* 스레드(term)별 그룹: 덱 전체 → p.1 → p.2 … */
+    const groups = {};
+    items.filter((c) => !c.parentId).forEach((c) => (groups[c.term] = groups[c.term] || []).push(c));
+    const keys = Object.keys(groups).sort((a, b) => {
+      const na = slideNoOf(a), nb = slideNoOf(b);
+      if (na === null && nb === null) return 0;
+      if (na === null) return -1;
+      if (nb === null) return 1;
+      return na - nb;
+    });
+    html = keys.map((k) => {
+      const n = slideNoOf(k);
+      const roots = groups[k].sort((a, b) => b.ts.localeCompare(a.ts));
+      const cnt = roots.reduce((s, r) => s + 1 + ((kids[r.id] || []).length), 0);
+      return `<div class="cmt-sec"><span class="t">${n ? `p.${n}` : '덱 전체'}<em>${cnt}</em></span>${
+        n ? `<button type="button" class="cmt-goto" data-goto="${n}">슬라이드로 이동 →</button>` : ''}</div>`
+        + roots.map(thread).join('');
+    }).join('');
+  } else {
+    const roots = items.filter((c) => !c.parentId).sort((a, b) => b.ts.localeCompare(a.ts));
+    html = roots.map(thread).join('');
+  }
+  list.innerHTML = html;
+
   list.querySelectorAll('[data-reply]').forEach((b) => b.addEventListener('click', () => {
-    replyTo = { id: b.dataset.reply, author: b.dataset.author };
+    replyTo = { id: b.dataset.reply, author: b.dataset.author, term: b.dataset.term || term() };
+    const comp = body.querySelector('.cmt-composer');
+    if (comp) comp.style.display = '';
     const chip = body.querySelector('#cmt-chip');
     chip.classList.add('on');
     body.querySelector('#cmt-chip-nm').textContent = replyTo.author;
@@ -341,6 +394,12 @@ function renderList() {
       setTimeout(() => { layerPin.style.transform = 'translate(-50%,-100%)'; }, 500);
     }
   }));
+  /* 모아보기: 슬라이드 이동 / 핀 보러 가기 */
+  list.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => jumpToSlide(Number(b.dataset.goto))));
+  list.querySelectorAll('[data-gotopin]').forEach((b) => b.addEventListener('click', () => {
+    jumpToSlide(Number(b.dataset.gotopin));
+    setMode('slide');
+  }));
   renderPins();
 }
 
@@ -356,6 +415,7 @@ function bindComposer() {
   const send = body.querySelector('#cmt-send');
   body.querySelector('#cmt-chip-x').addEventListener('click', () => {
     replyTo = null; body.querySelector('#cmt-chip').classList.remove('on');
+    if (mode === 'all') body.querySelector('.cmt-composer').style.display = 'none';
   });
   body.querySelector('#cmt-pin-btn').addEventListener('click', startPinPick);
   sel.addEventListener('change', () => localStorage.setItem('cmt-author', sel.value));
@@ -403,16 +463,18 @@ function bindComposer() {
     if (!author) return showErr('이름을 먼저 선택해 주세요.');
     if (!text) return showErr('내용을 입력해 주세요.');
     send.disabled = true; showErr('');
-    const anchored = anchorDraft && anchorDraft.term === term();
+    const tgt = (replyTo && replyTo.term) ? replyTo.term : term();
+    const anchored = anchorDraft && anchorDraft.term === tgt;
     try {
-      const j = await api({ action: 'add', deck: slug, term: term(), author, text,
+      const j = await api({ action: 'add', deck: slug, term: tgt, author, text,
         parentId: replyTo ? replyTo.id : '',
         anchor: anchored ? { x: anchorDraft.x, y: anchorDraft.y } : null,
         quote: anchored ? (anchorDraft.quote || '') : '',
         code: CONFIG.code }, true);
-      items.push(j.item);
+      items.push({ ...j.item, term: j.item.term || tgt });
       ta.value = ''; draftText = ''; replyTo = null; anchorDraft = null;
       body.querySelector('#cmt-chip').classList.remove('on');
+      if (mode === 'all') body.querySelector('.cmt-composer').style.display = 'none';
       updateAnchorChip();
       renderList();
     } catch (e) { showErr(e.message); }
@@ -421,15 +483,17 @@ function bindComposer() {
 }
 
 async function loadTeam(force) {
-  const t = term();
+  const t = mode === 'all' ? '__all__' : term();
   if (!force && t === loadedTerm) return;
   loadedTerm = t;
   body.innerHTML = '<div class="cmt-load">불러오는 중…</div>';
   try {
-    const j = await api({ action: 'list', deck: slug, term: t });
+    const j = await api(mode === 'all'
+      ? { action: 'list', deck: slug, term: '', all: '1' }
+      : { action: 'list', deck: slug, term: t });
     roster = j.names || [];
     mentionRe = roster.length ? new RegExp('@(' + roster.map(escRe).join('|') + ')', 'g') : null;
-    items = j.items || [];
+    items = (j.items || []).map((c) => ({ ...c, term: c.term || t }));
     replyTo = null;
     body.innerHTML = composerHTML();
     bindComposer();
@@ -585,13 +649,15 @@ function setMode(m) {
   mode = m;
   tabDeck.classList.toggle('on', m === 'deck');
   tabSlide.classList.toggle('on', m === 'slide');
+  tabAll.classList.toggle('on', m === 'all');
   if (isOpen) load();
-  if (m === 'deck') document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
+  if (m !== 'slide') document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
 }
 tabDeck.addEventListener('click', () => setMode('deck'));
 tabSlide.addEventListener('click', () => setMode('slide'));
+tabAll.addEventListener('click', () => setMode('all'));
 
-/* 이메일 링크로 진입: ?cmt=deck|slide → 패널 자동 열기 */
+/* 이메일 링크로 진입: ?cmt=deck|slide|all → 패널 자동 열기 */
 const q = new URLSearchParams(location.search).get('cmt');
-if (q) { setMode(q === 'slide' ? 'slide' : 'deck'); openPanel(); }
+if (q) { setMode(q === 'slide' || q === 'all' ? q : 'deck'); openPanel(); }
 })();
