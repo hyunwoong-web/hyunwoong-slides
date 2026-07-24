@@ -16,7 +16,7 @@
     {
       "slug": "practical-lab1-setup",
       "title": "실습 1강 — 작업환경 구축 (Claude Code·OMC·스킬·MCP)",
-      "desc": "삼삼엠투 AI 교육 실습반 1강. 비개발자 대상으로 터미널·Claude Code·OMC·Orca·스킬·MCP를 실제 화면 재현·실측 명령으로 처음부터 세팅. MD 파일 정리 습관과 마켓플레이스·MEM0 추천, 사내 실사용 스킬(하이웍스 자동기안·광고 소재·airbridge)과 MCP 사례 포함. OMP(Oh My Pi)는 참고용으로 소개 — Windows 기준 42장.",
+      "desc": "삼삼엠투 AI 교육 실습반 1강. 비개발자 대상으로 터미널·Claude Code·OMC·Orca·스킬·MCP를 실제 화면 재현·실측 명령으로 처음부터 세팅. MD 파일 정리 습관과 마켓플레이스·MEM0 추천, 사내 실사용 스킬(하이웍스 자동기안·광고 소재·airbridge)과 MCP 사례 포함. Orca 멀티 에이전트 분할 화면·OMP(Oh My Pi) 참고 소개 — Windows 기준 45장.",
       "date": "2026-07-27",
       "tags": [
         "AI 교육",
