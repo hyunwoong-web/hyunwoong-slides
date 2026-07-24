@@ -185,12 +185,24 @@ const activeSlideEl = () => document.querySelector('.slide.active');
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 let roster = [];         // 이름 목록 (이메일은 서버에만 있음)
-let items = [];
-let replyTo = null;      // {id, author}
+let items = [];          // 현재 뷰(슬라이드/모아보기)에 표시 중인 항목 — store에서 파생
+let replyTo = null;      // {id, author, term}
 let mentionRe = null;
 let draftText = '';      // 탭 전환·재렌더에도 입력 보존
 let anchorDraft = null;  // {x, y, quote, term} — 작성 중인 핀/인용
 let pinPicking = false;
+
+/* 성능: 덱 전체 댓글을 1회만 받아 로컬 스토어로 운용.
+ * 슬라이드 이동·탭 전환은 네트워크 없이 즉시 필터링, 백그라운드로만 최신화. */
+let store = null;        // {names:[], items:[]} — 이 덱의 전체 댓글
+let storePayload = '';   // 변경 감지용 직렬화 문자열
+let fetchedAt = 0;
+let fetching = null;
+const CACHE_KEY = `cmt-cache:${slug}`;
+try {
+  const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+  if (c && Array.isArray(c.items)) { store = { names: c.names || [], items: c.items }; storePayload = JSON.stringify(store); }
+} catch (ig) { /* 캐시 무시 */ }
 
 function fmtTime(iso) {
   const d = new Date(iso), diff = (Date.now() - d.getTime()) / 1000;
@@ -459,7 +471,7 @@ function bindComposer() {
     const author = sel.value, text = ta.value.trim();
     if (!author) return showErr('이름을 먼저 선택해 주세요.');
     if (!text) return showErr('내용을 입력해 주세요.');
-    send.disabled = true; showErr('');
+    send.disabled = true; send.textContent = '등록 중…'; showErr('');
     const tgt = (replyTo && replyTo.term) ? replyTo.term : term();
     const anchored = anchorDraft && anchorDraft.term === tgt;
     try {
@@ -468,35 +480,63 @@ function bindComposer() {
         anchor: anchored ? { x: anchorDraft.x, y: anchorDraft.y } : null,
         quote: anchored ? (anchorDraft.quote || '') : '',
         code: CONFIG.code }, true);
-      items.push({ ...j.item, term: j.item.term || tgt });
+      store.items.push({ ...j.item, term: j.item.term || tgt });
+      saveCache();
       ta.value = ''; draftText = ''; replyTo = null; anchorDraft = null;
-      body.querySelector('#cmt-chip').classList.remove('on');
-      if (mode === 'all') body.querySelector('.cmt-composer').style.display = 'none';
-      updateAnchorChip();
-      renderList();
+      renderFromStore();
+      return;
     } catch (e) { showErr(e.message); }
-    send.disabled = false;
+    send.disabled = false; send.textContent = '등록';
   });
 }
 
+function saveCache() {
+  storePayload = JSON.stringify(store);
+  try { localStorage.setItem(CACHE_KEY, storePayload); } catch (ig) { /* 용량 초과 등 무시 */ }
+}
+
+async function fetchAll(force) {
+  if (fetching) return fetching;
+  if (!force && store && Date.now() - fetchedAt < 15000) return Promise.resolve(false);
+  fetching = api({ action: 'list', deck: slug, term: '', all: '1' })
+    .then((j) => {
+      const next = { names: j.names || [], items: (j.items || []).map((c) => ({ ...c, term: c.term || '' })) };
+      const changed = JSON.stringify(next) !== storePayload;
+      store = next;
+      fetchedAt = Date.now();
+      if (changed) saveCache();
+      return changed;
+    })
+    .finally(() => { fetching = null; });
+  return fetching;
+}
+
+/* 사용자가 작성 중이면 백그라운드 갱신으로 화면을 갈아엎지 않음 */
+function isComposing() {
+  const ta = body.querySelector('#cmt-ta');
+  return !!(replyTo || draftText.trim() || (ta && document.activeElement === ta) || pinPicking || anchorDraft);
+}
+
+function renderFromStore() {
+  if (!store) return;
+  replyTo = null;          /* 재렌더 시 답글 대상 초기화 — 잘못된 스레드로의 전송 방지 */
+  roster = store.names;
+  mentionRe = roster.length ? new RegExp('@(' + roster.map(escRe).join('|') + ')', 'g') : null;
+  items = mode === 'all' ? store.items : store.items.filter((c) => c.term === term());
+  body.innerHTML = composerHTML();
+  bindComposer();
+  renderList();
+}
+
 async function loadTeam(force) {
-  const t = mode === 'all' ? '__all__' : term();
-  if (!force && t === loadedTerm) return;
-  loadedTerm = t;
-  body.innerHTML = '<div class="cmt-load">불러오는 중…</div>';
+  if (store) renderFromStore();                       /* 캐시/스토어 즉시 렌더 */
+  else body.innerHTML = '<div class="cmt-load">불러오는 중…</div>';
   try {
-    const j = await api(mode === 'all'
-      ? { action: 'list', deck: slug, term: '', all: '1' }
-      : { action: 'list', deck: slug, term: t });
-    roster = j.names || [];
-    mentionRe = roster.length ? new RegExp('@(' + roster.map(escRe).join('|') + ')', 'g') : null;
-    items = (j.items || []).map((c) => ({ ...c, term: c.term || t }));
-    replyTo = null;
-    body.innerHTML = composerHTML();
-    bindComposer();
-    renderList();
+    const changed = await fetchAll(force);
+    if (!isOpen) return;
+    if ((changed || !body.querySelector('#cmt-list')) && !isComposing()) renderFromStore();
   } catch (e) {
-    loadedTerm = null;
+    if (store) return;                                /* 캐시로 이미 표시 중이면 조용히 무시 */
     body.innerHTML = `<div class="cmt-empty">댓글을 불러오지 못했습니다.<br>${esc(e.message)}<br><br>
       <button type="button" id="cmt-retry" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer">다시 시도</button></div>`;
     body.querySelector('#cmt-retry').addEventListener('click', () => loadTeam(true));
@@ -611,14 +651,17 @@ hint.innerHTML = ENDPOINT
   ? '이름을 선택해 바로 댓글을 남길 수 있어요. <b>@이름</b> 멘션 시 이메일 알림. <b>📍 위치 지정</b>이나 <b>슬라이드 텍스트 드래그</b>로 특정 내용에 댓글을 달 수 있습니다.'
   : '<b>GitHub 계정</b>으로 로그인하면 댓글·답글·이모지 반응을 남길 수 있어요. 스레드는 저장소 <b>Discussions</b>에 저장됩니다.';
 
-/* 슬라이드 전환 감지 (replaceState 래핑 + hashchange, 디바운스) */
+/* 슬라이드 전환 감지 (replaceState 래핑 + hashchange) — 로컬 스토어 필터링이라 즉시 */
 let reloadTimer = null;
 function onSlideChange() {
   tabSlide.textContent = `이 슬라이드 (p.${curSlide()})`;
   document.querySelectorAll('.cmt-pinlayer').forEach((l) => l.remove());
   if (isOpen && mode === 'slide') {
     clearTimeout(reloadTimer);
-    reloadTimer = setTimeout(() => load(), 450);
+    reloadTimer = setTimeout(() => {
+      if (ENDPOINT && store && !isComposing()) renderFromStore();
+      else if (!ENDPOINT) load();
+    }, 150);
   }
 }
 const origReplace = history.replaceState.bind(history);
@@ -651,6 +694,9 @@ function setMode(m) {
 }
 tabSlide.addEventListener('click', () => setMode('slide'));
 tabAll.addEventListener('click', () => setMode('all'));
+
+/* 페이지 로드 즉시 백그라운드 프리페치 — 패널을 열기 전에 데이터 준비 */
+if (ENDPOINT) fetchAll().catch(() => {});
 
 /* 이메일 링크로 진입: ?cmt=deck|slide|all → 패널 자동 열기 */
 const q = new URLSearchParams(location.search).get('cmt');
