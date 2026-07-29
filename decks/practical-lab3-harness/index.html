@@ -318,6 +318,25 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     </div>
 </section>
 
+<!-- ===================== 01.5 몸풀기 퀴즈 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 몸풀기 퀴즈</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Warm-up · 넣어도 될까?</div>
+            <h2 class="t">몸풀기 — 이 중 <span class="hl">회사에서 해도 되는 행동</span>은 몇 개일까요?</h2>
+            <p class="t-sub">지금 각자 O/X를 적어두세요. <b>정답은 강의 중에 하나씩 공개</b> — 5개 다 맞히면 오늘 강의는 복습입니다.</p>
+        </div>
+        <div class="body grid-5" style="align-content:center;">
+            <div class="card reveal"><div class="ic">❓</div><div class="ct">Q1</div><div class="cd">공개된 매물 소개 페이지 텍스트를 AI에 넣고 요약시킨다</div></div>
+            <div class="card reveal"><div class="ic">❓</div><div class="ct">Q2</div><div class="cd">임차인과의 카톡 상담 내역을 통째로 붙여넣고 "요약해줘"</div></div>
+            <div class="card reveal"><div class="ic">❓</div><div class="ct">Q3</div><div class="cd">어드민에 로그인한 채 AI에게 "이 예약 취소 처리해줘"</div></div>
+            <div class="card reveal"><div class="ic">❓</div><div class="ct">Q4</div><div class="cd">자동화 연결하려고 API Key를 프롬프트에 붙여넣는다</div></div>
+            <div class="card reveal"><div class="ic">❓</div><div class="ct">Q5</div><div class="cd">어제 나온 무료 AI 앱에 경쟁사 분석을 시켜본다</div></div>
+        </div>
+    </div>
+</section>
+
 <!-- ===================== 02 커리큘럼 조감 ===================== -->
 <section class="slide">
     <div class="inner">
@@ -588,7 +607,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><td><b>승인 없이 챗봇·OAuth 앱 배포 / 업무 서비스 개인 계정 가입</b></td><td>회사 이메일·공용 계정 사용 + 관리자 지정</td></tr>
                 </table>
             </div>
-            <div class="callout reveal" style="max-width:1720px; margin-top:18px; font-size:20px;">거버넌스는 고정불변이 아닙니다 — <b>정기적으로 재검토</b>됩니다. 오늘 강조 표시(파란 줄) 2개가 이번 강의의 핵심 구간입니다.</div>
+            <div class="callout reveal" style="max-width:1720px; margin-top:18px; font-size:20px;">📣 <b>몸풀기 정답 공개</b> — Q1만 O. Q2는 마스킹 후에만(1행), Q3 어드민 권한(5행)·Q4 인증 정보(2행)·Q5 미승인 도구(4행)는 전부 금지 항목이었습니다. 몇 개 맞히셨나요?</div>
         </div>
     </div>
 </section>
@@ -730,6 +749,39 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     </div>
 </section>
 
+<!-- ===================== 14.5 세종대왕 맥북 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 잘못된 답변</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 2 · Hallucination</div>
+            <h2 class="t">"조선왕조실록에 기록된 <span class="hl">세종대왕 맥북프로 던짐 사건</span>에 대해 알려줘"</h2>
+        </div>
+        <div class="body cols-r">
+            <div class="term reveal">
+                <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">2023년 초 — 커뮤니티를 뒤집은 그 대화 (재구성)</span></div>
+                <pre><span class="p">&gt;</span> <span class="cmd">조선왕조실록에 기록된 세종대왕
+  맥북프로 던짐 사건에 대해 알려줘</span>
+
+세종대왕의 맥북프로 던짐 사건은 15세기 조선시대,
+세종대왕이 훈민정음 초고를 작성하던 중 문서 작성이
+중단되자 분노하여 맥북프로를 던진 사건입니다.
+이 사건은 <span class="bad">조선왕조실록에 기록되어 있으며</span>...
+<span class="cmt"># 한 치의 망설임도 없이, 존댓말로, 진지하게.</span></pre>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">😂</span> 웃기죠. 그런데 —</h3>
+                <ul class="list">
+                    <li>이 답의 무서운 점: 말이 안 되는 내용을 <b>완벽한 형식으로, 확신에 차서</b> 말한다는 것.</li>
+                    <li>여러분의 업무 질문에서도 똑같은 일이 일어납니다 — <b>단지 웃기지 않아서 못 알아챌 뿐</b>.</li>
+                    <li>요즘 모델은 이 질문엔 안 속습니다. 대신 <b>더 교묘한 지점</b>에서 틀립니다.</li>
+                </ul>
+                <div class="callout red reveal" style="margin-top:18px;">환각은 사라진 게 아니라 — <b>티가 안 나게 진화</b>했습니다. 그래서 검증이 필요합니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ===================== 15 환각 개념 ===================== -->
 <section class="slide">
     <div class="inner">
@@ -765,19 +817,16 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     <div class="inner">
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 가짜 판례</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
-            <div class="kicker">Case 4 · 다시 물어봐도 소용없다</div>
-            <h2 class="t">뉴욕 변호사 — ChatGPT가 지어낸 <span class="hl">가짜 판례 6건</span>을 법원에 제출</h2>
+            <div class="kicker">Case 4 · 여러분이라면?</div>
+            <h2 class="t">가짜 판례를 낸 변호사 — 법원이 추궁하자 <span class="hl">그가 한 행동은?</span></h2>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
-                <h3><span class="ic">📋</span> Mata v. Avianca (2023.6, 뉴욕 연방법원)</h3>
-                <ul class="list">
-                    <li>변호사가 ChatGPT로 준비서면 작성 — <b>존재하지 않는 판례 6건</b> 인용.</li>
-                    <li>판례번호·법원명·판시사항까지 <b>형식은 완벽</b>했음.</li>
-                    <li>법원이 추궁하자 — ChatGPT에 <b>"이 판례 진짜야?"</b>라고 되물음.</li>
-                    <li>"실제 판례가 맞다"는 답만 믿고 버티다가 — 제재로 이어졌습니다.</li>
-                </ul>
-                <div class="alert crit" style="margin-top:14px;"><div class="h">제재: 벌금 $5,000 + 공개 망신</div><div class="s">가짜 판결문의 '저자'로 지목된 판사 전원에게 사과 서한 발송 명령</div></div>
+                <h3><span class="ic">🎯</span> 3지선다 — Mata v. Avianca (2023, 뉴욕 연방법원)</h3>
+                <div class="alert"><div class="h">① 즉시 잘못을 인정하고 서면을 철회했다</div></div>
+                <div class="alert"><div class="h">② ChatGPT에게 "이 판례 진짜야?"라고 물어봤다</div></div>
+                <div class="alert"><div class="h">③ 도서관에 가서 판례집을 직접 확인했다</div></div>
+                <div class="alert crit" style="margin-top:16px;"><div class="h">정답: ② — 그리고 "실제 판례가 맞다"는 답을 받았습니다</div><div class="s">환각을 만든 장본인에게 검증을 맡긴 셈. AI는 자신 있게 재보증했고, 변호사는 그걸 믿고 버티다가 — <b>벌금 $5,000 + 가짜 판결문의 '저자'로 지목된 판사 전원에게 사과 서한</b>.</div></div>
             </div>
             <div class="panel plain reveal">
                 <h3><span class="ic">💡</span> 핵심 교훈 — 검증의 정의</h3>
@@ -798,7 +847,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     <div class="inner">
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 에어캐나다</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
-            <div class="kicker">Case 5 · AI의 말 = 회사의 말</div>
+            <div class="kicker">Case 5 · 역대급 항변</div>
             <h2 class="t">에어캐나다 — 챗봇이 <span class="hl">환불 규정을 잘못 안내</span>, 회사가 물어줬다</h2>
         </div>
         <div class="body cols-l">
@@ -807,7 +856,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <ul class="list">
                     <li>고객이 챗봇에 유족 할인 환불을 문의 — 챗봇: <b>"구매 후 90일 내 신청 가능"</b>.</li>
                     <li>실제 정책: <b>사후 소급 적용 불가</b> → 회사가 환불 거부.</li>
-                    <li>회사 항변: "챗봇의 말은 구속력이 없다" → <b>기각</b>.</li>
+                    <li>회사 항변: <b>"챗봇은 별도의 법적 주체라서, 자기 답변은 자기가 책임진다"</b> — 진짜로 이렇게 주장했습니다.</li>
                     <li>재판소: "챗봇도 웹사이트의 일부 — <b>정보 정확성 책임은 회사에 있다</b>" · CA$812 배상 명령.</li>
                 </ul>
             </div>
@@ -1118,9 +1167,9 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     <div class="inner">
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 실습 ② 환각 찾기</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
-            <div class="kicker">Practice 2 · Hallucination Hunt</div>
-            <h2 class="t">실습 ② — AI가 쓴 매물 소개문에서 <span class="hl">환각을 찾아라</span></h2>
-            <p class="t-sub">가상 매물 — <b>이사 기간 단기임대</b>(우리 주력 세그먼트) 시나리오입니다.</p>
+            <div class="kicker">Practice 2 · 환각 헌터 🏹</div>
+            <h2 class="t">팀 대항전 — AI가 쓴 매물 소개문에서 <span class="hl">거짓을 모두 찾아라</span></h2>
+            <p class="t-sub">가상 매물(이사 기간 단기임대) · <b>룰: 환각 1개 = 10점, 원본 표에서 근거를 못 대면 0점</b> — 먼저 다 찾는 팀이 승리.</p>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
@@ -1135,11 +1184,45 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </table>
             </div>
             <div class="panel reveal" style="border-color:rgba(220,38,38,.35);">
-                <h3><span class="ic">🤖</span> AI가 쓴 소개문 — 어디가 환각?</h3>
+                <h3><span class="ic">🤖</span> AI가 쓴 소개문 — 몇 개가 거짓일까?</h3>
                 <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 22px; font-size:20px; line-height:1.65; color:var(--ink-dim);">
-                    "이사 기간 임시 거주에 딱 맞는 역삼동 오피스텔! <b>엘리베이터 완비</b>로 짐 옮기기 편하고, <b>이삿짐 보관 서비스</b>까지 가능해 공사 기간 걱정 없어요. <b>주차 편리</b>, 역세권 <b>도보 5분</b>."
+                    "이사 기간 임시 거주에 딱 맞는 역삼동 오피스텔! 엘리베이터 완비로 짐 옮기기 편하고, 이삿짐 보관 서비스까지 가능해 공사 기간 걱정 없어요. 주차 편리, 역세권 도보 5분."
                 </div>
-                <div class="callout red" style="margin-top:14px; font-size:19px;">환각 <b>4개</b> — 전부 "이사 고객이 원할 법한" 내용입니다. AI는 <b>타깃이 듣고 싶은 말</b>을 지어냅니다. 이대로 게시 = 허위·과장 광고.</div>
+                <div class="callout" style="margin-top:14px; font-size:19px;">⏱️ <b>제한시간 3분</b> — 팀별로 거짓 문구와 <b>근거(원본 표의 행)</b>를 적으세요. 다음 장에서 공개.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 27.5 환각 헌터 정답 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 환각 헌터 · 정답</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Practice 2 · 정답 공개</div>
+            <h2 class="t">정답은 <span class="hl">4개</span> — 전부 "이사 고객이 듣고 싶은 말"이었습니다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal" style="border-color:rgba(220,38,38,.35);">
+                <h3><span class="ic">🎯</span> 소개문 다시 보기 — 거짓에 표시</h3>
+                <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 22px; font-size:20px; line-height:1.65; color:var(--ink-dim);">
+                    "이사 기간 임시 거주에 딱 맞는 역삼동 오피스텔! <b style="color:var(--red)">엘리베이터 완비</b>로 짐 옮기기 편하고, <b style="color:var(--red)">이삿짐 보관 서비스</b>까지 가능해 공사 기간 걱정 없어요. <b style="color:var(--red)">주차 편리</b>, 역세권 <b style="color:var(--red)">도보 5분</b>."
+                </div>
+                <table class="tbl tight" style="margin-top:14px;">
+                    <tr><td><b style="color:var(--red)">엘리베이터 완비</b></td><td>원본: 없음 (계단 5층)</td></tr>
+                    <tr><td><b style="color:var(--red)">이삿짐 보관 서비스</b></td><td>원본: 서비스 없음 — 이사 고객에겐 가장 치명적인 거짓</td></tr>
+                    <tr><td><b style="color:var(--red)">주차 편리</b></td><td>원본: 불가</td></tr>
+                    <tr><td><b style="color:var(--red)">도보 5분</b></td><td>원본: 12분 — 절반으로 줄여 말함</td></tr>
+                </table>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">💡</span> 이 게임이 남기는 것</h3>
+                <ul class="list">
+                    <li>AI는 <b>타깃이 원하는 말</b>을 지어냅니다 — 이사 고객용 소개문엔 이사 고객이 반길 거짓이 생깁니다.</li>
+                    <li>4개 모두 <b>원본 표와 대조하면 10초 만에</b> 잡혔습니다 — 이게 스팟체크의 힘.</li>
+                    <li>이대로 게시했다면? <b>허위·과장 광고</b> + 체크인 당일 CS 폭탄.</li>
+                </ul>
+                <div class="callout ok reveal" style="margin-top:18px;">🏆 팀 점수 정산 — 근거까지 댄 팀이 오늘의 <b>환각 헌터</b>. 합동 공유회 최우수 후보에 가산점.</div>
             </div>
         </div>
     </div>
@@ -1492,7 +1575,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
 </div>
 
 <div class="deck-progress" id="deckProgress"></div>
-<div class="deck-page" id="deckPage">01 / 39</div>
+<div class="deck-page" id="deckPage">01 / 42</div>
 <div class="deck-hint">← → 이동 · E 편집 · Ctrl+S 저장 · F11 전체화면</div>
 <div class="edit-hotzone" id="editHotzone"></div>
 <button class="edit-toggle" id="editToggle" title="편집 모드 (E)">✏️</button>
