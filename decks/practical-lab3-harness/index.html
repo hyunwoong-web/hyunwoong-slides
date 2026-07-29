@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실습 3강 — 하네스 엔지니어링 · 삼삼엠투 AI 교육</title>
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<style>
+/* ===========================================
+   THEME — 삼삼엠투 PPT 디자인 시스템 (Pretendard · 화이트 캔버스 · 브랜드 블루)
+   브랜드 블루 #1456f0 · 상태색 green/amber/red · 터미널은 --font-code(monospace)
+   --brand 값만 바꾸면 포인트 컬러 교체
+   =========================================== */
+:root {
+    --stage-bg: #e7ebf0;
+    --slide-bg: #ffffff;
+    --paper:    #f7f9fc;
+    --paper-2:  #eef2f7;
+    --line:     #e5e7eb;
+    --line-soft:#f2f3f5;
+    --ink:      #222222;
+    --ink-dim:  #45515e;
+    --ink-faint:#8e8e93;
+    --brand:    #1456f0;
+    --brand-dim:rgba(20,86,240,.08);
+    --brand-soft:#eef3ff;
+    --accent:   #0f9d6b;
+    --accent-dim:rgba(15,157,107,.10);
+    --amber:    #b45309;
+    --amber-dim:rgba(180,83,9,.10);
+    --red:      #dc2626;
+    --red-dim:  rgba(220,38,38,.08);
+    --blue:     #2563eb;
+    --blue-dim: rgba(37,99,235,.08);
+
+    --font-body: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+    --font-mono: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+    --font-code: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --grad: linear-gradient(135deg, #1456f0 0%, #3b82f6 50%, #60a5fa 100%);
+    --shadow-card: 0 2px 10px rgba(20,40,80,.05);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   FIXED 16:9 STAGE — viewport-base (수정 금지)
+   =========================================== */
+html, body {
+    width: 100%; height: 100%; margin: 0; overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-stage {
+    position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+    overflow: hidden; transform-origin: 0 0; background: var(--slide-bg, #fff);
+}
+.slide {
+    position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+    display: block; visibility: hidden; opacity: 0; pointer-events: none; background: var(--slide-bg, #fff);
+}
+.slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide {
+        position: relative; display: block !important; visibility: visible !important;
+        opacity: 1 !important; pointer-events: auto !important;
+        width: 1920px; height: 1080px; break-after: page; page-break-after: always;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls, .deck-hint, .edit-toggle, .edit-hotzone { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* ===========================================
+   SLIDE CANVAS
+   =========================================== */
+.slide {
+    font-family: var(--font-body); color: var(--ink);
+    background:
+        radial-gradient(1100px 600px at 6% -12%, rgba(20,86,240,.05), transparent 60%),
+        radial-gradient(900px 520px at 102% 112%, rgba(96,165,250,.05), transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        repeating-linear-gradient(90deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        var(--slide-bg);
+}
+.inner { position: absolute; inset: 0; padding: 52px 84px 60px; display: flex; flex-direction: column; }
+.inner::after {
+    content: ''; position: absolute; top: 46px; right: 84px;
+    width: 132px; height: 34px;
+    background: url('./33m2_logo.png') right center / contain no-repeat;
+    pointer-events: none; z-index: 5;
+}
+
+.chrome {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 19px; letter-spacing: .12em;
+    color: var(--ink-faint); text-transform: uppercase;
+    padding-bottom: 16px; border-bottom: 1px solid var(--line);
+}
+.chrome .dot { color: var(--accent); }
+.chrome .sec { display: none; }
+
+.t-wrap { margin: 30px 0 6px; }
+.kicker {
+    font-family: var(--font-mono); font-size: 21px; letter-spacing: .22em;
+    color: var(--brand); text-transform: uppercase; margin-bottom: 13px;
+}
+h2.t { font-size: 52px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.14; }
+h2.t .hl { color: var(--brand); }
+.t-sub { margin-top: 12px; font-size: 26px; color: var(--ink-dim); font-weight: 400; line-height: 1.45; }
+.t-sub b, .t-sub strong { color: var(--ink); font-weight: 600; }
+.body { flex: 1; margin-top: 30px; min-height: 0; }
+
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 30px; box-shadow: var(--shadow-card); }
+.panel.plain { background: #fff; }
+.panel h3 { font-size: 25px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.01em; display:flex; align-items:center; gap:10px; }
+.panel h3 .mono { font-family: var(--font-mono); font-size: 19px; color: var(--brand); }
+.panel h3 .ic { font-size: 26px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+.cols-l { display:grid; grid-template-columns: 1fr 1.05fr; gap: 30px; align-items:start; }
+.cols-r { display:grid; grid-template-columns: 1.05fr 1fr; gap: 30px; align-items:start; }
+
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; position: relative; overflow: hidden; }
+.stat::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--brand); opacity: .9; }
+.stat .num { font-family: var(--font-mono); font-size: 54px; font-weight: 600; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
+.stat .num small { font-size: 26px; color: var(--ink-dim); font-weight: 500; }
+.stat .lbl { margin-top: 12px; font-size: 23px; font-weight: 600; color: var(--ink); }
+.stat .sub { margin-top: 7px; font-size: 19.5px; color: var(--ink-dim); line-height: 1.48; }
+.stat.red::before { background: var(--red); }
+.stat.amber::before { background: var(--amber); }
+.stat.ok::before { background: var(--accent); }
+
+.card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px 22px; box-shadow:0 4px 16px rgba(20,30,50,.04); }
+.card .ic { font-size:38px; }
+.card .ct { margin-top:12px; font-size:24px; font-weight:700; color:var(--ink); }
+.card .ct .mono { font-family:var(--font-mono); font-size:17px; color:var(--brand); display:block; font-weight:500; letter-spacing:.02em; }
+.card .cd { margin-top:9px; font-size:19px; color:var(--ink-dim); line-height:1.5; }
+.card.hot { border-color: rgba(20,86,240,.4); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+
+.chip {
+    display: inline-block; font-family: var(--font-mono); font-size: 18px;
+    padding: 4px 13px; border-radius: 100px; letter-spacing: .03em;
+    background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(12,166,120,.28); vertical-align: middle;
+}
+.chip.br { background: var(--brand-dim); color: var(--brand); border-color: rgba(20,86,240,.28); }
+.chip.a { background: var(--amber-dim); color: var(--amber); border-color: rgba(232,137,12,.3); }
+.chip.r { background: var(--red-dim); color: var(--red); border-color: rgba(224,49,49,.3); }
+.chip.n { background: rgba(139,151,166,.12); color: var(--ink-dim); border-color: var(--line); }
+
+table.tbl { width: 100%; border-collapse: collapse; font-size: 21px; }
+.tbl th { font-family: var(--font-mono); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--line); font-weight: 500; white-space: nowrap; }
+.tbl td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); color: var(--ink-dim); line-height: 1.42; vertical-align: top; }
+.tbl td:first-child, .tbl td b, .tbl td strong { color: var(--ink); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr.hot td { background: var(--brand-dim); }
+.mono { font-family: var(--font-code); }
+.tbl.tight td { padding: 8px 14px; font-size: 19.5px; }
+.tbl.tight th { padding: 8px 14px; }
+
+ul.list { list-style: none; }
+ul.list li { position: relative; padding-left: 30px; margin-bottom: 13px; font-size: 22px; color: var(--ink-dim); line-height: 1.5; }
+ul.list li::before { content: '▸'; position: absolute; left: 4px; color: var(--brand); }
+ul.list li b, ul.list li strong { color: var(--ink); font-weight: 600; }
+ul.list.tight li { font-size: 20px; margin-bottom: 9px; }
+ul.check { list-style:none; }
+ul.check li { position:relative; padding-left: 40px; margin-bottom: 15px; font-size: 23px; color: var(--ink); line-height: 1.45; }
+ul.check li::before { content:'✓'; position:absolute; left:6px; top:-1px; color:var(--accent); font-weight:700; font-size:24px; }
+ul.check li .s { display:block; font-size:19px; color:var(--ink-dim); margin-top:3px; }
+ul.cross { list-style:none; }
+ul.cross li { position:relative; padding-left: 40px; margin-bottom: 15px; font-size: 22px; color: var(--ink-dim); line-height: 1.45; }
+ul.cross li::before { content:'✕'; position:absolute; left:6px; top:-1px; color:var(--red); font-weight:700; font-size:22px; }
+ul.cross li b { color: var(--ink); }
+
+.callout { border: 1px solid rgba(20,86,240,.32); background: var(--brand-dim); border-radius: 14px; padding: 18px 26px; font-size: 22px; color: var(--ink); line-height: 1.5; }
+.callout b { color: var(--brand); }
+.callout.ok { border-color: rgba(12,166,120,.35); background: var(--accent-dim); }
+.callout.ok b { color: var(--accent); }
+.callout.amber { border-color: rgba(232,137,12,.35); background: var(--amber-dim); }
+.callout.amber b { color: var(--amber); }
+.callout.red { border-color: rgba(220,38,38,.35); background: var(--red-dim); }
+.callout.red b { color: var(--red); }
+
+.alert { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--brand); border-radius: 12px; padding: 15px 22px; margin-bottom: 13px; }
+.alert.warn { border-left-color: var(--amber); }
+.alert.crit { border-left-color: var(--red); }
+.alert.ok { border-left-color: var(--accent); }
+.alert .h { font-size: 21px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+.alert .s { margin-top: 5px; font-size: 19px; color: var(--ink-dim); line-height: 1.45; }
+.alert .cap { margin-top: 7px; font-family: var(--font-mono); font-size: 16.5px; color: var(--ink-faint); }
+
+.flow { display: flex; align-items: stretch; gap: 0; }
+.fnode { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; text-align: center; flex: 1; box-shadow:0 4px 14px rgba(20,30,50,.05); }
+.fnode .fi { font-size: 30px; }
+.fnode .fn-t { margin-top:6px; font-size: 21px; font-weight: 700; color: var(--ink); }
+.fnode .fn-s { margin-top: 5px; font-size: 17px; color: var(--ink-dim); line-height: 1.4; }
+.fnode.hot { border-color: rgba(20,86,240,.45); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+.fnode.bad { border-color: rgba(220,38,38,.4); background: linear-gradient(180deg, var(--red-dim), #fff); }
+.farrow { display: flex; align-items: center; padding: 0 12px; color: var(--brand); font-size: 26px; font-family: var(--font-mono); }
+
+.divlbl { font-family: var(--font-mono); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 18px 0 11px; }
+
+/* 터미널 목업 (다크) */
+.term { background:#0E1420; border-radius:14px; border:1px solid #1E2A3A; overflow:hidden; box-shadow:0 12px 34px rgba(15,25,45,.16); }
+.term .bar { display:flex; align-items:center; gap:9px; padding:11px 16px; background:#141E2C; border-bottom:1px solid #1E2A3A; }
+.term .bar .d { width:12px; height:12px; border-radius:50%; }
+.term .bar .d.r{ background:#ff5f56;} .term .bar .d.y{ background:#ffbd2e;} .term .bar .d.g{ background:#27c93f;}
+.term .bar .ttl { margin-left:8px; font-family:var(--font-code); font-size:15.5px; color:#5F6E80; letter-spacing:.06em; }
+.term pre { margin:0; padding:20px 24px; font-family:var(--font-code); font-size:19px; line-height:1.62; color:#C7D3E2; white-space:pre-wrap; word-break:break-word; }
+.term.sm pre { font-size:17px; line-height:1.6; padding:16px 20px; }
+.term .p { color:#4FD1A1; } .term .cmd { color:#F0F5FB; font-weight:500; }
+.term .ok { color:#4FD1A1; } .term .warn { color:#FFC061; } .term .dim { color:#5F6E80; } .term .cmt { color:#5F6E80; font-style:italic; }
+.term .kw { color:#8CB4FF; } .term .bad { color:#FF7B72; }
+
+.code { background:#0E1420; border-radius:12px; border:1px solid #1E2A3A; padding:18px 22px; font-family:var(--font-code); font-size:19px; color:#C7D3E2; line-height:1.6; white-space:pre-wrap; }
+.code .k { color:#8CB4FF; } .code .s { color:#4FD1A1; } .code .c { color:#5F6E80; }
+
+/* 스텝 배지 */
+.stepbadge { display:inline-flex; align-items:center; gap:12px; margin-bottom:6px; }
+.stepbadge .b { font-family:var(--font-mono); font-size:20px; font-weight:600; color:#fff; background:var(--brand); border-radius:10px; padding:5px 14px; }
+
+/* 미션 카드 */
+.mission { background: linear-gradient(180deg, var(--brand-dim), #fff); border:1px solid rgba(20,86,240,.35); border-radius:18px; padding:26px 30px; }
+.mission .mh { font-size:24px; font-weight:700; color:var(--brand); display:flex; align-items:center; gap:10px; }
+.mstep { display:flex; gap:16px; align-items:flex-start; margin-top:18px; }
+.mstep .n { flex:none; width:42px; height:42px; border-radius:11px; background:var(--brand); color:#fff; font-family:var(--font-mono); font-weight:600; font-size:22px; display:flex; align-items:center; justify-content:center; }
+.mstep .mt { font-size:22px; font-weight:600; color:var(--ink); }
+.mstep .md { font-size:18.5px; color:var(--ink-dim); margin-top:3px; line-height:1.45; }
+
+/* 신호등 등급 */
+.grade { border-radius:16px; border:1px solid var(--line); background:#fff; padding:22px 26px; box-shadow: var(--shadow-card); }
+.grade .gh { display:flex; align-items:center; gap:12px; font-size:24px; font-weight:700; }
+.grade .gh .lamp { width:22px; height:22px; border-radius:50%; flex:none; }
+.grade.g .gh .lamp { background:#16a34a; box-shadow:0 0 0 5px rgba(22,163,74,.15); }
+.grade.y .gh .lamp { background:#f59e0b; box-shadow:0 0 0 5px rgba(245,158,11,.15); }
+.grade.r .gh .lamp { background:#dc2626; box-shadow:0 0 0 5px rgba(220,38,38,.15); }
+.grade .gd { margin-top:8px; font-size:19px; color:var(--ink-dim); line-height:1.5; }
+.grade ul { list-style:none; margin-top:12px; }
+.grade li { position:relative; padding-left:24px; margin-bottom:8px; font-size:19px; color:var(--ink-dim); line-height:1.45; }
+.grade li::before { content:'·'; position:absolute; left:8px; color:var(--ink-faint); font-weight:700; }
+.grade li b { color:var(--ink); }
+
+/* ===========================================
+   TITLE SLIDE
+   =========================================== */
+.slide.title .inner { justify-content: center; padding-top: 40px; }
+.title-status { display: flex; gap: 12px; margin-bottom: 40px; }
+.title-kicker { font-family: var(--font-mono); font-size: 23px; letter-spacing: .3em; color: var(--brand); text-transform: uppercase; margin-bottom: 26px; }
+h1.title-h { font-size: 104px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; }
+h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
+.title-sub { margin-top: 28px; font-size: 31px; color: var(--ink-dim); line-height: 1.5; max-width: 1450px; }
+.title-sub b { color: var(--ink); font-weight: 600; }
+.title-meta { margin-top: 52px; display: flex; gap: 34px; font-family: var(--font-mono); font-size: 21px; color: var(--ink-faint); }
+.title-meta span b { color: var(--ink-dim); font-weight: 500; }
+
+.slide.end .inner { justify-content:center; align-items:flex-start; }
+.end-h { font-size: 88px; font-weight:700; letter-spacing:-.02em; }
+.end-h .thin { color: var(--ink-dim); font-weight:300; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s var(--ease), transform .55s var(--ease); }
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1){transition-delay:.05s}.reveal:nth-child(2){transition-delay:.12s}.reveal:nth-child(3){transition-delay:.19s}.reveal:nth-child(4){transition-delay:.26s}.reveal:nth-child(5){transition-delay:.33s}.reveal:nth-child(6){transition-delay:.40s}.reveal:nth-child(7){transition-delay:.47s}.reveal:nth-child(8){transition-delay:.54s}
+
+/* Deck chrome */
+.deck-progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--brand); width: 0%; z-index: 1001; transition: width .3s var(--ease); }
+.deck-page { position: fixed; right: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 14px; color: var(--ink-faint); letter-spacing: .1em; }
+.deck-hint { position: fixed; left: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); letter-spacing: .05em; opacity: .7; }
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle { position: fixed; top: 18px; left: 18px; z-index: 10001; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 20px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { border-color: var(--brand); color: var(--brand); }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===================== 01 표지 ===================== -->
+<section class="slide title active">
+    <div class="inner">
+        <div class="title-status reveal">
+            <span class="chip br">실습반</span>
+            <span class="chip n">3주 · 총 6회</span>
+            <span class="chip a">안전 운용 편</span>
+        </div>
+        <div class="title-kicker reveal">삼삼엠투 AI 교육 · 실습반 3강</div>
+        <h1 class="title-h reveal">하네스 <span class="thin">엔지니어링</span></h1>
+        <p class="title-sub reveal">AI는 <b>고출력 엔진</b>입니다 — 빠르지만, 방향은 사람이 잡아야 합니다.<br>회사 자료는 <b>어디까지</b> 넣어도 되는가(AX 거버넌스) · 개인정보·<b>잘못된 답변</b> 주의 · <b>중간 결과 확인</b> · <b>오류 수정</b>까지.</p>
+        <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
+            <div class="fnode"><div class="fi">🔒</div><div class="fn-t">경계</div><div class="fn-s">무엇을 태울지</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🛑</div><div class="fn-t">체크포인트</div><div class="fn-s">언제 멈춰 볼지</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🕵️</div><div class="fn-t">검증</div><div class="fn-s">사실인지 확인</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🧭</div><div class="fn-t">조향</div><div class="fn-s">말로 방향 수정</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode hot"><div class="fi">↩️</div><div class="fn-t">복원</div><div class="fn-s">언제든 되돌리기</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>진행 <b>박현웅</b></span><span>대상 <b>실습반 (비개발자)</b></span><span>준비물 <b>1강 세팅 완료된 노트북</b></span>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 02 커리큘럼 조감 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 하네스 엔지니어링</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Course Map</div>
+            <h2 class="t">3주 · 6회 과정 — 오늘은 <span class="hl">'안전하게 시키는 법'(3강)</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🗺️</span> 실습반 커리큘럼</h3>
+                <table class="tbl tight">
+                    <tr><td>1강</td><td>작업환경 구축 — Claude Code·OMC·스킬·MCP·Orca</td></tr>
+                    <tr><td>2강</td><td>커스텀 스킬 도구 생성 — 데이터 수집·분석, 인사이트 추출</td></tr>
+                    <tr class="hot"><td><b>3강 (오늘)</b></td><td><b>하네스 엔지니어링</b> — 하지 말아야 할 것</td></tr>
+                    <tr><td>4강</td><td>실습 과제 선정 — 개인/파트 단위 과제</td></tr>
+                    <tr><td>5강</td><td>과제 진행사항 + 강사 피드백</td></tr>
+                    <tr><td>6강</td><td>과제 진행사항 + 강사 피드백</td></tr>
+                    <tr><td>합동</td><td>실습반 합동 공유회 — 최우수 1명 수상</td></tr>
+                </table>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🎯</span> 3강의 역할</h3>
+                <ul class="list">
+                    <li>1·2강에서 <b>액셀 밟는 법</b>을 배웠습니다 — 환경을 만들고, 도구를 만들었죠.</li>
+                    <li>4강부터는 <b>실전 과제</b>에 들어갑니다. 실제 회사 자료를 다루게 됩니다.</li>
+                    <li>그 전에 오늘 — <b>브레이크·핸들·후진 기어</b>를 먼저 익힙니다.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:22px;">오늘의 성공 = <b>넣기 전에 판단하고, 중간에 멈춰 확인하고, 틀리면 되돌릴 줄 아는 것</b></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 03 은유: 엔진과 하네스 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 하네스란</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Why "Harness"</div>
+            <h2 class="t">AI = 고출력 엔진 · 하네스 = <span class="hl">사람이 잡는 고삐</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🐎</span> 엔진(AI)의 성질</h3>
+                <ul class="list">
+                    <li><b>빠르고 강합니다</b> — 몇 시간 걸릴 일을 몇 분에.</li>
+                    <li>그런데 <b>방향 감각이 없습니다</b> — 시킨 대로, 시킨 방향으로만 달립니다.</li>
+                    <li>모르는 것도 <b>"모른다" 대신 그럴듯하게</b> 지어냅니다.</li>
+                    <li>입력한 내용이 <b>어디로 가는지</b> 스스로 가려주지 않습니다.</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🧑‍✈️</span> 하네스(사람)의 역할 — 오늘 배우는 4가지</h3>
+                <table class="tbl tight">
+                    <tr><td><b>🔒 경계</b></td><td>무엇을 태울지 — AX 거버넌스 · 자료 등급 · 마스킹</td></tr>
+                    <tr><td><b>🛑 체크포인트</b></td><td>언제 멈춰 볼지 — 계획 먼저, 단계별 정지</td></tr>
+                    <tr><td><b>🕵️ 검증</b></td><td>결과가 사실인지 — 스팟체크·출처 대조·교차검증</td></tr>
+                    <tr><td><b>🧭 조향·복원</b></td><td>틀렸으면 — 중단(ESC)·말로 수정·되돌리기</td></tr>
+                </table>
+                <div class="callout reveal" style="margin-top:20px;">이걸 통틀어 <b>Human-in-the-loop</b> — 루프(계획→실행→확인) 안에 <b>항상 사람이 있는</b> 운용 방식입니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 04 오늘의 목표 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오늘의 목표</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Goal</div>
+            <h2 class="t">오늘 끝나면 — AI에게 <span class="hl">'믿고 맡기되, 그냥 믿지는 않는'</span> 사람이 됩니다</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">🕳️</span> Before — 위험한 습관</h3>
+                <ul class="cross">
+                    <li>회사 자료를 <b>일단 붙여넣고</b> 시작</li>
+                    <li>한 번에 긴 지시 → <b>끝까지 기다림</b></li>
+                    <li>"완료했습니다" 하면 <b>결과를 그대로 사용</b></li>
+                    <li>틀리면 <b>처음부터 다시</b> — 또는 포기</li>
+                </ul>
+            </div>
+            <div class="panel reveal" style="border-color:rgba(12,166,120,.4); background:linear-gradient(180deg,var(--accent-dim),#fff);">
+                <h3><span class="ic">✅</span> After — 오늘 완료 기준</h3>
+                <ul class="check">
+                    <li>자료를 넣기 전 <b>3초 등급 판단</b> (🟢🟡🔴)<span class="s">AX 거버넌스 기준 — 🟡이면 마스킹 후 사용</span></li>
+                    <li>일 시키기 전 <b>계획부터</b> 받아본다<span class="s">"실행 말고 계획만 보여줘"</span></li>
+                    <li>완료 선언 후 <b>스팟체크 3개</b>를 한다<span class="s">숫자·이름·링크 원본 대조</span></li>
+                    <li><b>ESC → 조향 → 재시작</b>을 손에 익힌다<span class="s">틀려도 5분 안에 복구</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 05 오늘의 다섯 단어 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오늘의 단어</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Keywords</div>
+            <h2 class="t">오늘의 다섯 단어 — 이것만 잡으면 됩니다</h2>
+        </div>
+        <div class="body grid-5" style="align-content:center;">
+            <div class="card reveal"><div class="ic">🔒</div><div class="ct">경계<span class="mono">Boundary</span></div><div class="cd">프롬프트에 쓰는 순간 회사 밖으로 나간다 — 넣어도 되는 선</div></div>
+            <div class="card reveal"><div class="ic">🎭</div><div class="ct">마스킹<span class="mono">Masking</span></div><div class="cd">이름·연락처·계좌를 치환하고 넣는 기술</div></div>
+            <div class="card reveal"><div class="ic">🛑</div><div class="ct">체크포인트<span class="mono">Checkpoint</span></div><div class="cd">단계마다 멈춰서 중간 결과를 보는 정거장</div></div>
+            <div class="card reveal"><div class="ic">🕵️</div><div class="ct">검증<span class="mono">Verify</span></div><div class="cd">그럴듯함 ≠ 사실 — 원본과 대조하는 습관</div></div>
+            <div class="card hot reveal"><div class="ic">🧭</div><div class="ct">조향<span class="mono">Steering</span></div><div class="cd">중단하고, 말로 고치고, 되돌리는 운전 기술</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 06 데이터 흐름 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 회사 자료의 경계</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 1 · Boundary</div>
+            <h2 class="t">프롬프트에 쓰는 순간 = <span class="hl">회사 밖으로 전송</span>입니다</h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="max-width:1600px; margin:10px auto 30px;">
+                <div class="fnode"><div class="fi">⌨️</div><div class="fn-t">내 입력</div><div class="fn-s">프롬프트 · 첨부 파일</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">🌐</div><div class="fn-t">인터넷</div><div class="fn-s">회사 망을 벗어남</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode bad"><div class="fi">🏢</div><div class="fn-t">AI 사업자 서버</div><div class="fn-s">저장 · (계정에 따라) 학습 활용</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode bad"><div class="fi">🚫</div><div class="fn-t">회수 불가</div><div class="fn-s">삭제 요청해도 사실상 못 되돌림</div></div>
+            </div>
+            <div class="grid-2">
+                <div class="panel reveal">
+                    <h3><span class="ic">⚠️</span> 개인 AI 계정 (무료·일반 플랜)</h3>
+                    <ul class="list tight">
+                        <li>입력 내용이 <b>모델 학습에 활용</b>될 수 있음 (기본 설정)</li>
+                        <li>계정 사고 시 <b>대화 이력째</b> 노출</li>
+                        <li>거버넌스: <b>회사 데이터를 개인 AI 계정에서 처리 금지</b></li>
+                    </ul>
+                </div>
+                <div class="panel reveal" style="border-color:rgba(12,166,120,.4);">
+                    <h3><span class="ic">🛡️</span> 회사 제공 AI 계정 (우리 실습 환경)</h3>
+                    <ul class="list tight">
+                        <li>입력이 <b>학습에 사용되지 않음</b>이 계약으로 보장</li>
+                        <li>그래도 <b>전송·저장은 됨</b> — "뭐든 넣어도 됨"은 아님</li>
+                        <li>그래서 다음 슬라이드부터: <b>그래도 지켜야 할 경계</b></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 07 사례: 삼성전자 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 삼성전자</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Case 1 · 기밀 입력</div>
+            <h2 class="t">삼성전자 — 소스코드를 ChatGPT에 넣었다가 <span class="hl">전사 금지, 그리고 3년 뒤</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📅</span> 무슨 일이 있었나</h3>
+                <div class="alert crit"><div class="h">2023.4 — 유출</div><div class="s">엔지니어가 오류 확인용으로 <b>내부 소스코드</b>를, 반도체 부문 직원이 <b>설비 수율·회의 내용</b>을 ChatGPT에 입력. 외부 서버로 전송 — 회수 불가.</div></div>
+                <div class="alert warn"><div class="h">2023.5 — 전면 금지</div><div class="s">DX부문 생성형 AI 사용 금지, 위반 시 <b>해고 포함 징계</b> 경고. 자체 모델(가우스) 개발로 선회.</div></div>
+                <div class="alert ok"><div class="h">2026.6 — 기업용으로 재허용</div><div class="s">입력이 학습에 쓰이지 않는 <b>ChatGPT Enterprise 전사 도입</b> + 보안 교육 의무화. OpenAI 최대급 기업 도입 사례.</div></div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">💡</span> 이 사례가 말하는 것</h3>
+                <ul class="list">
+                    <li>결론이 "AI 쓰지 마라"가 <b>아니었습니다</b>.</li>
+                    <li>3년 걸려 도달한 답: <b>"경계를 알고, 안전한 통로로 써라."</b></li>
+                    <li>우리 AX 거버넌스가 처음부터 그 구조입니다 — <b>금지 + 대안</b>.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:22px;"><b>개인 계정 = 외부 반출.</b> 회사 데이터는 회사가 제공하는 AI 계정에서만.</div>
+                <div class="divlbl">출처</div>
+                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">한국경제·한겨레 2023.4~5 / 한겨레·조선 2026.5 / OpenAI 발표 2026.6</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 08 사례: 딥시크 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 딥시크</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Case 2 · 도구 선택</div>
+            <h2 class="t">딥시크 — 내가 쓴 <span class="hl">프롬프트가 통째로</span> 해외 4개사에 넘어갔다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📋</span> 개인정보보호위원회 조사 결과 (2025.4)</h3>
+                <ul class="list">
+                    <li>한국 출시(2025.1) 후 한 달간, 이용자 동의 없이 개인정보를 <b>중국·미국 4개사로 이전</b>.</li>
+                    <li>기기 정보뿐 아니라 — <b>이용자가 챗봇에 입력한 프롬프트 내용</b>까지 바이트댄스 계열 클라우드로 전송.</li>
+                    <li>학습 거부(옵트아웃) 기능 없음, 한국어 처리방침 없음.</li>
+                    <li>결과: 시정 권고(이전 데이터 파기 등) + <b>국내 신규 다운로드 중단</b> 사태.</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">💡</span> 우리에게 주는 교훈</h3>
+                <ul class="list">
+                    <li><b>프롬프트에 쓴 내용 자체가 '전송되는 데이터'</b>입니다.</li>
+                    <li>새로 뜬 무료 AI 앱·브라우저 확장 — 편해 보여도 <b>데이터가 어디로 가는지</b>부터.</li>
+                    <li>도구를 고르는 것도 <b>보안 행위</b>입니다.</li>
+                </ul>
+                <div class="callout amber reveal" style="margin-top:22px;">거버넌스: <b>출처 불분명한 AI 서비스·확장 프로그램 사용 금지</b> — 승인된 것만, 필요하면 검토 요청.</div>
+                <div class="divlbl">출처</div>
+                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">개인정보보호위원회 2025.4.23 제9차 전체회의 보도자료 · 조선일보 · ZDNet Korea</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 09 AX 거버넌스 공통 원칙 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — AX 거버넌스</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Our Rules · AX Governance</div>
+            <h2 class="t">우리 회사 기준 — AX 거버넌스 <span class="hl">공통 3원칙</span></h2>
+            <p class="t-sub">전 구성원이 AI·자동화 자산을 <b>회사 공용 리소스</b>로 일관되게 다루기 위한 운영 규칙입니다.</p>
+        </div>
+        <div class="body grid-3">
+            <div class="card reveal">
+                <div class="ic">🏢</div>
+                <div class="ct">귀속<span class="mono">Ownership</span></div>
+                <div class="cd"><b>개인이 아니라 회사가 소유</b>합니다. 개인이 만든 프로젝트·계정·키가 아니라 회사 공용 리소스를 사용합니다.<br><br>담당자 퇴사·개인 계정 정지·원본 유실로 <b>실무가 멈추는 것</b>을 막기 위해 — 만든 자동화는 사내 현황 대장에 등록합니다.</div>
+            </div>
+            <div class="card reveal">
+                <div class="ic">🏷️</div>
+                <div class="ct">구분 · 담당<span class="mono">Accountability</span></div>
+                <div class="cd">계정·키·워크플로·코드는 <b>팀/제품 단위로 분리</b>해 권한과 책임을 명확히 합니다.<br><br>키·폴더·계정에는 <b>담당자/팀/제품/날짜</b>가 드러나는 명명 규칙 — "제목 없는 프로젝트"는 아무도 못 찾습니다.</div>
+            </div>
+            <div class="card hot reveal">
+                <div class="ic">🔑</div>
+                <div class="ct">비밀 유지<span class="mono">Secrets</span></div>
+                <div class="cd"><b>민감정보는 업로드·공유 금지.</b> 인증 세션, 서비스 계정 키, API Key 원문은 저장소·문서에 올리지 않습니다.<br><br>당연히 <b>AI 프롬프트에도</b> — 키·비밀번호를 넣는 순간 유출입니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 10 AX 거버넌스 금지사항 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — AX 거버넌스 · 금지와 대안</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Our Rules · Do &amp; Don't</div>
+            <h2 class="t">거버넌스 금지사항 — 전부 <span class="hl">"대신 이렇게"</span>가 있습니다</h2>
+        </div>
+        <div class="body">
+            <div class="panel reveal" style="max-width:1720px;">
+                <table class="tbl tight">
+                    <tr><th style="width:52%">금지</th><th>대안</th></tr>
+                    <tr class="hot"><td><b>고객 개인정보(이름·전화번호 등)를 외부 AI에 입력</b></td><td>익명화(마스킹)하거나 승인된 AI 환경 사용</td></tr>
+                    <tr class="hot"><td><b>API Key·비밀번호 등 인증 정보를 AI에 입력</b></td><td>대안 없음 — 절대 금지</td></tr>
+                    <tr><td><b>회사 데이터를 개인 AI 계정에서 처리</b></td><td>회사에서 제공하는 AI 계정 사용</td></tr>
+                    <tr><td><b>출처 불분명한 AI 서비스·브라우저 확장 사용</b></td><td>승인된 AI 서비스만 — 필요 시 검토 요청</td></tr>
+                    <tr><td><b>어드민에서 AI에게 동작 권한 부여</b></td><td>기획·개발팀에 공식 기능으로 개발 요청</td></tr>
+                    <tr><td><b>AI 자동화가 승인 없이 고객 직접 발송·데이터 수정</b></td><td>반드시 사람이 검토 후 사용</td></tr>
+                    <tr><td><b>AI Agent에 필요 이상 권한(MCP·Drive·Slack·GitHub) 부여</b></td><td>최소 권한 원칙(Least Privilege)</td></tr>
+                    <tr><td><b>당사 대상 크롤링 / 외부 크롤링 시 robots.txt·저작권 무시</b></td><td>사내 데이터는 관련 팀에 요청 · 외부는 공식 API 우선</td></tr>
+                    <tr><td><b>승인 없이 챗봇·OAuth 앱 배포 / 업무 서비스 개인 계정 가입</b></td><td>회사 이메일·공용 계정 사용 + 관리자 지정</td></tr>
+                </table>
+            </div>
+            <div class="callout reveal" style="max-width:1720px; margin-top:18px; font-size:20px;">거버넌스는 고정불변이 아닙니다 — <b>정기적으로 재검토</b>됩니다. 오늘 강조 표시(파란 줄) 2개가 이번 강의의 핵심 구간입니다.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 11 신호등 3등급 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 자료 등급</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Traffic Light</div>
+            <h2 class="t">거버넌스를 현장에서 쓰는 습관 — 넣기 전 3초, <span class="hl">🟢 · 🟡 · 🔴</span></h2>
+        </div>
+        <div class="body grid-3">
+            <div class="grade g reveal">
+                <div class="gh"><span class="lamp"></span> 그대로 OK</div>
+                <div class="gd">공개됐거나, 개인·기밀 요소가 없는 자료</div>
+                <ul>
+                    <li>이미 <b>공개된 매물 정보</b>·서비스 소개</li>
+                    <li>블로그·보도자료·공식 문서</li>
+                    <li>개인정보 없는 <b>집계 통계</b> (지역별 예약률 등)</li>
+                    <li>일반 업무 문서 초안 (사내 수치 없는 것)</li>
+                </ul>
+            </div>
+            <div class="grade y reveal">
+                <div class="gh"><span class="lamp"></span> 마스킹하면 OK</div>
+                <div class="gd">거버넌스: "익명화하거나 승인된 AI 환경 사용"</div>
+                <ul>
+                    <li><b>CS 대화·통화 기록</b> → 이름·연락처 치환</li>
+                    <li><b>임차인·호스트 데이터</b> → ID화, 식별자 제거</li>
+                    <li>매물 사진 → <b>얼굴·번호판·도어락 메모</b> 확인</li>
+                    <li>정산·매출 데이터 → 계좌·실명 제거</li>
+                </ul>
+            </div>
+            <div class="grade r reveal">
+                <div class="gh"><span class="lamp"></span> 입력 금지</div>
+                <div class="gd">마스킹으로도 해결 안 되는 것 — 거버넌스 절대 금지</div>
+                <ul>
+                    <li><b>API Key·비밀번호·인증 세션</b> (원문)</li>
+                    <li>실명+연락처+주소가 <b>묶인 원본 명단</b></li>
+                    <li><b>계약서 원본</b> · 신분증 사본 · 계좌·결제정보</li>
+                    <li>미공개 전략·투자·인사 자료</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 12 사례: 이루다 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 이루다</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Case 3 · 🟡를 🟢처럼 다루면</div>
+            <h2 class="t">이루다 — 고객 대화 94억 건을 그대로 썼다가 <span class="hl">국내 첫 AI 제재</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📋</span> 무슨 일이 있었나 (2021.4)</h3>
+                <ul class="list">
+                    <li>연애 상담 앱에서 수집한 <b>60만 명의 카톡 대화 94억 건</b>을 챗봇 학습에 사용.</li>
+                    <li>이름·전화번호·주소를 <b>비식별화하지 않고</b> 그대로 투입.</li>
+                    <li>약관의 "신규 서비스 개발" 문구로는 <b>동의로 인정 안 됨</b>.</li>
+                    <li>GitHub에 실명 포함 대화 1,431건 노출까지.</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">⚖️</span> 결과</h3>
+                <div class="alert crit"><div class="h">과징금+과태료 총 1억 330만 원</div><div class="s">국내 AI 기업 <b>최초</b>의 개인정보 제재 (개인정보보호위원회)</div></div>
+                <div class="alert warn"><div class="h">2025.6 — 민사 배상 판결</div><div class="s">피해자 246명에게 위자료 배상 — <b>4년 뒤까지</b> 이어진 후폭풍</div></div>
+                <div class="callout reveal" style="margin-top:16px;">우리도 <b>CS 로그·고객 대화</b>를 AI에 넣을 때 똑같은 잣대를 받습니다 — 거버넌스가 "고객 개인정보 외부 AI 입력 금지"를 <b>1번으로</b> 둔 이유.</div>
+                <div class="divlbl">출처</div>
+                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">개인정보보호위원회 2021.4.28 의결 · 보안뉴스 · 매일경제 2025.6</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 13 33m2 체크리스트 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 우리 회사 체크리스트</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">33m2 Rules</div>
+            <h2 class="t">우리 업(단기임대)의 <span class="hl">개인정보 지뢰</span> — 넣기 전 확인</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">📷</span> 매물 사진 — 사진은 개인정보 덩어리</h3>
+                <ul class="list tight">
+                    <li>창밖·거울에 비친 <b>사람 얼굴</b></li>
+                    <li>주차장의 <b>차량 번호판</b></li>
+                    <li>현관의 <b>도어락 비밀번호 메모</b> · 공동현관 비번 안내문</li>
+                    <li>우편물·택배 송장의 <b>이름과 주소</b></li>
+                </ul>
+                <div class="callout amber" style="margin-top:14px; font-size:19.5px;">AI 보정·분류에 올리기 전 — <b>가리고 올린다</b>. 게시용 사진도 동일.</div>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">💬</span> 임차인·호스트 데이터 &amp; 시스템 권한</h3>
+                <ul class="list tight">
+                    <li>CS 대화·통화 기록 속 <b>실명·연락처·계좌번호</b> → 마스킹</li>
+                    <li>세그먼트 분석(이사/인테리어·어학당 등) — <b>집계는 🟢, 개인 단위는 🟡</b></li>
+                    <li>계약·정산 원본, <b>어드민 계정으로 AI 조작</b> → 🔴 금지</li>
+                    <li>AI가 <b>고객에게 직접 발송·데이터 수정</b> → 승인 + 사람 검토 전엔 금지</li>
+                </ul>
+                <div class="callout" style="margin-top:14px; font-size:19.5px;">헷갈리면 — <b>"이게 유출되면 기사가 나는가?"</b> 나면 🔴.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 14 실습 1: 마스킹 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 실습 ① 마스킹</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Practice 1 · Masking</div>
+            <h2 class="t">실습 ① — CS 대화를 <span class="hl">마스킹하고</span> AI에게 요약시키기</h2>
+            <p class="t-sub">가상 샘플 사용 — 실제 고객 데이터는 실습에 쓰지 않습니다.</p>
+        </div>
+        <div class="body cols-r">
+            <div class="term reveal">
+                <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">가상 CS 대화 — 마스킹 전 → 후</span></div>
+                <pre><span class="bad">[전] 김OO(010-1234-5678) 어학당 유학생 임차인.
+     보증금 반환 계좌 국민 123-45-67890 문의.</span>
+
+<span class="ok">[후] [임차인A] (연락처 삭제) 어학당 유학생 세그먼트.
+     보증금 반환 절차·계좌 등록 방법 문의.</span>
+
+<span class="cmt"># 치환 규칙: 실명→[임차인A], 연락처/계좌→삭제,</span>
+<span class="cmt"># 질문 내용·세그먼트 정보는 유지 (분석 가치 보존)</span></pre>
+            </div>
+            <div class="mission reveal">
+                <div class="mh">🎭 미션 — 10분</div>
+                <div class="mstep"><div class="n">1</div><div><div class="mt">샘플 대화 3건을 받아 등급 판단</div><div class="md">🟢·🟡·🔴 — 어느 등급인지 3초 안에 말해보기</div></div></div>
+                <div class="mstep"><div class="n">2</div><div><div class="mt">🟡 대화를 치환 규칙대로 마스킹</div><div class="md">실명 → [임차인A], 연락처·계좌 → 삭제. 질문 내용은 유지</div></div></div>
+                <div class="mstep"><div class="n">3</div><div><div class="mt">마스킹본을 Claude Code에 넣어 요약</div><div class="md">"세그먼트별 문의 유형을 표로 정리해줘" — 분석 가치는 그대로임을 확인</div></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 15 환각 개념 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 잘못된 답변</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 2 · Hallucination</div>
+            <h2 class="t">AI는 "모른다"고 말하는 대신 — <span class="hl">그럴듯하게 지어냅니다</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🧠</span> 왜 그런가 — 원리 30초</h3>
+                <ul class="list">
+                    <li>AI는 <b>"다음에 올 말"을 확률로 예측</b>하는 기계입니다.</li>
+                    <li>사실을 '알고' 답하는 게 아니라 — <b>가장 자연스러운 문장</b>을 만듭니다.</li>
+                    <li>그래서 모르는 질문일수록, <b>형식이 완벽한 가짜</b>가 나옵니다.</li>
+                    <li>이것을 <b>환각(Hallucination)</b>이라 부릅니다.</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🎯</span> 오늘 기억할 한 문장</h3>
+                <div class="callout red" style="font-size:26px; padding:26px 30px;"><b>그럴듯할수록 위험하다.</b><br><span style="font-size:21px; color:var(--ink-dim);">판례 번호, 논문 제목, 매물 편의시설 — 형식이 완벽한 것부터 의심합니다.</span></div>
+                <ul class="list tight" style="margin-top:20px;">
+                    <li>환각은 <b>버그가 아니라 성질</b> — 완전히 없앨 수 없습니다.</li>
+                    <li>그래서 대책은 "좋은 AI 고르기"가 아니라 — <b>검증 절차</b>입니다.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 16 사례: Avianca ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 가짜 판례</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Case 4 · 되물음의 실패</div>
+            <h2 class="t">뉴욕 변호사 — ChatGPT가 지어낸 <span class="hl">가짜 판례 6건</span>을 법원에 제출</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📋</span> Mata v. Avianca (2023.6, 뉴욕 연방법원)</h3>
+                <ul class="list">
+                    <li>변호사가 ChatGPT로 준비서면 작성 — <b>존재하지 않는 판례 6건</b> 인용.</li>
+                    <li>판례번호·법원명·판시사항까지 <b>형식은 완벽</b>했음.</li>
+                    <li>법원이 추궁하자 — ChatGPT에 <b>"이 판례 진짜야?"</b>라고 되물음.</li>
+                    <li>"LexisNexis에서 찾을 수 있다"는 답을 믿고 버팀 → 파국.</li>
+                </ul>
+                <div class="alert crit" style="margin-top:14px;"><div class="h">제재: 벌금 $5,000 + 공개 망신</div><div class="s">가짜 판결문의 '저자'로 지목된 판사 전원에게 사과 서한 발송 명령</div></div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">💡</span> 핵심 교훈 — 검증의 정의</h3>
+                <div class="callout red" style="font-size:23px;"><b>AI에게 "확실해?"라고 되묻는 건 검증이 아닙니다.</b><br><span style="font-size:19.5px; color:var(--ink-dim);">AI는 자기 환각을 자신 있게 재보증합니다.</span></div>
+                <ul class="list tight" style="margin-top:18px;">
+                    <li>검증 = <b>AI 바깥의 원본</b>(문서·DB·실물)과 대조하는 것.</li>
+                    <li>이 원칙이 오늘 후반부(검증 파트)의 뼈대입니다.</li>
+                </ul>
+                <div class="divlbl">출처</div>
+                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">Mata v. Avianca, Inc. (S.D.N.Y. 2023) · Wikipedia · ABA Journal</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 17 사례: 에어캐나다 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 에어캐나다</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Case 5 · AI의 말 = 회사의 말</div>
+            <h2 class="t">에어캐나다 — 챗봇이 <span class="hl">환불 규정을 잘못 안내</span>, 회사가 물어줬다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📋</span> 무슨 일이 있었나 (2024.2 판결)</h3>
+                <ul class="list">
+                    <li>고객이 챗봇에 유족 할인 환불을 문의 — 챗봇: <b>"구매 후 90일 내 신청 가능"</b>.</li>
+                    <li>실제 정책: <b>사후 소급 적용 불가</b> → 회사가 환불 거부.</li>
+                    <li>회사 항변: "챗봇의 말은 구속력이 없다" → <b>기각</b>.</li>
+                    <li>재판소: "챗봇도 웹사이트의 일부 — <b>정보 정확성 책임은 회사에 있다</b>" · CA$812 배상 명령.</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">💡</span> 우리에게 주는 교훈</h3>
+                <ul class="list">
+                    <li>고객 접점에 AI를 놓는 순간, 그 답변은 <b>회사의 공식 발언</b>.</li>
+                    <li>임차인 응대에 AI를 붙인다면 — <b>환불·위약금 규정</b>이 가장 위험한 구간.</li>
+                    <li>우리 거버넌스가 <b>"AI 자동화의 고객 직접 발송·데이터 수정은 반드시 사람 검토 후"</b>를 못박은 이유가 이 판례입니다.</li>
+                </ul>
+                <div class="callout amber reveal" style="margin-top:20px;">내부 업무도 동일 — AI가 써준 <b>규정 안내·고객 발송 문구</b>는 원문 규정과 대조 후 발송.</div>
+                <div class="divlbl">출처</div>
+                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">Moffatt v. Air Canada (BC CRT, 2024.2) · The Guardian 2024.2.16</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 18 사례: 딜로이트 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 딜로이트</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Case 6 · 전문가도 당한다</div>
+            <h2 class="t">딜로이트 — AI로 쓴 정부 보고서, <span class="hl">가짜 인용 때문에 환불</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📋</span> 무슨 일이 있었나 (2025)</h3>
+                <ul class="list">
+                    <li>호주 정부 발주 <b>44만 호주달러</b> 컨설팅 보고서 — GPT-4o 활용해 작성.</li>
+                    <li>외부 교수가 발견: <b>존재하지 않는 논문 인용</b> 다수 + <b>법원 판결문 가짜 인용구</b>.</li>
+                    <li>결과: 약 <b>9.7만 호주달러 환불</b> + 수정본 재발행 + 글로벌 신뢰도 타격.</li>
+                </ul>
+                <div class="alert warn" style="margin-top:14px;"><div class="h">주목할 점</div><div class="s">글로벌 최상위 컨설팅펌 — <b>검수 체계가 있는 조직</b>도 검수를 건너뛰면 당합니다.</div></div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">💡</span> 우리에게 주는 교훈</h3>
+                <ul class="list">
+                    <li><b>AI 산출물의 최종 책임은 제출자</b> — "AI가 쓴 거라서"는 면책이 안 됩니다.</li>
+                    <li>보고서·리포트의 <b>인용·수치·고유명사</b>는 반드시 원문 대조.</li>
+                    <li>우리 광고 성과 리포트·시장 조사도 동일한 규칙.</li>
+                </ul>
+                <div class="divlbl">출처</div>
+                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">호주 고용노동관계부(DEWR) 발표 · PCMag · CFO Dive 2025.10</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 19 브릿지 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례의 공통점</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Bridge</div>
+            <h2 class="t">여섯 사례의 공통점 — 전부 <span class="hl">'중간 확인 없이 최종 제출'</span>이었다</h2>
+        </div>
+        <div class="body">
+            <div class="grid-3" style="margin-bottom:28px;">
+                <div class="stat red reveal"><div class="num">0<small>회</small></div><div class="lbl">중간 확인 횟수</div><div class="sub">삼성 유출도, 가짜 판례도, 딜로이트 보고서도 — 넣기 전·내기 전에 멈춘 사람이 없었습니다.</div></div>
+                <div class="stat amber reveal"><div class="num">1<small>번</small></div><div class="lbl">멈췄으면 됐을 지점</div><div class="sub">입력 직전 3초(등급 판단), 제출 직전 10분(스팟체크) — 단 한 번의 정지로 전부 막을 수 있었습니다.</div></div>
+                <div class="stat ok reveal"><div class="num">4<small>가지</small></div><div class="lbl">지금부터 배울 기술</div><div class="sub">계획 먼저 · 단계별 정지 · 검증 3종 · 조향과 복원 — 남은 시간 전부 실습입니다.</div></div>
+            </div>
+            <div class="callout reveal" style="max-width:1400px; font-size:24px;">여기까지가 "왜". 지금부터는 <b>"어떻게"</b> — AI를 세우고, 확인하고, 고치는 <b>운전 기술</b>로 들어갑니다.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 20 루프 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 중간 결과 확인</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 3 · Checkpoint</div>
+            <h2 class="t">한 방 프롬프트 ❌ — <span class="hl">계획 → 작게 실행 → 확인</span>의 루프 ⭕</h2>
+        </div>
+        <div class="body">
+            <div class="grid-2" style="margin-bottom:26px;">
+                <div class="panel reveal" style="border-color:rgba(220,38,38,.35);">
+                    <h3><span class="ic">💣</span> 한 방 프롬프트 (위험)</h3>
+                    <div class="flow" style="margin-top:8px;">
+                        <div class="fnode"><div class="fi">📝</div><div class="fn-t">긴 지시 1번</div></div>
+                        <div class="farrow">→</div>
+                        <div class="fnode"><div class="fi">⏳</div><div class="fn-t">30분 방치</div></div>
+                        <div class="farrow">→</div>
+                        <div class="fnode bad"><div class="fi">😱</div><div class="fn-t">엉뚱한 결과</div><div class="fn-s">되돌릴 지점도 없음</div></div>
+                    </div>
+                </div>
+                <div class="panel reveal" style="border-color:rgba(12,166,120,.4);">
+                    <h3><span class="ic">🔄</span> 하네스 루프 (오늘의 방식)</h3>
+                    <div class="flow" style="margin-top:8px;">
+                        <div class="fnode hot"><div class="fi">🗺️</div><div class="fn-t">계획</div><div class="fn-s">실행 전 검토</div></div>
+                        <div class="farrow">→</div>
+                        <div class="fnode"><div class="fi">🔨</div><div class="fn-t">1단계 실행</div><div class="fn-s">작게</div></div>
+                        <div class="farrow">→</div>
+                        <div class="fnode"><div class="fi">🕵️</div><div class="fn-t">확인</div><div class="fn-s">중간 결과</div></div>
+                        <div class="farrow">↩</div>
+                        <div class="fnode"><div class="fi">🧭</div><div class="fn-t">조향</div><div class="fn-s">다음 단계로</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="callout reveal" style="max-width:1500px;">루프의 각 정지점이 <b>체크포인트</b> — 문제를 <b>작을 때</b> 발견하고, <b>되돌릴 지점</b>을 만들어 둡니다. 다음 3장에서 정지점 만드는 법 3가지.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 21 Plan First ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 체크포인트 ① 계획</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Checkpoint 1 · Plan First</div>
+            <h2 class="t">실행 전에 — <span class="hl">"실행하지 말고, 계획만 먼저 보여줘"</span></h2>
+        </div>
+        <div class="body cols-r">
+            <div class="term reveal">
+                <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">Claude Code — 계획 먼저 받기</span></div>
+                <pre><span class="p">&gt;</span> <span class="cmd">7월 지역별 예약 데이터로 리포트를 만들 거야.
+  아직 아무것도 실행하지 말고,
+  작업 계획만 단계별로 보여줘.</span>
+
+<span class="kw">계획:</span> ① 데이터 파일 확인 → ② 지역별 집계
+  → ③ 전월 대비 계산 → ④ 표+요약 작성
+<span class="warn">이대로 진행할까요?</span>  <span class="dim">← 여기서 사람이 검토</span></pre>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">🔍</span> 계획에서 검토할 것 3가지</h3>
+                <ul class="check">
+                    <li>순서가 <b>말이 되는가</b><span class="s">내가 손으로 한다면 이 순서가 맞나</span></li>
+                    <li><b>위험한 단계</b>가 있는가<span class="s">파일 삭제·덮어쓰기·외부 전송·대량 발송이 계획에 있으면 그 단계 앞에 "멈추고 확인받아" 추가</span></li>
+                    <li>빠진 것은 없는가<span class="s">원하는 산출물(표? 문서? 차트?)이 계획의 끝에 있는지</span></li>
+                </ul>
+                <div class="callout reveal" style="margin-top:16px; font-size:20px;">계획 검토 30초가 — 실행 후 수습 30분을 아낍니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 22 Small Steps ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 체크포인트 ② 단계별 정지</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Checkpoint 2 · Small Steps</div>
+            <h2 class="t">큰 일은 쪼개서 — <span class="hl">"1단계만 하고 멈춰서 보여줘"</span></h2>
+        </div>
+        <div class="body cols-r">
+            <div class="term reveal">
+                <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">Claude Code — 정거장 만들기</span></div>
+                <pre><span class="p">&gt;</span> <span class="cmd">좋아, 계획 승인. 단, 각 단계가 끝나면
+  결과를 보여주고 멈춘 뒤 내 확인을 받고 진행해.</span>
+
+<span class="ok">✔ 1단계 완료</span> — 지역별 집계 결과입니다:
+  강남 412건 · 마포 386건 · 송파 291건 ...
+<span class="warn">확인 후 2단계로 진행할까요?</span>
+
+<span class="p">&gt;</span> <span class="cmd">강남 수치가 대시보드랑 다른데? 원본 다시 확인해.</span>
+<span class="dim">← 문제를 2단계가 아니라 1단계에서 잡음</span></pre>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">🚏</span> 왜 정거장인가</h3>
+                <ul class="list">
+                    <li>1단계의 오류는 <b>2·3·4단계로 증폭</b>됩니다 — 집계가 틀리면 리포트 전체가 틀림.</li>
+                    <li>정거장마다 확인하면 <b>오류가 작을 때</b> 잡힙니다.</li>
+                    <li>1강에서 배운 <b>승인 모드</b>가 자동 정거장 — 파일 수정·명령 실행 전에 물어봅니다.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:16px; font-size:20px;">기준: <b>결과물이 다음 단계의 재료가 되는 지점</b>마다 정거장을 세웁니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 23 Checkpoint MD ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 체크포인트 ③ 기록</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Checkpoint 3 · Progress MD</div>
+            <h2 class="t">진행 상황을 <span class="hl">MD 파일로 남기게</span> 하기 — 1강 복습</h2>
+        </div>
+        <div class="body cols-r">
+            <div class="term reveal">
+                <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">PROGRESS.md — AI의 작업 일지</span></div>
+                <pre><span class="p">&gt;</span> <span class="cmd">각 단계가 끝날 때마다 PROGRESS.md에
+  한 단계 = 한 줄로 결과를 기록하면서 진행해.</span>
+
+<span class="kw"># PROGRESS.md</span>
+- [x] 1단계: 지역별 집계 — 3개 지역 1,089건
+- [x] 2단계: 전월 대비 — 강남 +12% <span class="cmt">(원본 대조 완료)</span>
+- [ ] 3단계: 리포트 초안
+<span class="dim">← 세션이 끊겨도, 내일 다시 열어도 여기서 이어감</span></pre>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">📓</span> 기록이 하네스인 이유</h3>
+                <ul class="list">
+                    <li>1강에서 배웠죠 — <b>MD 파일이 AI의 기억</b>입니다.</li>
+                    <li>중간 기록이 있으면: 세션이 끊겨도 <b>이어받기</b> 가능.</li>
+                    <li>내가 자리를 비워도 — 돌아와서 <b>어디까지 했는지</b> 즉시 파악.</li>
+                    <li>문제가 생기면 — <b>어느 단계부터</b> 다시 할지 명확.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:16px; font-size:20px;">긴 작업의 시작 지시에 <b>"PROGRESS.md에 기록하며 진행해"</b> 한 줄을 습관으로.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 24 검증 ① 스팟체크 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 검증 ① 스팟체크</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Verify 1 · Spot Check</div>
+            <h2 class="t">결과에서 <span class="hl">3개만 찍어</span> 원본과 대조 — 스팟체크</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🎯</span> 방법 — 10분이면 됩니다</h3>
+                <ul class="list">
+                    <li>AI가 만든 표·리스트에서 <b>무작위 3개</b>를 고릅니다.</li>
+                    <li>각각을 <b>원본</b>(대시보드·엑셀·원문서)과 대조합니다.</li>
+                    <li>3개 모두 맞으면 → 나머지도 신뢰 가능성 높음.</li>
+                    <li><b>1개라도 틀리면</b> → 전체 재검토. "하나만 틀렸겠지"는 없습니다.</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🔢</span> 우선 대조 대상 — 환각 다발 지점</h3>
+                <table class="tbl tight">
+                    <tr><td><b>숫자</b></td><td>합계·비율·전월 대비 — AI는 계산을 '그럴듯하게' 틀립니다</td></tr>
+                    <tr><td><b>고유명사</b></td><td>지역명·상품명·사람 이름 — 비슷한 것으로 바꿔치기 주의</td></tr>
+                    <tr><td><b>날짜</b></td><td>기간 집계의 시작·끝 — 조용히 어긋나는 단골</td></tr>
+                    <tr><td><b>단위</b></td><td>원/만원, 건/％ — 단위 혼동은 표가 예뻐서 더 못 봄</td></tr>
+                </table>
+                <div class="callout reveal" style="margin-top:16px; font-size:20px;">표가 <b>깔끔할수록</b> 더 의심 — 형식의 완성도와 사실성은 무관합니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 25 검증 ② 출처 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 검증 ② 출처</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Verify 2 · Source Check</div>
+            <h2 class="t">인용·링크는 <span class="hl">열어서 확인</span> — 최종 제출 전 필수</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🔗</span> 출처 검증 3단계</h3>
+                <ul class="check">
+                    <li>링크가 <b>실제로 열리는가</b><span class="s">404·존재하지 않는 페이지 = 환각 신호</span></li>
+                    <li>열리면 — <b>내용이 주장과 일치하는가</b><span class="s">링크는 진짜인데 내용은 다른 경우가 더 흔함</span></li>
+                    <li>인용문은 <b>원문에서 검색되는가</b><span class="s">따옴표 안 문장을 원문에서 Ctrl+F — 딜로이트가 안 한 것</span></li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">📌</span> 실무 요령</h3>
+                <ul class="list">
+                    <li>AI에게 처음부터 <b>"모든 주장에 출처 URL을 달아"</b>라고 지시 — 출처를 못 다는 주장이 걸러집니다.</li>
+                    <li>보고서라면 출처 검증을 <b>제출 직전 체크리스트</b>로 고정.</li>
+                    <li>Avianca 변호사·딜로이트 — 둘 다 <b>이 10분</b>을 건너뛰었습니다.</li>
+                </ul>
+                <div class="callout amber reveal" style="margin-top:18px;">출처 없는 주장은 — <b>AI의 의견</b>이지 사실이 아닙니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 26 검증 ③ 교차검증·실행 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 검증 ③ 교차·실행</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Verify 3 · Cross Check</div>
+            <h2 class="t">다른 눈으로 — <span class="hl">새 세션 검토</span> · 그리고 직접 열어보기</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">👥</span> 교차검증 — 다른 세션에 검토시키기</h3>
+                <div class="term sm" style="margin-bottom:14px;">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">새 세션 (/clear 후)</span></div>
+                    <pre><span class="p">&gt;</span> <span class="cmd">report.md를 읽고 사실 오류·근거 없는
+  주장·계산 실수를 찾아줘. 칭찬은 필요 없어.</span></pre>
+                </div>
+                <ul class="list tight">
+                    <li>작성한 AI에게 같은 창에서 "맞지?" → <b>금지</b>. 자기 환각을 재보증합니다 (Avianca의 실패).</li>
+                    <li><b>새 세션</b> 또는 다른 에이전트는 앞 대화의 가정 없이 봅니다.</li>
+                    <li>"칭찬 필요 없어, 오류만 찾아" — <b>비판 모드</b>로 지시.</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">▶️</span> 실행 검증 — 만든 것은 직접 연다</h3>
+                <ul class="list tight">
+                    <li>스크립트를 만들었다 → <b>한 번 돌려본다</b>.</li>
+                    <li>문서를 만들었다 → <b>처음부터 소리 내어 읽어본다</b>.</li>
+                    <li>HTML·차트를 만들었다 → <b>브라우저로 열어본다</b>.</li>
+                    <li>"만들었습니다"와 "돌아갑니다"는 <b>다른 문장</b>입니다.</li>
+                </ul>
+                <div class="callout ok" style="margin-top:14px; font-size:19.5px;">세 가지 검증(스팟체크·출처·교차/실행) 중 — 산출물 성격에 맞는 <b>최소 1개는 반드시</b>.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 27 실습 2: 환각 찾기 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 실습 ② 환각 찾기</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Practice 2 · Hallucination Hunt</div>
+            <h2 class="t">실습 ② — AI가 쓴 매물 소개문에서 <span class="hl">환각을 찾아라</span></h2>
+            <p class="t-sub">가상 매물 — <b>이사 기간 단기임대</b>(우리 주력 세그먼트) 시나리오입니다.</p>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📋</span> 원본 매물 정보 (사실)</h3>
+                <table class="tbl tight">
+                    <tr><td><b>매물</b></td><td>강남 역삼동 오피스텔 5층 · 33㎡</td></tr>
+                    <tr><td><b>타깃</b></td><td>이사/인테리어 공사 기간 단기 거주</td></tr>
+                    <tr><td><b>엘리베이터</b></td><td><b style="color:var(--red)">없음</b> (계단)</td></tr>
+                    <tr><td><b>주차</b></td><td><b style="color:var(--red)">불가</b></td></tr>
+                    <tr><td><b>짐 보관</b></td><td><b style="color:var(--red)">서비스 없음</b> (실내 보관만)</td></tr>
+                    <tr><td><b>역 거리</b></td><td>도보 12분</td></tr>
+                </table>
+            </div>
+            <div class="panel reveal" style="border-color:rgba(220,38,38,.35);">
+                <h3><span class="ic">🤖</span> AI가 쓴 소개문 — 어디가 환각?</h3>
+                <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 22px; font-size:20px; line-height:1.65; color:var(--ink-dim);">
+                    "이사 기간 임시 거주에 딱 맞는 역삼동 오피스텔! <b>엘리베이터 완비</b>로 짐 옮기기 편하고, <b>이삿짐 보관 서비스</b>까지 가능해 공사 기간 걱정 없어요. <b>주차 편리</b>, 역세권 <b>도보 5분</b>."
+                </div>
+                <div class="callout red" style="margin-top:14px; font-size:19px;">환각 <b>4개</b> — 전부 "이사 고객이 원할 법한" 내용입니다. AI는 <b>타깃이 듣고 싶은 말</b>을 지어냅니다. 이대로 게시 = 허위·과장 광고.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 28 습관: 완료 = 검증 시작 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 완료의 의미</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Habit</div>
+            <h2 class="t">"완료했습니다" = <span class="hl">검증 시작</span> 신호</h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="max-width:1500px; margin:20px auto 34px;">
+                <div class="fnode"><div class="fi">🤖</div><div class="fn-t">"완료했습니다"</div><div class="fn-s">AI의 주장</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">🕵️</div><div class="fn-t">스팟체크 3개</div><div class="fn-s">숫자·이름·날짜</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">🔗</div><div class="fn-t">출처 열기</div><div class="fn-s">링크·인용 대조</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">▶️</div><div class="fn-t">직접 실행</div><div class="fn-s">열어보기·돌려보기</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode" style="border-color:rgba(12,166,120,.45); background:linear-gradient(180deg,var(--accent-dim),#fff);"><div class="fi">✅</div><div class="fn-t">진짜 완료</div><div class="fn-s">내 이름 걸고 제출</div></div>
+            </div>
+            <div class="callout reveal" style="max-width:1400px; font-size:24px;">AI의 "완료"는 <b>결과가 아니라 주장</b>입니다. 검증을 통과해야 완료 — 이 한 줄이 오늘 강의의 절반입니다.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 29 Stop: ESC ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오류 수정 ① 중단</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 4 · Fix — Stop</div>
+            <h2 class="t">이상하면 — <span class="hl">ESC, 즉시 중단</span>이 1번입니다</h2>
+        </div>
+        <div class="body cols-r">
+            <div class="term reveal">
+                <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">Claude Code — 실행 중단</span></div>
+                <pre><span class="dim">⏳ 리포트 생성 중... 경쟁사 12곳 데이터를 추가
+   수집하고, 전체 파일을 재구성하고 있습니다...</span>
+
+<span class="cmt"># 시킨 적 없는 일을 하기 시작 → 즉시</span>
+<span class="kw">[ESC]</span>  <span class="ok">■ 중단됨</span>
+
+<span class="p">&gt;</span> <span class="cmd">경쟁사 수집은 안 시켰어. 지역별 집계까지만 해.</span></pre>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">🚨</span> 중단해야 할 신호들</h3>
+                <ul class="list">
+                    <li>시킨 적 없는 <b>파일 삭제·덮어쓰기</b>를 하려 함</li>
+                    <li>계획에 없던 <b>외부 전송·설치·대량 작업</b> 시작</li>
+                    <li>같은 말을 반복하며 <b>제자리를 도는 중</b></li>
+                    <li>내가 <b>이해 못 하는 방향</b>으로 진행 중 — 이해 못 하면 일단 세움</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:16px; font-size:20px;">중단은 실패가 아닙니다 — <b>브레이크는 원래 밟으라고 있는 것.</b> 중단해도 지금까지 결과는 남습니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 30 Steer: 조향 + 부정 제약 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오류 수정 ② 조향</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Fix — Steer</div>
+            <h2 class="t">방향만 틀렸다면 — 되돌리지 말고 <span class="hl">말로 조향</span> + 금지 조항</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">🧭</span> 조향 — 구체적으로 말하기</h3>
+                <div class="term sm" style="margin-bottom:14px;">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">나쁜 조향 vs 좋은 조향</span></div>
+                    <pre><span class="bad">✕ "아니야, 다시 해"</span>  <span class="dim">← 뭐가 아닌지 모름</span>
+
+<span class="ok">✓ "표 형식은 좋아. 그런데 기준을
+   예약 건수가 아니라 매출액으로 바꿔.
+   지역 순서는 매출 내림차순."</span></pre>
+                </div>
+                <ul class="list tight">
+                    <li><b>유지할 것 + 바꿀 것</b>을 나눠서 말합니다.</li>
+                    <li>전부 다시 시키면 — 잘된 부분까지 복불복으로 바뀝니다.</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">🚫</span> 부정 제약 — 반복 오류를 끊는 금지 조항</h3>
+                <div class="term sm" style="margin-bottom:14px;">
+                    <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">Negative Constraints</span></div>
+                    <pre><span class="p">&gt;</span> <span class="cmd">다시 작성해. 단 —
+  · 원본 표에 없는 항목 추가 금지
+  · 모르는 값은 추측 말고 "확인 필요" 표시
+  · 출처 없는 수치 쓰지 마</span></pre>
+                </div>
+                <ul class="list tight">
+                    <li>같은 환각이 반복되면 — <b>"~하지 마"를 지시문에 명시</b>합니다.</li>
+                    <li>"잘 써줘"(긍정)보다 <b>"지어내지 마"(부정)</b>가 환각 차단에 강합니다.</li>
+                    <li>자주 쓰는 금지 조항은 2강에서 만든 <b>스킬에 박아두면</b> 매번 안 써도 됩니다.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 31 Rewind ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오류 수정 ③ 재시작</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Fix — Redo &amp; Restart</div>
+            <h2 class="t">대화가 꼬였다면 — <span class="hl">지시문을 고쳐 다시, 또는 새 세션</span></h2>
+        </div>
+        <div class="body cols-r">
+            <div class="term reveal">
+                <div class="bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="ttl">Claude Code — 다시 보내기 · 새 출발</span></div>
+                <pre><span class="cmt"># ① 방금 지시가 잘못됐다 — 고쳐서 다시 보내기</span>
+<span class="kw">[ESC][ESC]</span>  <span class="dim">→ 이전 프롬프트를 불러와 수정 후 재전송</span>
+<span class="dim">   (대화 방향만 수정 — 이미 바뀐 파일은 안 돌아옴)</span>
+
+<span class="cmt"># ② 대화가 너무 길고 꼬였다 — 새 출발</span>
+<span class="p">&gt;</span> <span class="cmd">/clear</span>   <span class="dim">→ 대화 초기화</span>
+<span class="p">&gt;</span> <span class="cmd">PROGRESS.md 읽고 3단계부터 이어서 진행해.</span></pre>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">⏪</span> 언제 무엇을 쓰나</h3>
+                <table class="tbl tight">
+                    <tr><td><b>ESC ESC</b></td><td>직전 지시가 잘못됐을 때 — 지시문을 고쳐 그 지점부터 다시</td></tr>
+                    <tr><td><b>/clear + MD</b></td><td>대화가 오염됐을 때 — 새 세션에 <b>기록(MD)만 들고</b> 재시작</td></tr>
+                    <tr><td><b>파일 복원</b></td><td>파일까지 망가졌을 때 — <b>다음 슬라이드</b> (사본·버전 관리)</td></tr>
+                </table>
+                <div class="callout reveal" style="margin-top:16px; font-size:20px;">②가 가능한 건 <b>체크포인트 ③(PROGRESS.md)</b>을 해뒀기 때문 — 기록이 없으면 새 세션은 맨바닥입니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 32 Rollback + Escalate ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오류 수정 ④ 복원·개입</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Fix — Rollback &amp; Escalate</div>
+            <h2 class="t">파일을 망쳤다면 <span class="hl">복원</span> — 3번 반복되면 <span class="hl">사람이 개입</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">↩️</span> 파일 복원 — 고치기보다 되돌리기</h3>
+                <ul class="list tight">
+                    <li>큰 작업 전 <b>사본 폴더</b>부터 — 1강의 "폴더 = 업무 하나" 구조라 복사 한 번이면 됩니다.</li>
+                    <li>원본 데이터는 <b>읽기 전용으로 두고</b>, AI에게는 "원본 수정 금지, 결과는 새 파일로"라고 지시.</li>
+                    <li>심화: 개발팀처럼 <b>git(버전 관리)</b>을 쓰면 파일 타임머신 — 4강 과제에서 필요한 분만.</li>
+                    <li>망친 파일을 "고쳐줘" 하며 <b>10분 헤매기</b> vs 사본에서 재시작 <b>1분</b> — 대부분 후자가 빠릅니다.</li>
+                </ul>
+                <div class="callout" style="margin-top:14px; font-size:19.5px;">원칙: <b>되돌릴 수단을 확보한 뒤에 큰 작업을 시작</b>합니다. 순서가 반대면 도박.</div>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">🙋</span> 개입 — 같은 오류 3번이면 멈춤</h3>
+                <ul class="list tight">
+                    <li>같은 지점에서 <b>3번 실패</b>하면 — 4번째 시도가 아니라 <b>다른 접근</b>.</li>
+                    <li>문제를 <b>더 작게 쪼개서</b> 다시 시키거나,</li>
+                    <li>그 조각만 <b>사람이 직접</b> 하고 나머지를 맡기거나,</li>
+                    <li>실습반 채널에 <b>물어봅니다</b> — 같은 곳에서 다들 넘어집니다.</li>
+                </ul>
+                <div class="callout amber" style="margin-top:14px; font-size:19.5px;">무한 재시도는 하네스가 아니라 <b>방치</b>입니다 — 시간과 토큰만 탑니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 33 실습 3: 풀사이클 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 실습 ③ 풀사이클</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Practice 3 · Full Cycle</div>
+            <h2 class="t">실습 ③ — 일부러 틀리게 하고, <span class="hl">중단→조향→복구</span>까지</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="mission reveal">
+                <div class="mh">🧭 미션 — 15분 · 실습 ②의 매물 소개문으로 이어서</div>
+                <div class="mstep"><div class="n">1</div><div><div class="mt">모호하게 시키기 (일부러)</div><div class="md">"역삼동 매물 소개문 멋지게 써줘" — 원본 정보 없이. 환각이 나오는 조건을 직접 만듭니다</div></div></div>
+                <div class="mstep"><div class="n">2</div><div><div class="mt">생성 중 ESC로 중단</div><div class="md">그럴듯한 거짓("보관 서비스" 등)이 보이는 순간 멈추기</div></div></div>
+                <div class="mstep"><div class="n">3</div><div><div class="mt">부정 제약을 넣어 조향</div><div class="md">"원본 정보표에 있는 사실만 사용. 없는 편의시설 언급 금지. 불확실하면 [확인 필요]로 표시"</div></div></div>
+                <div class="mstep"><div class="n">4</div><div><div class="mt">결과를 원본 표와 대조 → ESC ESC로 재조향 1회</div><div class="md">스팟체크로 남은 오류 확인 → 지시문 수정 재전송 → 최종본</div></div></div>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">🎓</span> 이 실습의 목적</h3>
+                <ul class="list">
+                    <li>환각을 <b>안전한 환경에서 직접</b> 겪어봅니다 — 실전에서 처음 만나지 않도록.</li>
+                    <li>ESC·ESC ESC·부정 제약이 <b>손에 붙는 것</b>이 목표.</li>
+                    <li>잘 쓴 부정 제약은 그대로 <b>매물 소개문 스킬</b>(2강)에 이식할 수 있습니다.</li>
+                </ul>
+                <div class="callout ok reveal" style="margin-top:18px;">성공 기준: 최종 소개문에 <b>원본에 없는 사실이 0건</b>.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 34 결정 트리 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오류 대응 한 장</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Decision Tree</div>
+            <h2 class="t">뭔가 이상하다 — <span class="hl">이 순서대로</span>만 기억하세요</h2>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="max-width:1680px; margin:18px auto 30px;">
+                <div class="fnode bad"><div class="fi">😨</div><div class="fn-t">이상 감지</div><div class="fn-s">진행 중이면</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">🛑</div><div class="fn-t">① ESC</div><div class="fn-s">일단 세운다</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">🧭</div><div class="fn-t">② 말로 조향</div><div class="fn-s">방향만 틀렸다면<br>유지+변경+금지 조항</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">⏪</div><div class="fn-t">③ 재시작</div><div class="fn-s">대화가 꼬였다면<br>ESC ESC · /clear+MD</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">↩️</div><div class="fn-t">④ 복원</div><div class="fn-s">파일을 망쳤다면<br>사본 · 버전 관리</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">🙋</div><div class="fn-t">⑤ 사람 개입</div><div class="fn-s">3번 반복됐다면<br>쪼개기·직접·질문</div></div>
+            </div>
+            <div class="callout reveal" style="max-width:1400px; font-size:23px;">가벼운 수단부터 — <b>①에서 해결되면 ②로 갈 필요 없습니다.</b> 대부분의 문제는 ①+②에서 끝납니다.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 35 4가지 습관 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 몸에 붙일 습관</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Safety</div>
+            <h2 class="t">오늘부터 몸에 붙일 <span class="hl">4가지 습관</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">1 · 넣기 전 — 3초 등급 판단 🟢🟡🔴</div><div class="s">🟡이면 마스킹 후. 헷갈리면 "유출되면 기사가 나는가?" — 나면 🔴, 안 넣습니다. 키·비밀번호는 무조건 🔴.</div></div>
+            <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">2 · 시키기 전 — 계획부터 · 되돌릴 수단부터</div><div class="s">"실행 말고 계획만 보여줘" 30초 + 사본 확보 후 큰 작업 시작.</div></div>
+            <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">3 · "완료" 후 — 검증 시작 (스팟체크 3개)</div><div class="s">숫자·이름·날짜 3개 원본 대조 + 출처는 열어서 확인. 1개 틀리면 전체 재검토.</div></div>
+            <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">4 · 내보내기 전 — 내 이름 걸 수 있는가</div><div class="s">AI가 썼어도 책임은 나 — 에어캐나다·딜로이트의 교훈. 고객 발송은 반드시 사람 검토 후(거버넌스).</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 36 종합 한 장 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 종합</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">One Page</div>
+            <h2 class="t">오늘 전체를 <span class="hl">한 장으로</span></h2>
+        </div>
+        <div class="body">
+            <div class="panel reveal" style="max-width:1680px;">
+                <table class="tbl">
+                    <tr><th>구간</th><th>수칙</th><th>도구·기술</th><th>근거</th></tr>
+                    <tr><td><b>입력</b></td><td>프롬프트 = 외부 전송. 🟢🟡🔴 판단, 🟡은 마스킹, 키는 절대 금지</td><td class="mono">치환 규칙 · 등급표</td><td>삼성 · 이루다 · 거버넌스</td></tr>
+                    <tr><td><b>도구</b></td><td>회사 제공 AI 계정 · 승인된 도구만, Agent 권한은 최소로</td><td class="mono">회사 계정 · 최소 권한</td><td>딥시크 · 거버넌스</td></tr>
+                    <tr><td><b>진행</b></td><td>계획 먼저 → 작게 실행 → 단계마다 확인</td><td class="mono">계획 요청 · PROGRESS.md</td><td>—</td></tr>
+                    <tr><td><b>출력</b></td><td>그럴듯함 ≠ 사실. 스팟체크·출처·교차검증</td><td class="mono">3개 대조 · 새 세션 검토</td><td>Avianca · 딜로이트</td></tr>
+                    <tr><td><b>수정</b></td><td>중단 → 조향(+금지 조항) → 재시작 → 복원 → 개입</td><td class="mono">ESC · ESC ESC · /clear · 사본</td><td>—</td></tr>
+                    <tr class="hot"><td><b>책임</b></td><td>AI가 답해도 책임은 사람·회사 — 고객 발송은 사람 검토 후</td><td class="mono">내 이름 검증</td><td>에어캐나다 · 거버넌스</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 37 오늘의 미션 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오늘의 미션</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Mission</div>
+            <h2 class="t">오늘의 미션 — <span class="hl">풀사이클 1회</span>를 각자 성공시키기</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="mission reveal">
+                <div class="mh">🏁 하네스 풀사이클</div>
+                <div class="mstep"><div class="n">1</div><div><div class="mt">마스킹</div><div class="md">가상 CS 대화를 등급 판단 → 치환 → 입력 (실습 ①)</div></div></div>
+                <div class="mstep"><div class="n">2</div><div><div class="mt">계획 → 단계 실행</div><div class="md">"계획만 보여줘"로 검토 → "1단계만 하고 멈춰" → PROGRESS.md 기록</div></div></div>
+                <div class="mstep"><div class="n">3</div><div><div class="mt">검증</div><div class="md">소개문·요약에서 스팟체크 3개 — 환각을 원본 대조로 잡기 (실습 ②)</div></div></div>
+                <div class="mstep"><div class="n">4</div><div><div class="mt">조향·복구</div><div class="md">ESC → 부정 제약 조향 → ESC ESC 재조향 → 최종본 (실습 ③)</div></div></div>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">✅</span> '성공'은 이런 모습입니다</h3>
+                <ul class="check">
+                    <li>입력한 텍스트에 <b>실명·연락처·계좌 0건</b></li>
+                    <li>PROGRESS.md에 <b>단계 기록</b>이 남아 있음</li>
+                    <li>최종 소개문에 <b>원본에 없는 사실 0건</b></li>
+                    <li>ESC·ESC ESC·부정 제약을 <b>각 1회 이상</b> 직접 사용</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:18px;">막히면 손 — <b>같은 곳에서 다들 막힙니다.</b> 그게 정상입니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 38 Recap + 과제 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 정리와 과제</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Recap &amp; Homework</div>
+            <h2 class="t">오늘 완료한 것 — 그리고 <span class="hl">4강(과제 선정) 전까지</span></h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">✅</span> 오늘 가져가는 것</h3>
+                <ul class="check">
+                    <li>AX 거버넌스 3원칙(귀속·구분/담당·비밀유지) + 금지·대안표</li>
+                    <li>자료 등급 판단 🟢🟡🔴 + 마스킹 규칙</li>
+                    <li>사례 6건 — 삼성·딥시크·이루다·Avianca·에어캐나다·딜로이트</li>
+                    <li>체크포인트 3종 + 검증 3종</li>
+                    <li>수정 5단 — ESC → 조향 → 재시작 → 복원 → 개입</li>
+                </ul>
+            </div>
+            <div class="panel reveal">
+                <h3><span class="ic">📝</span> 과제 — 4강 과제 선정과 연결됩니다</h3>
+                <ul class="list">
+                    <li><b>① 내 업무 자료 3건</b>을 골라 🟢🟡🔴 등급을 매겨오기 — 4강 과제 데이터 후보들입니다.</li>
+                    <li><b>② 🟡 자료 1건</b>의 마스킹 규칙(치환표) 초안 만들어오기.</li>
+                    <li><b>③ 부정 제약 3줄</b> — 내 업무에서 AI가 지어내면 안 되는 것 3가지를 금지 조항으로.</li>
+                    <li><b>④ 거버넌스 셀프 점검</b> — 금지사항 표에서 내 업무에 걸리는 항목 1개 찾아 대안 적용해보기.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:16px;">다음 시간: <b>4강 — 실습 과제 선정.</b> 오늘의 하네스를 각자의 실전 과제에 그대로 씁니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 39 엔딩 ===================== -->
+<section class="slide end">
+    <div class="inner">
+        <div class="title-kicker reveal">삼삼엠투 AI 교육 · 실습반 3강</div>
+        <h1 class="end-h reveal">수고하셨습니다 <span class="thin">— 이제 고삐를 쥐었습니다</span></h1>
+        <p class="title-sub reveal" style="margin-top:24px;">액셀(1·2강)에 이어 <b>브레이크·핸들·후진 기어(3강)</b>까지.<br>다음 시간부터는 <b>각자의 실전 과제</b>로 달립니다.</p>
+        <div class="flow reveal" style="margin-top:44px; max-width:900px;">
+            <div class="fnode hot"><div class="fi">🧩</div><div class="fn-t">Q &amp; A</div><div class="fn-s">막힌 곳 지금 해결</div></div>
+            <div class="farrow">·</div>
+            <div class="fnode"><div class="fi">💬</div><div class="fn-t">문의</div><div class="fn-s">실습반 채널</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>실습반</span><span>NEXT <b>4강 — 실습 과제 선정</b></span>
+        </div>
+    </div>
+</section>
+<!-- APPEND:SLIDES -->
+</main>
+</div>
+
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-page" id="deckPage">01 / 39</div>
+<div class="deck-hint">← → 이동 · E 편집 · Ctrl+S 저장 · F11 전체화면</div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="편집 모드 (E)">✏️</button>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   고정 1920×1080 스테이지 스케일링 + 내비게이션
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.stage = document.getElementById('deckStage');
+        this.progress = document.getElementById('deckProgress');
+        this.page = document.getElementById('deckPage');
+        this.current = 0;
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        const fromHash = parseInt((location.hash || '').replace('#', ''), 10);
+        this.showSlide(isNaN(fromHash) ? 0 : fromHash - 1);
+        this.slides.forEach((s, k) => {
+            const sec = s.querySelector('.chrome .sec');
+            if (sec) sec.textContent = String(k + 1).padStart(2, '0') + ' / ' + this.slides.length;
+        });
+    }
+    setupStageScale() {
+        const scale = () => {
+            const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * f) / 2;
+            const y = (window.innerHeight - 1080 * f) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.isContentEditable || document.designMode === 'on' && e.key !== 'Escape') {
+                if (!(e.ctrlKey || e.metaKey)) return;
+            }
+            switch (e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+                    e.preventDefault(); this.next(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+                    e.preventDefault(); this.prev(); break;
+                case 'Home': e.preventDefault(); this.showSlide(0); break;
+                case 'End': e.preventDefault(); this.showSlide(this.slides.length - 1); break;
+            }
+        });
+    }
+    setupTouchNav() {
+        let sx = 0;
+        document.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - sx;
+            if (Math.abs(dx) > 60) dx < 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    setupWheelNav() {
+        let lock = false;
+        document.addEventListener('wheel', (e) => {
+            if (document.designMode === 'on') return;
+            if (lock || Math.abs(e.deltaY) < 24) return;
+            lock = true; setTimeout(() => lock = false, 550);
+            e.deltaY > 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    next() { this.showSlide(this.current + 1); }
+    prev() { this.showSlide(this.current - 1); }
+    showSlide(i) {
+        this.current = Math.max(0, Math.min(i, this.slides.length - 1));
+        this.slides.forEach((s, k) => {
+            s.classList.toggle('active', k === this.current);
+            s.classList.toggle('visible', k === this.current);
+        });
+        const n = this.current + 1, total = this.slides.length;
+        this.progress.style.width = (n / total * 100) + '%';
+        this.page.textContent = String(n).padStart(2, '0') + ' / ' + total;
+        history.replaceState(null, '', '#' + n);
+    }
+}
+
+/* ===========================================
+   INLINE EDITOR — E 키/좌상단 핫존, Ctrl+S 저장
+   =========================================== */
+const editor = {
+    isActive: false,
+    KEY: 'practical-lab3-harness-edits',
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.designMode = this.isActive ? 'on' : 'off';
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        if (!this.isActive) this.persist();
+    },
+    persist() {
+        try { localStorage.setItem(this.KEY, JSON.stringify({ base: this._baseSig, html: document.getElementById('deckStage').innerHTML })); } catch (e) {}
+    },
+    restore() {
+        try {
+            const stage = document.getElementById('deckStage');
+            this._baseSig = this._sig(stage.innerHTML);
+            const raw = localStorage.getItem(this.KEY);
+            if (!raw) return;
+            let obj = null;
+            try { obj = JSON.parse(raw); } catch (e) {}
+            if (obj && obj.base === this._baseSig && obj.html) {
+                stage.innerHTML = obj.html;
+            } else {
+                localStorage.removeItem(this.KEY);
+            }
+        } catch (e) {}
+    },
+    _sig(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; } return s.length + ':' + h; },
+    exportFile() {
+        this.persist();
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '실습3강_하네스엔지니어링_edited.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+};
+editor.restore();
+const deck = new SlidePresentation();
+
+const hotzone = document.getElementById('editHotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+const showBtn = () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); };
+const hideBtn = () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400); };
+hotzone.addEventListener('mouseenter', showBtn);
+hotzone.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('mouseenter', showBtn);
+editToggle.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !e.target.isContentEditable && document.designMode !== 'on') editor.toggleEditMode();
+    if (e.key === 'Escape' && editor.isActive) editor.toggleEditMode();
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); editor.exportFile(); }
+});
+</script>
+<script defer src="../../assets/comments.js"></script>
+</body>
+</html>
