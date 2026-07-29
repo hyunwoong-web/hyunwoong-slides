@@ -211,6 +211,8 @@ ul.cross li b { color: var(--ink); }
 .farrow { display: flex; align-items: center; padding: 0 12px; color: var(--brand); font-size: 26px; font-family: var(--font-mono); }
 
 .divlbl { font-family: var(--font-mono); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 18px 0 11px; }
+.srcs a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(37,99,235,.4); }
+.srcs a:hover { color: var(--brand); text-decoration-color: var(--brand); }
 
 /* 터미널 목업 (다크) */
 .term { background:#0E1420; border-radius:14px; border:1px solid #1E2A3A; overflow:hidden; box-shadow:0 12px 34px rgba(15,25,45,.16); }
@@ -300,7 +302,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <h1 class="title-h reveal">하네스 <span class="thin">엔지니어링</span></h1>
         <p class="title-sub reveal">AI는 <b>고출력 엔진</b>입니다 — 빠르지만, 방향은 사람이 잡아야 합니다.<br>회사 자료는 <b>어디까지</b> 넣어도 되는가(AX 거버넌스) · 개인정보·<b>잘못된 답변</b> 주의 · <b>중간 결과 확인</b> · <b>오류 수정</b>까지.</p>
         <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
-            <div class="fnode"><div class="fi">🔒</div><div class="fn-t">경계</div><div class="fn-s">무엇을 태울지</div></div>
+            <div class="fnode"><div class="fi">🔒</div><div class="fn-t">경계</div><div class="fn-s">무엇을 넣어도 되는지</div></div>
             <div class="farrow">→</div>
             <div class="fnode"><div class="fi">🛑</div><div class="fn-t">체크포인트</div><div class="fn-s">언제 멈춰 볼지</div></div>
             <div class="farrow">→</div>
@@ -362,16 +364,16 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel reveal">
                 <h3><span class="ic">🐎</span> 엔진(AI)의 성질</h3>
                 <ul class="list">
-                    <li><b>빠르고 강합니다</b> — 몇 시간 걸릴 일을 몇 분에.</li>
+                    <li><b>빠르고 힘이 셉니다</b> — 몇 시간 걸릴 일을 몇 분 만에 해냅니다.</li>
                     <li>그런데 <b>방향 감각이 없습니다</b> — 시킨 대로, 시킨 방향으로만 달립니다.</li>
                     <li>모르는 것도 <b>"모른다" 대신 그럴듯하게</b> 지어냅니다.</li>
-                    <li>입력한 내용이 <b>어디로 가는지</b> 스스로 가려주지 않습니다.</li>
+                    <li>넣으면 안 되는 자료를 <b>알아서 걸러 받지도 않습니다</b>.</li>
                 </ul>
             </div>
             <div class="panel plain reveal">
                 <h3><span class="ic">🧑‍✈️</span> 하네스(사람)의 역할 — 오늘 배우는 4가지</h3>
                 <table class="tbl tight">
-                    <tr><td><b>🔒 경계</b></td><td>무엇을 태울지 — AX 거버넌스 · 자료 등급 · 마스킹</td></tr>
+                    <tr><td><b>🔒 경계</b></td><td>무엇을 넣어도 되는지 — AX 거버넌스 · 자료 등급 · 마스킹</td></tr>
                     <tr><td><b>🛑 체크포인트</b></td><td>언제 멈춰 볼지 — 계획 먼저, 단계별 정지</td></tr>
                     <tr><td><b>🕵️ 검증</b></td><td>결과가 사실인지 — 스팟체크·출처 대조·교차검증</td></tr>
                     <tr><td><b>🧭 조향·복원</b></td><td>틀렸으면 — 중단(ESC)·말로 수정·되돌리기</td></tr>
@@ -437,7 +439,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 회사 자료의 경계</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 1 · Boundary</div>
-            <h2 class="t">프롬프트에 쓰는 순간 = <span class="hl">회사 밖으로 전송</span>입니다</h2>
+            <h2 class="t">프롬프트에 입력하는 순간, <span class="hl">이미 회사 밖으로 나간 것</span>입니다</h2>
         </div>
         <div class="body">
             <div class="flow reveal" style="max-width:1600px; margin:10px auto 30px;">
@@ -454,7 +456,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <h3><span class="ic">⚠️</span> 개인 AI 계정 (무료·일반 플랜)</h3>
                     <ul class="list tight">
                         <li>입력 내용이 <b>모델 학습에 활용</b>될 수 있음 (기본 설정)</li>
-                        <li>계정 사고 시 <b>대화 이력째</b> 노출</li>
+                        <li>계정이 뚫리면 <b>대화 기록까지 통째로</b> 노출</li>
                         <li>거버넌스: <b>회사 데이터를 개인 AI 계정에서 처리 금지</b></li>
                     </ul>
                 </div>
@@ -463,7 +465,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <ul class="list tight">
                         <li>입력이 <b>학습에 사용되지 않음</b>이 계약으로 보장</li>
                         <li>그래도 <b>전송·저장은 됨</b> — "뭐든 넣어도 됨"은 아님</li>
-                        <li>그래서 다음 슬라이드부터: <b>그래도 지켜야 할 경계</b></li>
+                        <li>그래서 <b>지켜야 할 선</b>은 여전히 있습니다 — 지금부터 하나씩</li>
                     </ul>
                 </div>
             </div>
@@ -495,7 +497,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </ul>
                 <div class="callout reveal" style="margin-top:22px;"><b>개인 계정 = 외부 반출.</b> 회사 데이터는 회사가 제공하는 AI 계정에서만.</div>
                 <div class="divlbl">출처</div>
-                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">한국경제·한겨레 2023.4~5 / 한겨레·조선 2026.5 / OpenAI 발표 2026.6</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://techcrunch.com/2023/05/02/samsung-bans-use-of-generative-ai-tools-like-chatgpt-after-april-internal-data-leak/" target="_blank" rel="noopener">TechCrunch 2023.5.2 — 삼성, 생성형 AI 사용 금지</a> · <a href="https://www.hani.co.kr/arti/economy/economy_general/1260309.html" target="_blank" rel="noopener">한겨레 2026.5 — 외부 AI 재허용</a> · <a href="https://openai.com/ko-KR/index/samsung-electronics-chatgpt-codex-deployment/" target="_blank" rel="noopener">OpenAI 2026.6.21 — 삼성전자 ChatGPT·Codex 도입 발표</a></div>
             </div>
         </div>
     </div>
@@ -528,7 +530,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </ul>
                 <div class="callout amber reveal" style="margin-top:22px;">거버넌스: <b>출처 불분명한 AI 서비스·확장 프로그램 사용 금지</b> — 승인된 것만, 필요하면 검토 요청.</div>
                 <div class="divlbl">출처</div>
-                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">개인정보보호위원회 2025.4.23 제9차 전체회의 보도자료 · 조선일보 · ZDNet Korea</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://www.pipc.go.kr/eng/user/ltn/new/noticeDetail.do?bbsId=BBSMSTR_000000000001&amp;nttId=2819" target="_blank" rel="noopener">개인정보보호위원회 2025.4 — 딥시크 사전 실태점검 결과 발표</a> · <a href="https://zdnet.co.kr/view/?no=20250423232627" target="_blank" rel="noopener">ZDNet Korea 2025.4.23</a></div>
             </div>
         </div>
     </div>
@@ -647,7 +649,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <h3><span class="ic">📋</span> 무슨 일이 있었나 (2021.4)</h3>
                 <ul class="list">
                     <li>연애 상담 앱에서 수집한 <b>60만 명의 카톡 대화 94억 건</b>을 챗봇 학습에 사용.</li>
-                    <li>이름·전화번호·주소를 <b>비식별화하지 않고</b> 그대로 투입.</li>
+                    <li>이름·전화번호·주소를 <b>지우지도 않은 채</b> 그대로 집어넣음.</li>
                     <li>약관의 "신규 서비스 개발" 문구로는 <b>동의로 인정 안 됨</b>.</li>
                     <li>GitHub에 실명 포함 대화 1,431건 노출까지.</li>
                 </ul>
@@ -655,10 +657,10 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel plain reveal">
                 <h3><span class="ic">⚖️</span> 결과</h3>
                 <div class="alert crit"><div class="h">과징금+과태료 총 1억 330만 원</div><div class="s">국내 AI 기업 <b>최초</b>의 개인정보 제재 (개인정보보호위원회)</div></div>
-                <div class="alert warn"><div class="h">2025.6 — 민사 배상 판결</div><div class="s">피해자 246명에게 위자료 배상 — <b>4년 뒤까지</b> 이어진 후폭풍</div></div>
+                <div class="alert warn"><div class="h">2025.7 — 민사 배상 판결</div><div class="s">피해자들에게 1인당 최대 40만 원 위자료 배상 — <b>4년 뒤까지</b> 이어진 후폭풍</div></div>
                 <div class="callout reveal" style="margin-top:16px;">우리도 <b>CS 로그·고객 대화</b>를 AI에 넣을 때 똑같은 잣대를 받습니다 — 거버넌스가 "고객 개인정보 외부 AI 입력 금지"를 <b>1번으로</b> 둔 이유.</div>
                 <div class="divlbl">출처</div>
-                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">개인정보보호위원회 2021.4.28 의결 · 보안뉴스 · 매일경제 2025.6</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://www.pipc.go.kr/np/cop/bbs/selectBoardArticle.do?bbsId=BS074&amp;mCode=C020010000&amp;nttId=7298" target="_blank" rel="noopener">개인정보보호위원회 2021.4.28 의결 보도자료</a> · <a href="https://m.boannews.com/html/detail.html?idx=96939" target="_blank" rel="noopener">보안뉴스 2021.4</a> · <a href="https://www.mk.co.kr/news/society/11368333" target="_blank" rel="noopener">매일경제 2025.7.15 — 민사 배상 판결</a></div>
             </div>
         </div>
     </div>
@@ -691,7 +693,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>계약·정산 원본, <b>어드민 계정으로 AI 조작</b> → 🔴 금지</li>
                     <li>AI가 <b>고객에게 직접 발송·데이터 수정</b> → 승인 + 사람 검토 전엔 금지</li>
                 </ul>
-                <div class="callout" style="margin-top:14px; font-size:19.5px;">헷갈리면 — <b>"이게 유출되면 기사가 나는가?"</b> 나면 🔴.</div>
+                <div class="callout" style="margin-top:14px; font-size:19.5px;">헷갈릴 땐 이렇게 — <b>"이게 유출되면 기사가 날까?"</b> 날 것 같으면 🔴.</div>
             </div>
         </div>
     </div>
@@ -751,7 +753,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <div class="callout red" style="font-size:26px; padding:26px 30px;"><b>그럴듯할수록 위험하다.</b><br><span style="font-size:21px; color:var(--ink-dim);">판례 번호, 논문 제목, 매물 편의시설 — 형식이 완벽한 것부터 의심합니다.</span></div>
                 <ul class="list tight" style="margin-top:20px;">
                     <li>환각은 <b>버그가 아니라 성질</b> — 완전히 없앨 수 없습니다.</li>
-                    <li>그래서 대책은 "좋은 AI 고르기"가 아니라 — <b>검증 절차</b>입니다.</li>
+                    <li>그래서 답은 "더 좋은 AI 고르기"가 아니라 — <b>사람이 검증하는 절차</b>입니다.</li>
                 </ul>
             </div>
         </div>
@@ -763,7 +765,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     <div class="inner">
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 사례 · 가짜 판례</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
-            <div class="kicker">Case 4 · 되물음의 실패</div>
+            <div class="kicker">Case 4 · 다시 물어봐도 소용없다</div>
             <h2 class="t">뉴욕 변호사 — ChatGPT가 지어낸 <span class="hl">가짜 판례 6건</span>을 법원에 제출</h2>
         </div>
         <div class="body cols-l">
@@ -773,7 +775,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>변호사가 ChatGPT로 준비서면 작성 — <b>존재하지 않는 판례 6건</b> 인용.</li>
                     <li>판례번호·법원명·판시사항까지 <b>형식은 완벽</b>했음.</li>
                     <li>법원이 추궁하자 — ChatGPT에 <b>"이 판례 진짜야?"</b>라고 되물음.</li>
-                    <li>"LexisNexis에서 찾을 수 있다"는 답을 믿고 버팀 → 파국.</li>
+                    <li>"실제 판례가 맞다"는 답만 믿고 버티다가 — 제재로 이어졌습니다.</li>
                 </ul>
                 <div class="alert crit" style="margin-top:14px;"><div class="h">제재: 벌금 $5,000 + 공개 망신</div><div class="s">가짜 판결문의 '저자'로 지목된 판사 전원에게 사과 서한 발송 명령</div></div>
             </div>
@@ -785,7 +787,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>이 원칙이 오늘 후반부(검증 파트)의 뼈대입니다.</li>
                 </ul>
                 <div class="divlbl">출처</div>
-                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">Mata v. Avianca, Inc. (S.D.N.Y. 2023) · Wikipedia · ABA Journal</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://en.wikipedia.org/wiki/Mata_v._Avianca,_Inc." target="_blank" rel="noopener">Wikipedia — Mata v. Avianca, Inc. (S.D.N.Y. 2023)</a></div>
             </div>
         </div>
     </div>
@@ -818,7 +820,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </ul>
                 <div class="callout amber reveal" style="margin-top:20px;">내부 업무도 동일 — AI가 써준 <b>규정 안내·고객 발송 문구</b>는 원문 규정과 대조 후 발송.</div>
                 <div class="divlbl">출처</div>
-                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">Moffatt v. Air Canada (BC CRT, 2024.2) · The Guardian 2024.2.16</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://www.theguardian.com/world/2024/feb/16/air-canada-chatbot-lawsuit" target="_blank" rel="noopener">The Guardian 2024.2.16 — Air Canada chatbot ruling (Moffatt v. Air Canada, BC CRT)</a></div>
             </div>
         </div>
     </div>
@@ -850,7 +852,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>우리 광고 성과 리포트·시장 조사도 동일한 규칙.</li>
                 </ul>
                 <div class="divlbl">출처</div>
-                <div style="font-size:16.5px; color:var(--ink-faint); line-height:1.6;">호주 고용노동관계부(DEWR) 발표 · PCMag · CFO Dive 2025.10</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://www.theguardian.com/australia-news/2025/oct/06/deloitte-to-pay-money-back-to-albanese-government-after-using-ai-in-440000-report" target="_blank" rel="noopener">The Guardian 2025.10.6 — Deloitte, AI 오류 보고서 환불</a> · <a href="https://www.cfodive.com/news/deloitte-refunds-60k-report-ai-errors-australian-government-accounting/803321/" target="_blank" rel="noopener">CFO Dive 2025.10</a></div>
             </div>
         </div>
     </div>
@@ -919,7 +921,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 체크포인트 ① 계획</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Checkpoint 1 · Plan First</div>
-            <h2 class="t">실행 전에 — <span class="hl">"실행하지 말고, 계획만 먼저 보여줘"</span></h2>
+            <h2 class="t">일을 시키기 전 — <span class="hl">"아직 실행하지 말고, 계획만 먼저 보여줘"</span></h2>
         </div>
         <div class="body cols-r">
             <div class="term reveal">
@@ -951,7 +953,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 체크포인트 ② 단계별 정지</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Checkpoint 2 · Small Steps</div>
-            <h2 class="t">큰 일은 쪼개서 — <span class="hl">"1단계만 하고 멈춰서 보여줘"</span></h2>
+            <h2 class="t">큰 작업은 쪼개서 — <span class="hl">"1단계만 하고 멈춰서 보여줘"</span></h2>
         </div>
         <div class="body cols-r">
             <div class="term reveal">
@@ -1034,10 +1036,10 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel plain reveal">
                 <h3><span class="ic">🔢</span> 우선 대조 대상 — 환각 다발 지점</h3>
                 <table class="tbl tight">
-                    <tr><td><b>숫자</b></td><td>합계·비율·전월 대비 — AI는 계산을 '그럴듯하게' 틀립니다</td></tr>
+                    <tr><td><b>숫자</b></td><td>합계·비율·전월 대비 — AI는 계산도 '그럴듯하게' 틀립니다</td></tr>
                     <tr><td><b>고유명사</b></td><td>지역명·상품명·사람 이름 — 비슷한 것으로 바꿔치기 주의</td></tr>
-                    <tr><td><b>날짜</b></td><td>기간 집계의 시작·끝 — 조용히 어긋나는 단골</td></tr>
-                    <tr><td><b>단위</b></td><td>원/만원, 건/％ — 단위 혼동은 표가 예뻐서 더 못 봄</td></tr>
+                    <tr><td><b>날짜</b></td><td>기간 집계의 시작일·종료일 — 소리 없이 어긋나는 단골 지점</td></tr>
+                    <tr><td><b>단위</b></td><td>원/만원, 건/％ — 표가 깔끔할수록 단위 실수는 더 안 보입니다</td></tr>
                 </table>
                 <div class="callout reveal" style="margin-top:16px; font-size:20px;">표가 <b>깔끔할수록</b> 더 의심 — 형식의 완성도와 사실성은 무관합니다.</div>
             </div>
@@ -1093,7 +1095,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </div>
                 <ul class="list tight">
                     <li>작성한 AI에게 같은 창에서 "맞지?" → <b>금지</b>. 자기 환각을 재보증합니다 (Avianca의 실패).</li>
-                    <li><b>새 세션</b> 또는 다른 에이전트는 앞 대화의 가정 없이 봅니다.</li>
+                    <li><b>새 세션</b>이나 다른 에이전트는 앞 대화에 물들지 않은 눈으로 봅니다.</li>
                     <li>"칭찬 필요 없어, 오류만 찾아" — <b>비판 모드</b>로 지시.</li>
                 </ul>
             </div>
@@ -1103,7 +1105,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>스크립트를 만들었다 → <b>한 번 돌려본다</b>.</li>
                     <li>문서를 만들었다 → <b>처음부터 소리 내어 읽어본다</b>.</li>
                     <li>HTML·차트를 만들었다 → <b>브라우저로 열어본다</b>.</li>
-                    <li>"만들었습니다"와 "돌아갑니다"는 <b>다른 문장</b>입니다.</li>
+                    <li>"만들었다"와 "실제로 돌아간다"는 <b>전혀 다른 말</b>입니다.</li>
                 </ul>
                 <div class="callout ok" style="margin-top:14px; font-size:19.5px;">세 가지 검증(스팟체크·출처·교차/실행) 중 — 산출물 성격에 맞는 <b>최소 1개는 반드시</b>.</div>
             </div>
@@ -1174,7 +1176,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 실습 3강 — 오류 수정 ① 중단</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 4 · Fix — Stop</div>
-            <h2 class="t">이상하면 — <span class="hl">ESC, 즉시 중단</span>이 1번입니다</h2>
+            <h2 class="t">뭔가 이상하면 — 일단 <span class="hl">ESC로 멈추는 것</span>이 첫 번째입니다</h2>
         </div>
         <div class="body cols-r">
             <div class="term reveal">
@@ -1236,7 +1238,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </div>
                 <ul class="list tight">
                     <li>같은 환각이 반복되면 — <b>"~하지 마"를 지시문에 명시</b>합니다.</li>
-                    <li>"잘 써줘"(긍정)보다 <b>"지어내지 마"(부정)</b>가 환각 차단에 강합니다.</li>
+                    <li>"잘 써줘" 같은 부탁보다 <b>"지어내지 마" 같은 금지</b>가 환각을 막는 데 훨씬 잘 듣습니다.</li>
                     <li>자주 쓰는 금지 조항은 2강에서 만든 <b>스킬에 박아두면</b> 매번 안 써도 됩니다.</li>
                 </ul>
             </div>
@@ -1267,7 +1269,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <h3><span class="ic">⏪</span> 언제 무엇을 쓰나</h3>
                 <table class="tbl tight">
                     <tr><td><b>ESC ESC</b></td><td>직전 지시가 잘못됐을 때 — 지시문을 고쳐 그 지점부터 다시</td></tr>
-                    <tr><td><b>/clear + MD</b></td><td>대화가 오염됐을 때 — 새 세션에 <b>기록(MD)만 들고</b> 재시작</td></tr>
+                    <tr><td><b>/clear + MD</b></td><td>대화가 걷잡을 수 없이 꼬였을 때 — 새 세션에 <b>기록(MD)만 들고</b> 재시작</td></tr>
                     <tr><td><b>파일 복원</b></td><td>파일까지 망가졌을 때 — <b>다음 슬라이드</b> (사본·버전 관리)</td></tr>
                 </table>
                 <div class="callout reveal" style="margin-top:16px; font-size:20px;">②가 가능한 건 <b>체크포인트 ③(PROGRESS.md)</b>을 해뒀기 때문 — 기록이 없으면 새 세션은 맨바닥입니다.</div>
@@ -1293,7 +1295,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>심화: 개발팀처럼 <b>git(버전 관리)</b>을 쓰면 파일 타임머신 — 4강 과제에서 필요한 분만.</li>
                     <li>망친 파일을 "고쳐줘" 하며 <b>10분 헤매기</b> vs 사본에서 재시작 <b>1분</b> — 대부분 후자가 빠릅니다.</li>
                 </ul>
-                <div class="callout" style="margin-top:14px; font-size:19.5px;">원칙: <b>되돌릴 수단을 확보한 뒤에 큰 작업을 시작</b>합니다. 순서가 반대면 도박.</div>
+                <div class="callout" style="margin-top:14px; font-size:19.5px;">원칙: <b>되돌릴 수단을 먼저 확보하고, 큰 작업은 그다음에</b> 시작합니다. 순서가 바뀌면 도박이 됩니다.</div>
             </div>
             <div class="panel reveal">
                 <h3><span class="ic">🙋</span> 개입 — 같은 오류 3번이면 멈춤</h3>
@@ -1303,7 +1305,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>그 조각만 <b>사람이 직접</b> 하고 나머지를 맡기거나,</li>
                     <li>실습반 채널에 <b>물어봅니다</b> — 같은 곳에서 다들 넘어집니다.</li>
                 </ul>
-                <div class="callout amber" style="margin-top:14px; font-size:19.5px;">무한 재시도는 하네스가 아니라 <b>방치</b>입니다 — 시간과 토큰만 탑니다.</div>
+                <div class="callout amber" style="margin-top:14px; font-size:19.5px;">같은 시도를 무한 반복하는 건 관리가 아니라 <b>방치</b>입니다 — 시간만 흘러갑니다.</div>
             </div>
         </div>
     </div>
@@ -1374,7 +1376,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <h2 class="t">오늘부터 몸에 붙일 <span class="hl">4가지 습관</span></h2>
         </div>
         <div class="body grid-2">
-            <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">1 · 넣기 전 — 3초 등급 판단 🟢🟡🔴</div><div class="s">🟡이면 마스킹 후. 헷갈리면 "유출되면 기사가 나는가?" — 나면 🔴, 안 넣습니다. 키·비밀번호는 무조건 🔴.</div></div>
+            <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">1 · 넣기 전 — 3초 등급 판단 🟢🟡🔴</div><div class="s">🟡이면 마스킹 후 사용. 헷갈리면 "유출되면 기사가 날까?" — 날 것 같으면 🔴, 넣지 않습니다. 키·비밀번호는 무조건 🔴.</div></div>
             <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">2 · 시키기 전 — 계획부터 · 되돌릴 수단부터</div><div class="s">"실행 말고 계획만 보여줘" 30초 + 사본 확보 후 큰 작업 시작.</div></div>
             <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">3 · "완료" 후 — 검증 시작 (스팟체크 3개)</div><div class="s">숫자·이름·날짜 3개 원본 대조 + 출처는 열어서 확인. 1개 틀리면 전체 재검토.</div></div>
             <div class="alert reveal" style="border-left-color:var(--brand);"><div class="h">4 · 내보내기 전 — 내 이름 걸 수 있는가</div><div class="s">AI가 썼어도 책임은 나 — 에어캐나다·딜로이트의 교훈. 고객 발송은 반드시 사람 검토 후(거버넌스).</div></div>
@@ -1430,7 +1432,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>최종 소개문에 <b>원본에 없는 사실 0건</b></li>
                     <li>ESC·ESC ESC·부정 제약을 <b>각 1회 이상</b> 직접 사용</li>
                 </ul>
-                <div class="callout reveal" style="margin-top:18px;">막히면 손 — <b>같은 곳에서 다들 막힙니다.</b> 그게 정상입니다.</div>
+                <div class="callout reveal" style="margin-top:18px;">막히면 바로 손 드세요 — <b>다들 같은 곳에서 막힙니다.</b> 그게 정상입니다.</div>
             </div>
         </div>
     </div>
