@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실습 4강 도입 — AX 우수 사례 &amp; 과제 힌트 · 삼삼엠투 AI 교육</title>
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<style>
+/* ===========================================
+   THEME — 삼삼엠투 PPT 디자인 시스템 (Pretendard · 화이트 캔버스 · 브랜드 블루)
+   브랜드 블루 #1456f0 · 상태색 green/amber/red · 터미널은 --font-code(monospace)
+   --brand 값만 바꾸면 포인트 컬러 교체
+   =========================================== */
+:root {
+    --stage-bg: #e7ebf0;
+    --slide-bg: #ffffff;
+    --paper:    #f7f9fc;
+    --paper-2:  #eef2f7;
+    --line:     #e5e7eb;
+    --line-soft:#f2f3f5;
+    --ink:      #222222;
+    --ink-dim:  #45515e;
+    --ink-faint:#8e8e93;
+    --brand:    #1456f0;
+    --brand-dim:rgba(20,86,240,.08);
+    --brand-soft:#eef3ff;
+    --accent:   #0f9d6b;
+    --accent-dim:rgba(15,157,107,.10);
+    --amber:    #b45309;
+    --amber-dim:rgba(180,83,9,.10);
+    --red:      #dc2626;
+    --red-dim:  rgba(220,38,38,.08);
+    --blue:     #2563eb;
+    --blue-dim: rgba(37,99,235,.08);
+
+    --font-body: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+    --font-mono: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+    --font-code: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --grad: linear-gradient(135deg, #1456f0 0%, #3b82f6 50%, #60a5fa 100%);
+    --shadow-card: 0 2px 10px rgba(20,40,80,.05);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   FIXED 16:9 STAGE — viewport-base (수정 금지)
+   =========================================== */
+html, body {
+    width: 100%; height: 100%; margin: 0; overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-stage {
+    position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+    overflow: hidden; transform-origin: 0 0; background: var(--slide-bg, #fff);
+}
+.slide {
+    position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+    display: block; visibility: hidden; opacity: 0; pointer-events: none; background: var(--slide-bg, #fff);
+}
+.slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide {
+        position: relative; display: block !important; visibility: visible !important;
+        opacity: 1 !important; pointer-events: auto !important;
+        width: 1920px; height: 1080px; break-after: page; page-break-after: always;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls, .deck-hint, .edit-toggle, .edit-hotzone { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* ===========================================
+   SLIDE CANVAS
+   =========================================== */
+.slide {
+    font-family: var(--font-body); color: var(--ink);
+    background:
+        radial-gradient(1100px 600px at 6% -12%, rgba(20,86,240,.05), transparent 60%),
+        radial-gradient(900px 520px at 102% 112%, rgba(96,165,250,.05), transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        repeating-linear-gradient(90deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        var(--slide-bg);
+}
+.inner { position: absolute; inset: 0; padding: 52px 84px 60px; display: flex; flex-direction: column; }
+.inner::after {
+    content: ''; position: absolute; top: 46px; right: 84px;
+    width: 132px; height: 34px;
+    background: url('./33m2_logo.png') right center / contain no-repeat;
+    pointer-events: none; z-index: 5;
+}
+
+.chrome {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 19px; letter-spacing: .12em;
+    color: var(--ink-faint); text-transform: uppercase;
+    padding-bottom: 16px; border-bottom: 1px solid var(--line);
+}
+.chrome .dot { color: var(--accent); }
+.chrome .sec { display: none; }
+
+.t-wrap { margin: 30px 0 6px; }
+.kicker {
+    font-family: var(--font-mono); font-size: 21px; letter-spacing: .22em;
+    color: var(--brand); text-transform: uppercase; margin-bottom: 13px;
+}
+h2.t { font-size: 52px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.14; }
+h2.t .hl { color: var(--brand); }
+.t-sub { margin-top: 12px; font-size: 26px; color: var(--ink-dim); font-weight: 400; line-height: 1.45; }
+.t-sub b, .t-sub strong { color: var(--ink); font-weight: 600; }
+.body { flex: 1; margin-top: 30px; min-height: 0; }
+
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 30px; box-shadow: var(--shadow-card); }
+.panel.plain { background: #fff; }
+.panel h3 { font-size: 25px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.01em; display:flex; align-items:center; gap:10px; }
+.panel h3 .mono { font-family: var(--font-mono); font-size: 19px; color: var(--brand); }
+.panel h3 .ic { font-size: 26px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+.cols-l { display:grid; grid-template-columns: 1fr 1.05fr; gap: 30px; align-items:start; }
+.cols-r { display:grid; grid-template-columns: 1.05fr 1fr; gap: 30px; align-items:start; }
+
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; position: relative; overflow: hidden; }
+.stat::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--brand); opacity: .9; }
+.stat .num { font-family: var(--font-mono); font-size: 54px; font-weight: 600; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
+.stat .num small { font-size: 26px; color: var(--ink-dim); font-weight: 500; }
+.stat .lbl { margin-top: 12px; font-size: 23px; font-weight: 600; color: var(--ink); }
+.stat .sub { margin-top: 7px; font-size: 19.5px; color: var(--ink-dim); line-height: 1.48; }
+.stat.red::before { background: var(--red); }
+.stat.amber::before { background: var(--amber); }
+.stat.ok::before { background: var(--accent); }
+
+.card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px 22px; box-shadow:0 4px 16px rgba(20,30,50,.04); }
+.card .ic { font-size:38px; }
+.card .ct { margin-top:12px; font-size:24px; font-weight:700; color:var(--ink); }
+.card .ct .mono { font-family:var(--font-mono); font-size:17px; color:var(--brand); display:block; font-weight:500; letter-spacing:.02em; }
+.card .cd { margin-top:9px; font-size:19px; color:var(--ink-dim); line-height:1.5; }
+.card.hot { border-color: rgba(20,86,240,.4); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+
+.chip {
+    display: inline-block; font-family: var(--font-mono); font-size: 18px;
+    padding: 4px 13px; border-radius: 100px; letter-spacing: .03em;
+    background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(12,166,120,.28); vertical-align: middle;
+}
+.chip.br { background: var(--brand-dim); color: var(--brand); border-color: rgba(20,86,240,.28); }
+.chip.a { background: var(--amber-dim); color: var(--amber); border-color: rgba(232,137,12,.3); }
+.chip.r { background: var(--red-dim); color: var(--red); border-color: rgba(224,49,49,.3); }
+.chip.n { background: rgba(139,151,166,.12); color: var(--ink-dim); border-color: var(--line); }
+
+table.tbl { width: 100%; border-collapse: collapse; font-size: 21px; }
+.tbl th { font-family: var(--font-mono); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--line); font-weight: 500; white-space: nowrap; }
+.tbl td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); color: var(--ink-dim); line-height: 1.42; vertical-align: top; }
+.tbl td:first-child, .tbl td b, .tbl td strong { color: var(--ink); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr.hot td { background: var(--brand-dim); }
+.mono { font-family: var(--font-code); }
+.tbl.tight td { padding: 8px 14px; font-size: 19.5px; }
+.tbl.tight th { padding: 8px 14px; }
+
+ul.list { list-style: none; }
+ul.list li { position: relative; padding-left: 30px; margin-bottom: 13px; font-size: 22px; color: var(--ink-dim); line-height: 1.5; }
+ul.list li::before { content: '▸'; position: absolute; left: 4px; color: var(--brand); }
+ul.list li b, ul.list li strong { color: var(--ink); font-weight: 600; }
+ul.list.tight li { font-size: 20px; margin-bottom: 9px; }
+ul.check { list-style:none; }
+ul.check li { position:relative; padding-left: 40px; margin-bottom: 15px; font-size: 23px; color: var(--ink); line-height: 1.45; }
+ul.check li::before { content:'✓'; position:absolute; left:6px; top:-1px; color:var(--accent); font-weight:700; font-size:24px; }
+ul.check li .s { display:block; font-size:19px; color:var(--ink-dim); margin-top:3px; }
+ul.cross { list-style:none; }
+ul.cross li { position:relative; padding-left: 40px; margin-bottom: 15px; font-size: 22px; color: var(--ink-dim); line-height: 1.45; }
+ul.cross li::before { content:'✕'; position:absolute; left:6px; top:-1px; color:var(--red); font-weight:700; font-size:22px; }
+ul.cross li b { color: var(--ink); }
+
+.callout { border: 1px solid rgba(20,86,240,.32); background: var(--brand-dim); border-radius: 14px; padding: 18px 26px; font-size: 22px; color: var(--ink); line-height: 1.5; }
+.callout b { color: var(--brand); }
+.callout.ok { border-color: rgba(12,166,120,.35); background: var(--accent-dim); }
+.callout.ok b { color: var(--accent); }
+.callout.amber { border-color: rgba(232,137,12,.35); background: var(--amber-dim); }
+.callout.amber b { color: var(--amber); }
+.callout.red { border-color: rgba(220,38,38,.35); background: var(--red-dim); }
+.callout.red b { color: var(--red); }
+
+.alert { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--brand); border-radius: 12px; padding: 15px 22px; margin-bottom: 13px; }
+.alert.warn { border-left-color: var(--amber); }
+.alert.crit { border-left-color: var(--red); }
+.alert.ok { border-left-color: var(--accent); }
+.alert .h { font-size: 21px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+.alert .s { margin-top: 5px; font-size: 19px; color: var(--ink-dim); line-height: 1.45; }
+.alert .cap { margin-top: 7px; font-family: var(--font-mono); font-size: 16.5px; color: var(--ink-faint); }
+
+.flow { display: flex; align-items: stretch; gap: 0; }
+.fnode { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; text-align: center; flex: 1; box-shadow:0 4px 14px rgba(20,30,50,.05); }
+.fnode .fi { font-size: 30px; }
+.fnode .fn-t { margin-top:6px; font-size: 21px; font-weight: 700; color: var(--ink); }
+.fnode .fn-s { margin-top: 5px; font-size: 17px; color: var(--ink-dim); line-height: 1.4; }
+.fnode.hot { border-color: rgba(20,86,240,.45); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+.fnode.bad { border-color: rgba(220,38,38,.4); background: linear-gradient(180deg, var(--red-dim), #fff); }
+.farrow { display: flex; align-items: center; padding: 0 12px; color: var(--brand); font-size: 26px; font-family: var(--font-mono); }
+
+.divlbl { font-family: var(--font-mono); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 18px 0 11px; }
+.srcs a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(37,99,235,.4); }
+.srcs a:hover { color: var(--brand); text-decoration-color: var(--brand); }
+
+/* 스텝 배지 */
+.stepbadge { display:inline-flex; align-items:center; gap:12px; margin-bottom:6px; }
+.stepbadge .b { font-family:var(--font-mono); font-size:20px; font-weight:600; color:#fff; background:var(--brand); border-radius:10px; padding:5px 14px; }
+
+/* 미션 카드 */
+.mission { background: linear-gradient(180deg, var(--brand-dim), #fff); border:1px solid rgba(20,86,240,.35); border-radius:18px; padding:26px 30px; }
+.mission .mh { font-size:24px; font-weight:700; color:var(--brand); display:flex; align-items:center; gap:10px; }
+.mstep { display:flex; gap:16px; align-items:flex-start; margin-top:18px; }
+.mstep .n { flex:none; width:42px; height:42px; border-radius:11px; background:var(--brand); color:#fff; font-family:var(--font-mono); font-weight:600; font-size:22px; display:flex; align-items:center; justify-content:center; }
+.mstep .mt { font-size:22px; font-weight:600; color:var(--ink); }
+.mstep .md { font-size:18.5px; color:var(--ink-dim); margin-top:3px; line-height:1.45; }
+
+/* 직군 배지 */
+.rolebadge { display:inline-flex; align-items:center; gap:10px; font-size:22px; font-weight:700; color:var(--brand); background:var(--brand-dim); border:1px solid rgba(20,86,240,.3); border-radius:100px; padding:6px 20px; }
+
+/* 사례 카드 (사례 + 성과 수치) */
+.case { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 24px; box-shadow:0 4px 16px rgba(20,30,50,.04); }
+.case .ch { display:flex; align-items:baseline; gap:12px; }
+.case .co { font-size:22px; font-weight:700; color:var(--ink); }
+.case .cn { font-family:var(--font-mono); font-size:16.5px; color:var(--brand); }
+.case .cb { margin-top:9px; font-size:19px; color:var(--ink-dim); line-height:1.52; }
+.case .cb b { color:var(--ink); }
+.case .cm { margin-top:10px; font-family:var(--font-mono); font-size:18px; color:var(--brand); font-weight:600; }
+.case.star { border-color: rgba(20,86,240,.4); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+.case.sm { padding:15px 20px; }
+.case.sm .co { font-size:20px; }
+.case.sm .cn { font-size:15px; }
+.case.sm .cb { font-size:17.5px; margin-top:6px; line-height:1.46; }
+.case.sm .cm { font-size:15.5px; margin-top:6px; }
+.case.sm .cthumb { width:200px; }
+.case.sm .cthumb img { height:104px; }
+
+/* 사례 썸네일 (실제 서비스 화면) */
+.case .crow { display:flex; gap:18px; align-items:stretch; }
+.case .ctext { flex:1; min-width:0; }
+.case .cthumb { flex:none; width:240px; border-radius:10px; border:1px solid var(--line); overflow:hidden; background:#fff; align-self:center; }
+.case .cthumb img { display:block; width:100%; height:142px; object-fit:cover; object-position:top; }
+
+/* 카드 상단 스크린샷 */
+.card .shot { margin:-24px -22px 16px; border-bottom:1px solid var(--line); overflow:hidden; border-radius:16px 16px 0 0; background:#fff; }
+.card .shot img { display:block; width:100%; height:190px; object-fit:cover; object-position:top; }
+
+/* ===========================================
+   TITLE SLIDE
+   =========================================== */
+.slide.title .inner { justify-content: center; padding-top: 40px; }
+.title-status { display: flex; gap: 12px; margin-bottom: 40px; }
+.title-kicker { font-family: var(--font-mono); font-size: 23px; letter-spacing: .3em; color: var(--brand); text-transform: uppercase; margin-bottom: 26px; }
+h1.title-h { font-size: 104px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; }
+h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
+.title-sub { margin-top: 28px; font-size: 31px; color: var(--ink-dim); line-height: 1.5; max-width: 1450px; }
+.title-sub b { color: var(--ink); font-weight: 600; }
+.title-meta { margin-top: 52px; display: flex; gap: 34px; font-family: var(--font-mono); font-size: 21px; color: var(--ink-faint); }
+.title-meta span b { color: var(--ink-dim); font-weight: 500; }
+
+.slide.end .inner { justify-content:center; align-items:flex-start; }
+.end-h { font-size: 88px; font-weight:700; letter-spacing:-.02em; }
+.end-h .thin { color: var(--ink-dim); font-weight:300; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s var(--ease), transform .55s var(--ease); }
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1){transition-delay:.05s}.reveal:nth-child(2){transition-delay:.12s}.reveal:nth-child(3){transition-delay:.19s}.reveal:nth-child(4){transition-delay:.26s}.reveal:nth-child(5){transition-delay:.33s}.reveal:nth-child(6){transition-delay:.40s}.reveal:nth-child(7){transition-delay:.47s}.reveal:nth-child(8){transition-delay:.54s}
+
+/* Deck chrome */
+.deck-progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--brand); width: 0%; z-index: 1001; transition: width .3s var(--ease); }
+.deck-page { position: fixed; right: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 14px; color: var(--ink-faint); letter-spacing: .1em; }
+.deck-hint { position: fixed; left: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); letter-spacing: .05em; opacity: .7; }
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle { position: fixed; top: 18px; left: 18px; z-index: 10001; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 20px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { border-color: var(--brand); color: var(--brand); }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===================== 01 표지 ===================== -->
+<section class="slide title active">
+    <div class="inner">
+        <div class="title-status reveal">
+            <span class="chip br">실습반</span>
+            <span class="chip n">3주 · 총 6회</span>
+            <span class="chip a">4강 도입 · 과제 선정 편</span>
+        </div>
+        <div class="title-kicker reveal">삼삼엠투 AI 교육 · 실습반 4강</div>
+        <h1 class="title-h reveal">AX 우수 사례 <span class="thin">&amp; 과제 힌트</span></h1>
+        <p class="title-sub reveal">오늘은 <b>각자의 과제를 확정</b>하는 날입니다.<br>그 전에 — 우리 같은 앱 서비스에서 <b>실무자 한 명이 AI로 자기 업무를 바꾼 사례</b>들을 먼저 봅니다. 남의 사례에서 <b>내 과제의 힌트</b>를 찾는 시간.</p>
+        <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
+            <div class="fnode"><div class="fi">🌏</div><div class="fn-t">업계 방향</div><div class="fn-s">모두가 같은 길</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🎨</div><div class="fn-t">디자이너</div><div class="fn-s">사례 + 힌트</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">📋</div><div class="fn-t">기획자</div><div class="fn-s">사례 + 힌트</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🎧</div><div class="fn-t">CS 담당자</div><div class="fn-s">사례 + 힌트</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode hot"><div class="fi">🎯</div><div class="fn-t">내 과제 확정</div><div class="fn-s">좋은 과제의 조건 5</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>진행 <b>박현웅</b></span><span>대상 <b>실습반 (디자이너·기획자·CS)</b></span><span>준비물 <b>내 반복 업무 목록 (머릿속이면 충분)</b></span>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 02 커리큘럼 조감 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 과제 선정</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Course Map</div>
+            <h2 class="t">3주 · 6회 과정 — 오늘부터 <span class="hl">'내 업무'가 교재</span>가 됩니다</h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🗺️</span> 실습반 커리큘럼</h3>
+                <table class="tbl tight">
+                    <tr><td>1강</td><td>작업환경 구축 — Claude Code·OMC·스킬·MCP·Orca</td></tr>
+                    <tr><td>2강</td><td>커스텀 스킬 도구 생성 — 데이터 수집·분석, 인사이트 추출</td></tr>
+                    <tr><td>3강</td><td>하네스 엔지니어링 — 하지 말아야 할 것</td></tr>
+                    <tr class="hot"><td><b>4강 (오늘)</b></td><td><b>실습 과제 선정</b> — 개인/파트 단위 과제 확정</td></tr>
+                    <tr><td>5강</td><td>과제 진행사항 + 강사 피드백</td></tr>
+                    <tr><td>6강</td><td>과제 진행사항 + 강사 피드백</td></tr>
+                    <tr><td>합동</td><td>실습반 합동 공유회 — 최우수 1명 수상</td></tr>
+                </table>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🎯</span> 4강 도입부(이 자료)의 역할</h3>
+                <ul class="list">
+                    <li>1강 <b>도구</b> → 2강 <b>스킬</b> → 3강 <b>안전 수칙</b>까지 갖췄습니다.</li>
+                    <li>남은 질문은 하나 — <b>"그래서 나는 뭘 만들지?"</b></li>
+                    <li>백지에서 고민하지 않도록, <b>잘 안착한 남의 사례</b>부터 봅니다. 전부 우리 같은 <b>앱 서비스</b> 회사, 대부분 <b>실무자 1명</b>이 시작한 일입니다.</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:22px;">오늘의 성공 = 강의가 끝날 때 <b>각자 과제 1개가 문장으로 확정</b>되어 있는 것</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 03 배경: 업계 전체 방향 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 업계 방향</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Big Picture</div>
+            <h2 class="t">우리만 하는 게 아닙니다 — <span class="hl">앱 서비스 업계 전체가 같은 방향</span></h2>
+            <p class="t-sub">숙박·배달·커머스·핀테크 — 고객 접점이 있는 앱 서비스들은 이미 AI를 <b>일상 업무의 기본기</b>로 바꾸는 중입니다.</p>
+        </div>
+        <div class="body">
+            <div class="grid-4">
+                <div class="stat reveal"><div class="num">1/3</div><div class="lbl">Airbnb — CS 문의 AI 해결</div><div class="sub">2025년 북미 문의의 약 1/3을 사람 개입 없이 해결. 시작점은 화려한 기능이 아니라 <b>CS</b>였습니다.</div></div>
+                <div class="stat reveal"><div class="num">99.98<small>%</small></div><div class="lbl">배민 — 이미지 검수 시간 단축</div><div class="sub">일 1만 건+의 메뉴 이미지 검수를 GPT로 자동화 — 검수 시간 99.98% 단축, 사용률 89%.</div></div>
+                <div class="stat ok reveal"><div class="num">80<small>%</small></div><div class="lbl">야놀자 — 상품 이미지 AI 대체</div><div class="sub">'놀 스톡 이미지'로 상품 설명 이미지 80%를 생성 AI로, 디자인 작업 시간 26% 단축.</div></div>
+                <div class="stat amber reveal"><div class="num">2<small>년</small></div><div class="lbl">Airbnb — 데이터 정리 먼저</div><div class="sub">AI CS를 내놓기 전 데이터 웨어하우스 정리에 2년을 먼저 투자. <b>순서</b>가 성공을 갈랐습니다.</div></div>
+            </div>
+            <div class="callout reveal" style="margin-top:26px;">숙박·공간 도메인의 야놀자·여기어때·직방·Airbnb가 전부 이 길 위에 있습니다 — <b>단기임대 플랫폼인 우리에게 가장 가까운 지도</b>입니다.</div>
+            <div class="divlbl reveal">출처</div>
+            <div class="srcs reveal" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://www.customerexperiencedive.com/news/airbnb-ai-assistant-resolves-customer-inquiries/819734/" target="_blank" rel="noopener">CX Dive 2026.5 — Airbnb AI, 문의 1/3→40% 해결</a> · <a href="https://techblog.woowahan.com/20408/" target="_blank" rel="noopener">우아한형제들 기술블로그 2024.12 — GPT 기반 메뉴 이미지 검수 자동화</a> · <a href="https://www.etnews.com/20250709000127" target="_blank" rel="noopener">전자신문 2025.7.9 — 야놀자, AI 접목 확대</a></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 04 공통 루프 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 안착의 공식</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Success Loop</div>
+            <h2 class="t">잘 안착한 회사들의 공통점 — <span class="hl">개인 실험 → 공유 → 확산</span> 루프</h2>
+            <p class="t-sub">전사 플랫폼이 먼저가 아니었습니다. <b>한 사람의 작은 실험을 정기적으로 공유하는 자리</b>가 먼저였습니다.</p>
+        </div>
+        <div class="body">
+            <div class="grid-3">
+                <div class="card reveal"><div class="shot"><a href="https://toss.im/tossfeed/article/51435" target="_blank" rel="noopener"><img src="./assets/toss-surfday.jpg" alt="토스 AI 서프 데이 현장"></a></div><div class="ic">🏄</div><div class="ct">토스 — AI 서프 데이<span class="mono">매주 금요일 · 12주 시즌제</span></div><div class="cd">개발자뿐 아니라 PO·디자이너·스태프까지 전 직원이 매주 AI 실험 → 팁 공유 → 성공 사례 전파. 자율 클럽 509개, 만족도 4.9.</div></div>
+                <div class="card reveal"><div class="shot"><a href="https://careers.daangn.com/blog/post/%EB%8B%B9%EA%B7%BC-ai-%ED%94%84%EB%A1%9C%EB%8D%95%ED%8A%B8-%EC%A1%B0%EC%A7%81%EB%AC%B8%ED%99%94-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B2%BD%ED%97%98/" target="_blank" rel="noopener"><img src="./assets/daangn-slackbot.png" alt="당근 사내 슬랙 AI 요약봇"></a></div><div class="ic">🥕</div><div class="ct">당근 — AI Show &amp; Tell<span class="mono">매주 화요일</span></div><div class="cd">디자이너·운영 매니저·CEO Staff까지 각 팀의 AI 프로젝트와 시행착오를 매주 공유. "문제 정의만 잘하면 비개발자가 가장 강력한 문제 해결자."</div></div>
+                <div class="card hot reveal"><div class="ic">🏆</div><div class="ct">우리 — 합동 공유회<span class="mono">과정 마지막 · 최우수 1명</span></div><div class="cd">이 커리큘럼의 합동 공유회가 바로 같은 구조입니다. 오늘 정하는 과제가 <b>공유회 무대에 올라갈 작품</b>이 됩니다.</div></div>
+            </div>
+            <div class="flow reveal" style="margin-top:28px; max-width:1300px;">
+                <div class="fnode"><div class="fi">🧪</div><div class="fn-t">개인 실험</div><div class="fn-s">내 반복 업무 1개</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">📢</div><div class="fn-t">정기 공유</div><div class="fn-s">5·6강 진행 공유 + 피드백</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">🌱</div><div class="fn-t">팀 확산</div><div class="fn-s">스킬 배포 → 팀 전체가 사용</div></div>
+            </div>
+            <div class="divlbl reveal">출처</div>
+            <div class="srcs reveal" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://toss.im/tossfeed/article/51435" target="_blank" rel="noopener">토스피드 2026.7 — 전사 프로그램 'AI 서프 데이' 성료</a> · <a href="https://careers.daangn.com/blog/post/%EB%8B%B9%EA%B7%BC-ai-%ED%94%84%EB%A1%9C%EB%8D%95%ED%8A%B8-%EC%A1%B0%EC%A7%81%EB%AC%B8%ED%99%94-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B2%BD%ED%97%98/" target="_blank" rel="noopener">당근 채용블로그 2025.5 — AI가 만든 파도 위에서 당근이 서핑하는 법</a></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 05 사례 지도 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 사례 지도</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Case Map</div>
+            <h2 class="t">오늘 볼 사례 지도 — <span class="hl">3가지 패턴 × 3개 직군</span></h2>
+            <p class="t-sub">수많은 AX 사례 중, <b>개인 단위로 재현 가능한 3가지 패턴</b>만 추렸습니다. 각자 자기 직군 줄에서 "내 얘기"를 찾아보세요.</p>
+        </div>
+        <div class="body">
+            <table class="tbl reveal">
+                <tr><th style="width:220px;">패턴 \ 직군</th><th>🎨 디자이너</th><th>📋 기획자</th><th>🎧 CS 담당자</th></tr>
+                <tr><td><b>📊 리뷰·VOC 분석</b><br><span style="font-size:17px;">쌓여만 가는 텍스트를 인사이트로</span></td><td>디자인 관련 VOC 키워드 추출</td><td>리뷰 → 기획 인사이트 리포트</td><td><b>당근 운영 매니저 AI 도구</b><br>카카오스타일 리뷰 검수 80%↓</td></tr>
+                <tr><td><b>🎨 콘텐츠 생산</b><br><span style="font-size:17px;">초안은 AI, 판단은 사람</span></td><td><b>토스 컬러 추출 · 동작형 프로토타입</b><br>야놀자 놀 스톡 이미지</td><td><b>카카오스타일 MD 기획전</b><br>몇 주 → 몇 시간</td><td>답변 초안 생성 + 규정 대조</td></tr>
+                <tr><td><b>🔁 반복 확인·검수</b><br><span style="font-size:17px;">매일 하는 그 일</span></td><td>배너·소재 가이드 검수 자동화</td><td><b>할 일 수집·정리 자동화</b><br>주간보고 · 지원서 등급화</td><td><b>배민 메뉴 이미지 검수</b><br>야놀자 텔라 Fail-back</td></tr>
+            </table>
+            <div class="callout reveal" style="margin-top:24px;">굵게 표시된 칸이 오늘의 메인 사례 — 전부 <b>실무자가 자기 업무에 직접 붙인 것</b>입니다. 지금부터 직군별로 한 장씩.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 06 디자이너 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 직군별 사례 ① 디자이너</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="rolebadge">🎨 디자이너</div>
+            <h2 class="t" style="margin-top:14px;">디자이너가 만든 도구가 <span class="hl">실제 서비스에 올라갔다</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div>
+                <div class="case star sm reveal">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">토스 — 컬러 추출 자동화</span><span class="cn">디자이너 직접 제작</span></div>
+                    <div class="cb">디자인 챕터 AI Contest 우수작 — 이미지를 넣으면 UI용 색상을 자동 추출·보정. 현재 <b>토스 쇼핑 상품 카드</b>에 실제 적용 중.</div>
+                    <div class="cm">디자이너 개인의 실험 → 프로덕션 적용</div>
+                    </div><a class="cthumb" href="https://toss.tech/article/ai_contest" target="_blank" rel="noopener"><img src="./assets/toss-color-extract.png" alt="토스 컬러 추출 자동화 다이어그램"></a></div>
+                </div>
+                <div class="case star sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">토스 — 동작형 프로토타입 제작</span><span class="cn">시안 대신 앱</span></div>
+                    <div class="cb">디자이너가 AI 코딩(SwiftUI+셰이더)으로 <b>실제 동작하는 앱</b>을 직접 제작 — 가이드 문서 대신 레포를 전달해 <b>디자인↔개발 번역 과정</b>을 줄임. 특허출원까지.</div>
+                    <div class="cm">"어떻게"는 AI가, "뭘 만들까"가 디자인</div>
+                    </div><a class="cthumb" href="https://toss.tech/article/deadend" target="_blank" rel="noopener"><img src="./assets/toss-deadend.png" alt="토스 underlay 프로토타입 시안 갤러리"></a></div>
+                </div>
+                <div class="case sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">토스 — 디자이너 슬랙 답변 봇</span><span class="cn">같은 컨테스트 출품작</span></div>
+                    <div class="cb">디자이너의 지식을 학습한 봇이 디자인·요건 질문에 <b>답변 초안을 자동 생성</b> — "내가 1.5명이 된" 효과.</div>
+                    <div class="cm">반복 커뮤니케이션의 자동화</div>
+                    </div><a class="cthumb" href="https://toss.tech/article/ai_contest" target="_blank" rel="noopener"><img src="./assets/toss-slackbot.png" alt="토스 디자이너 슬랙 봇 화면"></a></div>
+                </div>
+                <div class="case sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">야놀자 — 놀 스톡 이미지</span><span class="cn">숙박 도메인</span></div>
+                    <div class="cb">상품 설명 이미지의 <b>80%를 생성 AI로 대체</b>, 디자인 작업 시간 <b>26% 단축</b>. 숙소 사진 1장으로 시간대·계절별 변형 생성.</div>
+                    <div class="cm">이미지 80% 대체 · 작업 시간 26%↓</div>
+                    </div><a class="cthumb" href="https://www.etnews.com/20250709000127" target="_blank" rel="noopener"><img src="./assets/yanolja-etnews.png" alt="야놀자 AI 기사 이미지"></a></div>
+                </div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🏠</span> 삼삼엠투라면 — 과제 힌트</h3>
+                <ul class="check">
+                    <li>브랜드 가이드 검수 스킬<span class="s">색·톤·금지 표현을 스킬로 정의 → 배너·소재 초안을 자동 1차 검수</span></li>
+                    <li>매물·프로모션 비주얼 초안 생성<span class="s">시즌·타깃만 입력하면 우리 톤의 소재 초안 — 최종 판단은 디자이너</span></li>
+                    <li>디자인 요청 티켓 정리 자동화<span class="s">쏟아지는 요청을 유형·긴급도별로 자동 분류해 시트 기록</span></li>
+                </ul>
+                <div class="callout ok" style="margin-top:20px;">공통 구조 — <b>반복 산출물의 초안·검수를 AI에게</b>, 크리에이티브 판단은 나에게.</div>
+                <div class="divlbl">출처</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://toss.tech/article/ai_contest" target="_blank" rel="noopener">토스 기술블로그 2026.6 — 디자이너에게 AI로 뭐든 만들어보라고 한다면</a> · <a href="https://toss.tech/article/deadend" target="_blank" rel="noopener">토스 기술블로그 2026.6 — 디자이너가 시안 대신 앱을 만든 이유</a> · <a href="https://www.etnews.com/20250709000127" target="_blank" rel="noopener">전자신문 2025.7.9 — 야놀자 AI 접목 확대</a></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 07 기획자 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 직군별 사례 ② 기획자</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="rolebadge">📋 기획자</div>
+            <h2 class="t" style="margin-top:14px;">기획 판단은 사람이, <span class="hl">준비 작업은 전부 AI가</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div>
+                <div class="case star sm reveal">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">토스 — 할 일 수집·정리 자동화</span><span class="cn">매일 하던 업무를 디자인하기</span></div>
+                    <div class="cb">슬랙의 요청·논의를 <b>AI가 한 줄 할 일로 요약·등록</b>(출처 링크 포함) — 2년 반 하던 수기 정리가 사라지고 <b>우선순위 판단에만 집중</b>. 세 팀을 동시에 맡으며 만든 도구.</div>
+                    <div class="cm">"이걸 꼭 내가, 손으로, 매일 해야 하나?"</div>
+                    </div><a class="cthumb" href="https://toss.tech/article/todolist" target="_blank" rel="noopener"><img src="./assets/toss-todolist.png" alt="토스 할 일 위젯 화면"></a></div>
+                </div>
+                <div class="case star sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">카카오스타일 — MD 기획전 자동 생성</span><span class="cn">지그재그</span></div>
+                    <div class="cb">MD가 스토어·콘셉트·소구점만 입력하면 기획전 <b>이미지+문구 자동 생성</b>. 제작 기간 <b>몇 주 → 몇 시간</b>, 기획전 50% 이상 AI 제작 목표.</div>
+                    <div class="cm">기획 입력은 사람 · 산출물은 AI</div>
+                    </div><a class="cthumb" href="https://aws.amazon.com/ko/blogs/tech/kakaostyle-leverage-genai-with-amazon-bedrock/" target="_blank" rel="noopener"><img src="./assets/kakaostyle-md-tool.png" alt="카카오스타일 AI 기획전 생성 툴 화면"></a></div>
+                </div>
+                <div class="case sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">Claude 스킬 — 주간보고 자동화</span><span class="cn">2025 실무자 사례</span></div>
+                    <div class="cb">매출·성과·이슈를 입력하면 <b>회사 서식 100% 동일한 보고서</b> 자동 생성 — 30분 → 3분. 지금 여러분 노트북의 <b>바로 그 스택</b>.</div>
+                    <div class="cm">우리가 1·2강에 세팅한 도구 그대로</div>
+                    </div><a class="cthumb" href="https://www.youtube.com/watch?v=PHS01nxF0iU" target="_blank" rel="noopener"><img src="./assets/claude-weekly-report.jpg" alt="Claude 스킬 주간보고 자동 생성 화면"></a></div>
+                </div>
+                <div class="case sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">JLL — 지원서 직무 적합도 등급화</span><span class="cn">글로벌 부동산 기업</span></div>
+                    <div class="cb">AI가 지원자의 경험·기술·학력을 직무 요건과 비교해 <b>A~D 등급</b>으로 분류 — 담당자가 우선 검토 대상을 빠르게 식별. <b>최종 결정은 반드시 사람</b>.</div>
+                    <div class="cm">서류 심사형 반복 업무의 등급화 패턴</div>
+                    </div><a class="cthumb" href="https://www.jll.com/ko-kr/careers/ai-hiring-process" target="_blank" rel="noopener"><img src="./assets/jll-hiring.webp" alt="JLL AI 채용 심사"></a></div>
+                </div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🏠</span> 삼삼엠투라면 — 과제 힌트</h3>
+                <ul class="check">
+                    <li>주간 지표 리포트 자동화<span class="s">집계 CSV → /data-trace 분석 → 보고 서식 변환까지 한 번에</span></li>
+                    <li>요청·논의 → 할 일 자동 정리<span class="s">채널에 쌓이는 요청을 AI가 한 줄 할 일 + 출처 링크로 정리</span></li>
+                    <li>서류·신청 건 등급화 스킬<span class="s">기준을 스킬로 정의해 입점·제휴·신청 건을 A~D 초벌 분류 — 확정은 사람</span></li>
+                </ul>
+                <div class="callout ok" style="margin-top:20px;">공통 구조 — <b>수집·정리·초안까지 AI</b>, 방향 결정과 최종 문장은 나.</div>
+                <div class="divlbl">출처</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://toss.tech/article/todolist" target="_blank" rel="noopener">토스 기술블로그 2026.6 — 매일 하던 업무를 디자인하기</a> · <a href="https://aws.amazon.com/ko/blogs/tech/kakaostyle-leverage-genai-with-amazon-bedrock/" target="_blank" rel="noopener">AWS 기술블로그 2024.12 — 카카오스타일 사례</a> · <a href="https://www.youtube.com/watch?v=PHS01nxF0iU" target="_blank" rel="noopener">YouTube — 정기 보고서 30분→3분, Claude Skill</a> · <a href="https://www.jll.com/ko-kr/careers/ai-hiring-process" target="_blank" rel="noopener">JLL — AI 채용 프로세스 FAQ</a></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 08 CS ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 직군별 사례 ③ CS</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="rolebadge">🎧 CS 담당자</div>
+            <h2 class="t" style="margin-top:14px;">AI가 초벌, 사람이 확정 — <span class="hl">CS 자동화의 안전 공식</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div>
+                <div class="case star sm reveal">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">배민 — 메뉴 이미지 검수 자동화</span><span class="cn">GPT 기반 업무 자동화</span></div>
+                    <div class="cb">운영자가 직접 하던 <b>일 1만 건+ 메뉴 이미지 검수</b>를 GPT가 정책 기준으로 판정하고 <b>반려 사유까지 안내</b> — 검수 시간 <b>99.98% 단축</b>, 사용률 89%. GPT가 못 하는 항목만 운영자에게.</div>
+                    <div class="cm">검수 시간 99.98%↓ · 반려 사유 자동 안내</div>
+                    </div><a class="cthumb" href="https://techblog.woowahan.com/20408/" target="_blank" rel="noopener"><img src="./assets/baemin-menu-review.png" alt="배민 AI 이미지 검수 효과"></a></div>
+                </div>
+                <div class="case star sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">당근 — 운영 매니저의 AI 도구</span><span class="cn">AI Show &amp; Tell #1</span></div>
+                    <div class="cb">운영 매니저가 <b>정규표현식 생성기 → 폴리시 체커</b>를 직접 제작 — 규정 위반 판단을 <b>LLM 판단 시스템</b>으로 발전. 코드를 몰라도 문제 정의로 만든 도구.</div>
+                    <div class="cm">비개발 운영 직군이 직접 — 우리와 가장 가까운 사례</div>
+                    </div><a class="cthumb" href="https://medium.com/daangn/ai-%ED%88%B4-%EA%B0%9C%EB%B0%9C%EC%9D%80-%EC%B2%98%EC%9D%8C%EC%9D%B4%EB%9D%BC-%EB%8B%B9%EA%B7%BC-%EB%B9%84%EA%B0%9C%EB%B0%9C%EC%9E%90-%EA%B5%AC%EC%84%B1%EC%9B%90%EB%93%A4%EC%9D%98-ai-%EB%8F%84%EC%A0%84%EA%B8%B0-fb62d2a6c2f3" target="_blank" rel="noopener"><img src="./assets/daangn-nondev.png" alt="당근 비개발자 AI 도전기"></a></div>
+                </div>
+                <div class="case sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">카카오스타일 — AI 리뷰 검수</span><span class="cn">Human-in-the-loop</span></div>
+                    <div class="cb">리뷰를 AI가 1차 검수, <b>사람이 최종 승인</b> → 검수 리소스 <b>80% 절감</b>, 리드타임 몇 시간 → <b>몇 분</b>.</div>
+                    <div class="cm">3강에서 배운 '검증' 원칙의 실전형</div>
+                    </div><a class="cthumb" href="https://aws.amazon.com/ko/blogs/tech/kakaostyle-leverage-genai-with-amazon-bedrock/" target="_blank" rel="noopener"><img src="./assets/kakaostyle-review.jpg" alt="지그재그 AI 리뷰 검수 화면"></a></div>
+                </div>
+                <div class="case sm reveal" style="margin-top:12px;">
+                    <div class="crow"><div class="ctext">
+                    <div class="ch"><span class="co">야놀자 텔라 · Airbnb CS</span><span class="cn">Fail-back 구조</span></div>
+                    <div class="cb">텔라는 예약 확인 전화를 AI가 처리하고 <b>예외만 사람에게</b>. Airbnb는 문의 1/3→40% AI 해결 — 단, <b>쉬운 문의부터·데이터 정리부터</b>.</div>
+                    <div class="cm">전부 자동이 아니라 "반복분만 AI" 설계</div>
+                    </div><a class="cthumb" href="https://www.customerexperiencedive.com/news/airbnb-ai-assistant-resolves-customer-inquiries/819734/" target="_blank" rel="noopener"><img src="./assets/airbnb-cxdive.webp" alt="Airbnb AI 고객서비스 기사"></a></div>
+                </div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🏠</span> 삼삼엠투라면 — 과제 힌트</h3>
+                <ul class="check">
+                    <li>문의 유형 분석 → FAQ 개선<span class="s">익명화된 문의 로그로 반복 문의 Top N 도출 → 매크로·FAQ 개선안</span></li>
+                    <li>답변 초안 + 규정 대조 체크<span class="s">AI가 답변 초안 → 환불·위약금 원문 규정과 자동 대조 → 사람이 발송</span></li>
+                    <li>VOC 주간 리포트 자동 발행<span class="s">리뷰·문의를 유형별 집계해 불만 Top 3를 매주 시트에 기록</span></li>
+                </ul>
+                <div class="callout amber" style="margin-top:20px;">3강 복습 — 고객 발송은 <b>반드시 사람 검토 후</b>(에어캐나다 판례) · 문의 로그는 <b>익명화 후 투입</b>(거버넌스 1번).</div>
+                <div class="divlbl">출처</div>
+                <div class="srcs" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://techblog.woowahan.com/20408/" target="_blank" rel="noopener">우아한형제들 기술블로그 2024.12 — GPT 기반 메뉴 이미지 검수</a> · <a href="https://medium.com/daangn/ai-%ED%88%B4-%EA%B0%9C%EB%B0%9C%EC%9D%80-%EC%B2%98%EC%9D%8C%EC%9D%B4%EB%9D%BC-%EB%8B%B9%EA%B7%BC-%EB%B9%84%EA%B0%9C%EB%B0%9C%EC%9E%90-%EA%B5%AC%EC%84%B1%EC%9B%90%EB%93%A4%EC%9D%98-ai-%EB%8F%84%EC%A0%84%EA%B8%B0-fb62d2a6c2f3" target="_blank" rel="noopener">당근 팀블로그 2025.4 — 비개발자 AI 도전기</a> · <a href="https://aws.amazon.com/ko/blogs/tech/kakaostyle-leverage-genai-with-amazon-bedrock/" target="_blank" rel="noopener">AWS — 카카오스타일 사례</a> · <a href="https://zdnet.co.kr/view/?no=20250929165820" target="_blank" rel="noopener">ZDNet 2025.9 — 야놀자 텔라</a> · <a href="https://www.customerexperiencedive.com/news/airbnb-ai-assistant-resolves-customer-inquiries/819734/" target="_blank" rel="noopener">CX Dive 2026.5 — Airbnb AI</a></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 09 개인 재현의 증거 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 나도 할 수 있나</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Proof · One Person</div>
+            <h2 class="t">"저건 회사니까 가능하지 않나요?" — <span class="hl">아니요, 전부 1명이 시작했습니다</span></h2>
+        </div>
+        <div class="body">
+            <div class="grid-3">
+                <div class="card hot reveal"><div class="shot"><a href="https://the-underdogs.kr/ai-systems/market-monitoring-automation" target="_blank" rel="noopener"><img src="./assets/oliveyoung-sheet.png" alt="올리브영 경쟁사 모니터링 구글시트"></a></div><div class="ic">🧑‍💻</div><div class="ct">올리브영 경쟁사 모니터링<span class="mono">Python + GitHub Actions + 구글 시트</span></div><div class="cd">실무자 1명이 <b>경쟁사 129개 제품의 순위·리뷰·프로모션을 매일 자동 추적</b> — 인프라 비용 0원, 76일 연속 무장애. 2강에서 배운 "스킬+시트" 스택과 같은 구조입니다.</div></div>
+                <div class="card reveal"><div class="shot"><a href="https://www.newsworks.co.kr/news/articleView.html?idxno=841740" target="_blank" rel="noopener"><img src="./assets/toss-openai-hackathon.jpg" alt="토스 오픈AI 협업 세션 현장"></a></div><div class="ic">🍔</div><div class="ct">토스플레이스 메뉴 분류<span class="mono">비개발자 팀 · 해커톤 산출물</span></div><div class="cd">오픈AI 협업 미니 해커톤에서 <b>비개발자 팀</b>이 수천 건의 가맹점 상품 데이터를 자동 분류하는 도구를 제작해 우수작 선정. <b>하루짜리 해커톤</b>의 결과물 — 우리에겐 3주가 있습니다.</div></div>
+                <div class="card reveal"><div class="shot"><a href="https://toss.tech/article/todolist" target="_blank" rel="noopener"><img src="./assets/toss-todolist-team.png" alt="토스 할 일 위젯 팀 확산"></a></div><div class="ic">🐣</div><div class="ct">토스 할 일 위젯의 확산<span class="mono">혼자 쓰려던 도구 → 팀 도구</span></div><div class="cd">디자이너 1명이 자기 불편을 해결하려 만든 위젯 — 지금은 <b>개발자들이 먼저 버그를 제보하고 기능을 제안</b>하는 팀 도구가 됐습니다. 확산은 결과이지 목표가 아니었습니다.</div></div>
+            </div>
+            <div class="callout reveal" style="margin-top:28px;">공통점 — <b>거창한 플랫폼이 아니라, 자기 반복 업무 하나</b>에서 시작했다는 것. 여러분의 출발선도 똑같습니다.</div>
+            <div class="divlbl reveal">출처</div>
+            <div class="srcs reveal" style="font-size:16.5px; color:var(--ink-faint); line-height:1.7;"><a href="https://the-underdogs.kr/ai-systems/market-monitoring-automation" target="_blank" rel="noopener">The Underdogs — 올리브영 경쟁사 모니터링, 자동화한 이야기</a> · <a href="https://www.newsworks.co.kr/news/articleView.html?idxno=841740" target="_blank" rel="noopener">뉴스웍스 2026.5 — 토스×오픈AI 해커톤</a> · <a href="https://toss.tech/article/todolist" target="_blank" rel="noopener">토스 기술블로그 2026.6 — 매일 하던 업무를 디자인하기</a></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 10 좋은 과제의 조건 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 과제 선정 기준</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Checklist</div>
+            <h2 class="t">사례들이 알려주는 <span class="hl">좋은 과제의 조건 5</span> — 이걸로 채점합니다</h2>
+        </div>
+        <div class="body grid-2">
+            <div class="panel reveal">
+                <h3><span class="ic">✅</span> 좋은 과제 — 5가지 조건</h3>
+                <ul class="check">
+                    <li><b>반복적이고 양이 많다</b><span class="s">리뷰 수천 건, 매주 쓰는 보고서 — 한 번짜리 일은 과제가 아님</span></li>
+                    <li><b>데이터에 내가 접근할 수 있다</b><span class="s">Airbnb도 데이터 정리에 2년 — 내 손에 없는 데이터로는 시작 못 함</span></li>
+                    <li><b>정답을 검증할 수 있다</b><span class="s">AI 산출물을 원본(규정·시트·실물)과 대조 가능해야 — 3강 원칙</span></li>
+                    <li><b>틀려도 복구 가능한 곳부터</b><span class="s">고객 발송이 아니라 내부 리포트·초안부터 — 초안 AI·승인 사람</span></li>
+                    <li><b>내 업무여야 한다</b><span class="s">"문제 정의만 잘하면 비개발자가 가장 강력한 문제 해결자" — 당근</span></li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🚫</span> 이런 과제는 다시 고릅니다</h3>
+                <ul class="cross">
+                    <li><b>"AI 챗봇을 만들어서 고객에게 바로"</b> — 검증 없는 고객 접점은 3강의 에어캐나다 코스</li>
+                    <li><b>"회사 전체 데이터를 다 모아서"</b> — 접근 권한도, 3주 안에 끝날 크기도 아님</li>
+                    <li><b>"1년에 한 번 하는 그 일"</b> — 자동화 이득이 없음</li>
+                    <li><b>"옆 팀 업무가 더 재밌어 보여서"</b> — 데이터도 검증 기준도 내게 없음</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:20px;">채점법 — 후보 과제에 조건 5개로 O/X. <b>4개 이상이면 합격</b>, 3개 이하면 범위를 줄이거나 다른 후보로.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 11 과제 후보 보드 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 과제 후보 보드</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Idea Board</div>
+            <h2 class="t">삼삼엠투 과제 후보 보드 — <span class="hl">여기서 골라도, 변형해도 좋습니다</span></h2>
+            <p class="t-sub">전부 <b>1·2강 스택(스킬+시트)으로 구현 가능</b>하고, 3강 거버넌스를 통과하도록 설계된 후보들입니다.</p>
+        </div>
+        <div class="body">
+            <table class="tbl tight reveal">
+                <tr><th style="width:130px;">직군</th><th>과제 후보</th><th style="width:300px;">패턴</th><th style="width:360px;">거버넌스 체크</th></tr>
+                <tr><td><b>🎨 디자이너</b></td><td>브랜드 가이드(색·톤·금지 표현) 검수 스킬 — 소재 초안 자동 1차 검수</td><td>반복 검수</td><td>내부 자료만 · 최종 판단 사람</td></tr>
+                <tr><td><b>🎨 디자이너</b></td><td>시즌 프로모션 비주얼·문구 초안 생성기</td><td>콘텐츠 생산</td><td>게시 전 반드시 검토</td></tr>
+                <tr><td><b>📋 기획자</b></td><td>주간 지표 리포트 자동화 — 집계 CSV → 분석 → 보고 서식</td><td>반복 리포트</td><td>개인 식별자 없는 집계치만</td></tr>
+                <tr><td><b>📋 기획자</b></td><td>경쟁 서비스 모니터링 — 공개 가격·프로모션 주기 수집·요약</td><td>리뷰·VOC 분석</td><td>공개 정보만 사용 (3강 Q1 유형)</td></tr>
+                <tr><td><b>📋 기획자</b></td><td>요청·논의 → 할 일 자동 정리 / 입점·제휴 신청 건 A~D 초벌 등급화</td><td>반복 확인·검수</td><td>내부 자료만 · 확정은 사람</td></tr>
+                <tr class="hot"><td><b>🎧 CS</b></td><td>문의 유형 분석 → 반복 문의 Top N → FAQ·매크로 개선안</td><td>리뷰·VOC 분석</td><td><b>익명화 후 투입</b> (3강 Q2)</td></tr>
+                <tr><td><b>🎧 CS</b></td><td>답변 초안 + 환불·위약금 규정 원문 대조 체크 스킬</td><td>콘텐츠+검증</td><td>발송은 반드시 사람 (에어캐나다)</td></tr>
+                <tr><td><b>공통</b></td><td>앱 리뷰 주간 인사이트 리포트 — 수집→분류→Top 3→시트 기록</td><td>리뷰·VOC 분석</td><td>공개 리뷰라 안전</td></tr>
+            </table>
+            <div class="callout ok reveal" style="margin-top:22px;">이 표는 <b>출발점</b>입니다 — 여러분이 매일 하는 일 중에 더 좋은 후보가 있다면 그쪽이 정답입니다.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 12 오늘의 미션 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 실습 4강 — 오늘의 미션</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Mission</div>
+            <h2 class="t">지금부터 브레인스토밍 — <span class="hl">끝나면 과제 1개가 문장이 됩니다</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="mission reveal">
+                <div class="mh">🎯 과제 확정 3단계</div>
+                <div class="mstep"><div class="n">1</div><div><div class="mt">내 반복 업무 3개 적기 (10분)</div><div class="md">매일·매주 반복하고, 하기 싫고, 시간 잡아먹는 일 — 사례에서 본 패턴에 억지로 맞추지 말고 솔직하게.</div></div></div>
+                <div class="mstep"><div class="n">2</div><div><div class="mt">조건 5로 채점 (10분)</div><div class="md">반복성 · 데이터 접근 · 검증 가능 · 복구 가능 · 내 업무 — O/X로 채점해 4개 이상 남기기.</div></div></div>
+                <div class="mstep"><div class="n">3</div><div><div class="mt">한 문장으로 확정 + 강사 확인</div><div class="md">"나는 [데이터]로 [반복 업무]를 [산출물]로 자동화한다" 형식으로 선언 — 강사와 범위 조정 후 확정.</div></div></div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">✍️</span> 확정 문장 예시</h3>
+                <ul class="list">
+                    <li>"나는 <b>앱 스토어 리뷰</b>로 <b>수동 리뷰 취합</b>을 <b>주간 인사이트 시트</b>로 자동화한다"</li>
+                    <li>"나는 <b>익명화된 문의 로그</b>로 <b>반복 문의 파악</b>을 <b>FAQ 개선 리포트</b>로 자동화한다"</li>
+                    <li>"나는 <b>브랜드 가이드 문서</b>로 <b>소재 검수</b>를 <b>체크리스트 자동 판정</b>으로 자동화한다"</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:20px;">이 문장이 5·6강 진행 공유의 <b>제목</b>이 되고, 합동 공유회 발표의 <b>첫 슬라이드</b>가 됩니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 13 엔딩 ===================== -->
+<section class="slide end">
+    <div class="inner">
+        <div class="title-kicker reveal">삼삼엠투 AI 교육 · 실습반 4강</div>
+        <h1 class="end-h reveal">사례는 끝 <span class="thin">— 이제 여러분 차례입니다</span></h1>
+        <p class="title-sub reveal" style="margin-top:24px;">토스의 디자이너도, 당근의 운영 매니저도, 배민의 PM도 — <b>자기 반복 업무 하나</b>에서 시작했습니다.<br>지금부터 브레인스토밍으로 넘어갑니다.</p>
+        <div class="flow reveal" style="margin-top:44px; max-width:900px;">
+            <div class="fnode hot"><div class="fi">📝</div><div class="fn-t">브레인스토밍</div><div class="fn-s">반복 업무 3개 → 채점 → 확정</div></div>
+            <div class="farrow">·</div>
+            <div class="fnode"><div class="fi">💬</div><div class="fn-t">1:1 범위 조정</div><div class="fn-s">강사와 과제 크기 맞추기</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>실습반</span><span>NEXT <b>5강 — 과제 진행사항 + 강사 피드백</b></span>
+        </div>
+    </div>
+</section>
+<!-- APPEND:SLIDES -->
+</main>
+</div>
+
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-page" id="deckPage">01 / 13</div>
+<div class="deck-hint">← → 이동 · E 편집 · Ctrl+S 저장 · F11 전체화면</div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="편집 모드 (E)">✏️</button>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   고정 1920×1080 스테이지 스케일링 + 내비게이션
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.stage = document.getElementById('deckStage');
+        this.progress = document.getElementById('deckProgress');
+        this.page = document.getElementById('deckPage');
+        this.current = 0;
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        const fromHash = parseInt((location.hash || '').replace('#', ''), 10);
+        this.showSlide(isNaN(fromHash) ? 0 : fromHash - 1);
+        this.slides.forEach((s, k) => {
+            const sec = s.querySelector('.chrome .sec');
+            if (sec) sec.textContent = String(k + 1).padStart(2, '0') + ' / ' + this.slides.length;
+        });
+    }
+    setupStageScale() {
+        const scale = () => {
+            const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * f) / 2;
+            const y = (window.innerHeight - 1080 * f) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.isContentEditable || document.designMode === 'on' && e.key !== 'Escape') {
+                if (!(e.ctrlKey || e.metaKey)) return;
+            }
+            switch (e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+                    e.preventDefault(); this.next(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+                    e.preventDefault(); this.prev(); break;
+                case 'Home': e.preventDefault(); this.showSlide(0); break;
+                case 'End': e.preventDefault(); this.showSlide(this.slides.length - 1); break;
+            }
+        });
+    }
+    setupTouchNav() {
+        let sx = 0;
+        document.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - sx;
+            if (Math.abs(dx) > 60) dx < 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    setupWheelNav() {
+        let lock = false;
+        document.addEventListener('wheel', (e) => {
+            if (document.designMode === 'on') return;
+            if (lock || Math.abs(e.deltaY) < 24) return;
+            lock = true; setTimeout(() => lock = false, 550);
+            e.deltaY > 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    next() { this.showSlide(this.current + 1); }
+    prev() { this.showSlide(this.current - 1); }
+    showSlide(i) {
+        this.current = Math.max(0, Math.min(i, this.slides.length - 1));
+        this.slides.forEach((s, k) => {
+            s.classList.toggle('active', k === this.current);
+            s.classList.toggle('visible', k === this.current);
+        });
+        const n = this.current + 1, total = this.slides.length;
+        this.progress.style.width = (n / total * 100) + '%';
+        this.page.textContent = String(n).padStart(2, '0') + ' / ' + total;
+        history.replaceState(null, '', '#' + n);
+    }
+}
+
+/* ===========================================
+   INLINE EDITOR — E 키/좌상단 핫존, Ctrl+S 저장
+   =========================================== */
+const editor = {
+    isActive: false,
+    KEY: 'practical-lab4-topics-edits',
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.designMode = this.isActive ? 'on' : 'off';
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        if (!this.isActive) this.persist();
+    },
+    persist() {
+        try { localStorage.setItem(this.KEY, JSON.stringify({ base: this._baseSig, html: document.getElementById('deckStage').innerHTML })); } catch (e) {}
+    },
+    restore() {
+        try {
+            const stage = document.getElementById('deckStage');
+            this._baseSig = this._sig(stage.innerHTML);
+            const raw = localStorage.getItem(this.KEY);
+            if (!raw) return;
+            let obj = null;
+            try { obj = JSON.parse(raw); } catch (e) {}
+            if (obj && obj.base === this._baseSig && obj.html) {
+                stage.innerHTML = obj.html;
+            } else {
+                localStorage.removeItem(this.KEY);
+            }
+        } catch (e) {}
+    },
+    _sig(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; } return s.length + ':' + h; },
+    exportFile() {
+        this.persist();
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '실습4강_AX우수사례_과제힌트_edited.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+};
+editor.restore();
+const deck = new SlidePresentation();
+
+const hotzone = document.getElementById('editHotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+const showBtn = () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); };
+const hideBtn = () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400); };
+hotzone.addEventListener('mouseenter', showBtn);
+hotzone.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('mouseenter', showBtn);
+editToggle.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !e.target.isContentEditable && document.designMode !== 'on') editor.toggleEditMode();
+    if (e.key === 'Escape' && editor.isActive) editor.toggleEditMode();
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); editor.exportFile(); }
+});
+</script>
+<script defer src="../../assets/comments.js"></script>
+</body>
+</html>
