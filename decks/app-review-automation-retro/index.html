@@ -324,6 +324,125 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     </div>
 </section>
 
+<!-- ===================== 03a 상세: 수집 & 시트 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 구현 상세 ① 수집·저장</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Detail 1 · Collect &amp; Store</div>
+            <h2 class="t">구현 상세 ① — <span class="hl">두 스토어, 두 방식으로 수집해 시트 한 곳에</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div>
+                <div class="panel reveal">
+                    <h3><span class="ic">🤖</span> Play Store — google-play-scraper</h3>
+                    <ul class="list tight">
+                        <li>공식 리뷰 API가 없어 <b>웹 스크래핑</b> 방식 (한국 리뷰 1회 최대 500건)</li>
+                        <li>개발자 답변(replyContent)까지 <b>함께 수집</b> — 과거 답변 499건 백필의 재료</li>
+                    </ul>
+                </div>
+                <div class="panel reveal" style="margin-top:16px;">
+                    <h3><span class="ic">🍎</span> App Store — RSS + Connect API</h3>
+                    <ul class="list tight">
+                        <li>리뷰는 <b>iTunes RSS Feed</b> (페이지당 50건 × 3페이지)</li>
+                        <li>개발자 답변은 <b>App Store Connect API</b> — JWT(ES256) 인증으로 별도 조회</li>
+                    </ul>
+                </div>
+                <div class="callout reveal" style="margin-top:16px;">수집 범위 — 일일 <b>최근 30일</b> · 백필 <b>최근 100일</b> · 실행 <b>매일 09:00</b> 스케줄러</div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">📄</span> Google Sheets — 팀이 함께 보는 단일 원천</h3>
+                <table class="tbl tight">
+                    <tr><th>구분</th><th>컬럼</th></tr>
+                    <tr><td><b>사용자 표시 (8)</b></td><td>작성 날짜 · 별점 · 운영 체제 · 앱 버전 · 버전 · 위치 · 리뷰 내용 · 답변</td></tr>
+                    <tr><td><b>시스템 메타 (4)</b></td><td class="mono">_review_id · _store · _reviewed_at · _notified_at</td></tr>
+                    <tr class="hot"><td><b>피드백 (P열)</b></td><td><b>담당자 컨펌</b> — 컨펌된 답변을 AI가 참고해 초안 지속 개선</td></tr>
+                </table>
+                <ul class="list tight" style="margin-top:14px;">
+                    <li><span class="mono">_review_id</span> 기반 <b>중복 제거(upsert)</b> — 매일 돌려도 같은 리뷰는 한 번만</li>
+                    <li>OAuth 2.0 인증 · 개발자 답변 <b>자동 백필</b> · 월별 필터 → 인사이트 분석</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 03b 상세: Claude 초안 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 구현 상세 ② 답변 초안</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Detail 2 · Claude Draft</div>
+            <h2 class="t">구현 상세 ② — <span class="hl">톤·길이의 일관성을 프롬프트에 담다</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">📐</span> 프롬프트 설계 4원칙</h3>
+                <table class="tbl tight">
+                    <tr><td><b>📏 분량</b></td><td>30~70자, 친근한 톤</td></tr>
+                    <tr><td><b>⭐ 별점 차별화</b></td><td>5점 감사 · 4점 개선 의지 · 3점 이하 사과+개선 약속</td></tr>
+                    <tr><td><b>👥 역할 구분</b></td><td>호스트/임차인 리뷰에 서로 다른 톤</td></tr>
+                    <tr><td><b>🏢 정체성</b></td><td>단기 임대 플랫폼 맥락(게스트↔호스트 연결)을 프롬프트에 내장</td></tr>
+                </table>
+                <div class="callout ok reveal" style="margin-top:16px;"><b>+ 컨펌 루프</b> — 시트 P열에서 담당자가 컨펌한 실제 답변을 참고해 <b>초안이 실무 톤으로 계속 수렴</b>합니다.</div>
+                <div class="callout reveal" style="margin-top:12px;">비용 — 건당 약 <b>$0.001~0.003</b> · 생성 <b>3~5초</b></div>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">💬</span> 실제 입·출력 예시</h3>
+                <div class="divlbl" style="margin-top:4px;">입력 — ⭐5 · Play Store</div>
+                <div class="callout" style="background:var(--paper); border-color:var(--line); color:var(--ink-dim); font-style:italic;">"앱등록후 처음해보는거라 잘몰랐는데 너무 편리합니다. 다음번에도 이용할거에요"</div>
+                <div class="divlbl">출력 — Claude 답변 초안 (3~5초)</div>
+                <div class="callout">"소중한 후기 감사드립니다 😊 처음 이용하시는데도 만족스러운 경험을 드릴 수 있어 정말 기쁩니다! 앞으로도 더 나은 서비스로 보답하겠습니다 💙"</div>
+                <ul class="list tight" style="margin-top:14px;">
+                    <li>담당자는 이 초안을 <b>그대로 쓰거나, 고쳐 쓰거나, 버리거나</b> — 발송 결정은 항상 사람</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 03c 상세: Chat 카드 & 알림 규칙 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 구현 상세 ③ 알림</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Detail 3 · Chat Card</div>
+            <h2 class="t">구현 상세 ③ — <span class="hl">회사 표준 도구(Google Chat)로 배달</span></h2>
+            <p class="t-sub">새 도구를 배울 필요 없이, <b>이미 쓰는 Chat에 카드로 도착</b>합니다 — 도입 장벽 0.</p>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🃏</span> 카드에 담기는 것</h3>
+                <ul class="check">
+                    <li>헤더 — <b>⭐ 별점 + 스토어 + 작성 시각</b><span class="s">"⭐ 5점 새 리뷰 · PlayStore · 2026-05-12 13:24"</span></li>
+                    <li>리뷰 원문 전문</li>
+                    <li><b>Claude 답변 초안</b> — 복사해서 바로 쓸 수 있게 전문 표시</li>
+                    <li>버튼 — <b>[Play Console 답변하기] [백업 시트]</b><span class="s">클릭 한 번으로 답변 화면·이력 시트 이동</span></li>
+                </ul>
+            </div>
+            <div>
+                <div class="panel plain reveal">
+                    <h3><span class="ic">🚦</span> 알림 규칙 — 두 갈래</h3>
+                    <table class="tbl tight">
+                        <tr><th>유형</th><th>트리거 조건</th></tr>
+                        <tr><td><b>🆕 신규 알림</b></td><td><span class="mono">_notified_at</span> 비어 있음 + 답변 비어 있음</td></tr>
+                        <tr><td><b>🔔 리마인드</b></td><td>알림 후 <b>24h 경과</b> + 답변 여전히 없음</td></tr>
+                        <tr><td><b>⏹ 정지</b></td><td>답변 채워지면 <b>둘 다 자동 중단</b></td></tr>
+                    </table>
+                </div>
+                <div class="panel reveal" style="margin-top:16px;">
+                    <h3><span class="ic">🧰</span> 기술 스택 요약</h3>
+                    <ul class="list tight">
+                        <li>Python · google-play-scraper · gspread(OAuth 2.0) · PyJWT(ES256)</li>
+                        <li>Anthropic Claude SDK · Google Chat Incoming Webhook</li>
+                        <li>인증 정보는 <b>config.yaml(git 제외)·환경변수</b>로 분리</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ===================== 04 성과 ===================== -->
 <section class="slide">
     <div class="inner">
@@ -560,7 +679,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
 </div>
 
 <div class="deck-progress" id="deckProgress"></div>
-<div class="deck-page" id="deckPage">01 / 11</div>
+<div class="deck-page" id="deckPage">01 / 14</div>
 <div class="deck-hint">← → 이동 · E 편집 · Ctrl+S 저장 · F11 전체화면</div>
 <div class="edit-hotzone" id="editHotzone"></div>
 <button class="edit-toggle" id="editToggle" title="편집 모드 (E)">✏️</button>
