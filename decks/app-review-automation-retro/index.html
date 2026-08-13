@@ -220,11 +220,11 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
 <section class="slide title active">
     <div class="inner">
         <div class="title-status reveal">
-            <span class="chip br">AI TF 공유</span>
-            <span class="chip n">2번째 공유 · 운영 회고 편</span>
+            <span class="chip br">합동 공유회</span>
+            <span class="chip n">8/19 · 과제 발표</span>
             <span class="chip">일 1~2시간 → 10~20분</span>
         </div>
-        <div class="title-kicker reveal">삼삼엠투 AI TF · 앱 리뷰 자동화</div>
+        <div class="title-kicker reveal">삼삼엠투 합동 공유회 · 앱 리뷰 자동화</div>
         <h1 class="title-h reveal">앱 리뷰 자동화 <span class="thin">— 운영 회고</span></h1>
         <p class="title-sub reveal">지난 공유에서는 <b>"무엇을 만들었는지"</b>를 보여드렸습니다.<br>이번에는 <b>느낀 점 · 공유하고 싶은 점 · 보완하고 싶은 점</b> — 만들고 돌려보며 배운 것들을 나눕니다.</p>
         <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
@@ -324,11 +324,11 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </div>
                 <div class="lesson reveal">
                     <div class="n">3</div>
-                    <div><div class="lt">AI는 초안까지, 발송은 사람 — 이게 신뢰를 만들었다</div><div class="ld">초안을 자동 발송하지 않고 <b>복붙 승인 구조</b>로 남겨두니, 팀이 결과물을 의심하지 않고 도구를 받아들임. 에어캐나다 판례의 반대 코스.</div><div class="lq">Human-in-the-loop = 채택률의 조건</div></div>
+                    <div><div class="lt">AI는 초안까지, 발송은 사람 — 이게 신뢰를 만들었다</div><div class="ld">초안을 자동 발송하지 않고 <b>복붙 승인 구조</b>로 남겨두니, 팀이 결과물을 의심하지 않고 도구를 받아들임. 자동 발송이었다면 오답 리스크를 회사가 그대로 떠안았을 것.</div><div class="lq">Human-in-the-loop = 채택률의 조건</div></div>
                 </div>
                 <div class="lesson reveal">
                     <div class="n">4</div>
-                    <div><div class="lt">완성 선언보다 --dry-run이 먼저</div><div class="ld">실 웹훅에 테스트 발송을 쏘는 사고를 막아준 건 처음부터 넣어둔 <b>dry-run 플래그</b>. 검증 없이 "완료"라고 말할 뻔한 순간이 여러 번.</div><div class="lq">3강에서 배운 "중간 확인"의 실전 버전</div></div>
+                    <div><div class="lt">완성 선언보다 --dry-run이 먼저</div><div class="ld">실 웹훅에 테스트 발송을 쏘는 사고를 막아준 건 처음부터 넣어둔 <b>dry-run 플래그</b>. 검증 없이 "완료"라고 말할 뻔한 순간이 여러 번.</div><div class="lq">돌려보기 전까지는 완료가 아니다</div></div>
                 </div>
             </div>
         </div>
@@ -351,7 +351,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <div class="card reveal"><div class="ic">🃏</div><div class="ct">복붙 가능한 카드 UX<span class="mono">도입 장벽 제거</span></div><div class="cd">Chat 카드에 <b>초안 전문 + "답변하기" 바로가기 버튼</b> — 새 도구를 배울 필요가 없게 하니 팀이 바로 씀.</div></div>
                 <div class="card reveal"><div class="ic">🧩</div><div class="ct">스킬로 배포<span class="mono">.claude/skills</span></div><div class="cd">실행법을 스킬 문서로 저장소에 동봉 — <b>내가 없어도 팀원이 Claude Code로 재실행</b> 가능.</div></div>
                 <div class="card reveal"><div class="ic">🗺️</div><div class="ct">트러블 기록 = 자산<span class="mono">다음 장 참고</span></div><div class="cd">이슈 7건을 원인·해결까지 기록 — <b>같은 스택을 쓸 다음 사람의 며칠</b>을 아껴줍니다.</div></div>
-                <div class="card reveal"><div class="ic">📈</div><div class="ct">수치로 말하기<span class="mono">Before → After</span></div><div class="cd">"편해졌어요"가 아니라 <b>1~2시간 → 10~20분</b>. 공유회 심사 기준 ②(성과)도 결국 이것.</div></div>
+                <div class="card reveal"><div class="ic">📈</div><div class="ct">수치로 말하기<span class="mono">Before → After</span></div><div class="cd">"편해졌어요"가 아니라 <b>1~2시간 → 10~20분</b>. 설득은 형용사가 아니라 숫자가 합니다.</div></div>
             </div>
         </div>
     </div>
@@ -394,7 +394,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel reveal">
                 <h3><span class="ic">🚀</span> 기능 — 응대 도구에서 VOC 자산으로</h3>
                 <ul class="check">
-                    <li>월별 인사이트 리포트 고도화<span class="s">별점 추이·불만 Top 3 자동 정리 — AI TF 백로그 '앱 리뷰 공유 자동화'와 연결</span></li>
+                    <li>월별 인사이트 리포트 고도화<span class="s">별점 추이·불만 Top 3 자동 정리 — 응대 도구를 넘어 제품 개선의 인풋으로</span></li>
                     <li>호스트/임차인 자동 분류<span class="s">현재 수동 입력 컬럼 → 리뷰 내용 기반 자동 태깅</span></li>
                     <li>별점 기반 알림 우선순위<span class="s">1~2점은 즉시·강조 알림, 5점은 일괄 다이제스트</span></li>
                     <li>답변 초안 반영률 측정<span class="s">초안을 얼마나 고쳐 쓰는지 데이터화 → 프롬프트 개선 근거</span></li>
@@ -451,7 +451,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
 <!-- ===================== 09 엔딩 ===================== -->
 <section class="slide end">
     <div class="inner">
-        <div class="title-kicker reveal">삼삼엠투 AI TF · 앱 리뷰 자동화</div>
+        <div class="title-kicker reveal">삼삼엠투 합동 공유회 · 앱 리뷰 자동화</div>
         <h1 class="end-h reveal">감사합니다 <span class="thin">— 질문 환영합니다</span></h1>
         <p class="title-sub reveal" style="margin-top:24px;">복제해 가실 분, 같은 트러블을 만난 분, 초안 톤이 마음에 안 드는 분 —<br><b>전부 환영입니다. 그게 이 도구가 좋아지는 방법이니까요.</b></p>
         <div class="flow reveal" style="margin-top:44px; max-width:900px;">
