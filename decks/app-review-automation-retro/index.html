@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>앱 리뷰 자동화 — 운영 회고 &amp; 공유 · 삼삼엠투 AI TF</title>
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<style>
+/* ===========================================
+   THEME — 삼삼엠투 PPT 디자인 시스템 (Pretendard · 화이트 캔버스 · 브랜드 블루)
+   =========================================== */
+:root {
+    --stage-bg: #e7ebf0;
+    --slide-bg: #ffffff;
+    --paper:    #f7f9fc;
+    --paper-2:  #eef2f7;
+    --line:     #e5e7eb;
+    --line-soft:#f2f3f5;
+    --ink:      #222222;
+    --ink-dim:  #45515e;
+    --ink-faint:#8e8e93;
+    --brand:    #1456f0;
+    --brand-dim:rgba(20,86,240,.08);
+    --brand-soft:#eef3ff;
+    --accent:   #0f9d6b;
+    --accent-dim:rgba(15,157,107,.10);
+    --amber:    #b45309;
+    --amber-dim:rgba(180,83,9,.10);
+    --red:      #dc2626;
+    --red-dim:  rgba(220,38,38,.08);
+    --blue:     #2563eb;
+    --blue-dim: rgba(37,99,235,.08);
+
+    --font-body: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+    --font-mono: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+    --font-code: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --grad: linear-gradient(135deg, #1456f0 0%, #3b82f6 50%, #60a5fa 100%);
+    --shadow-card: 0 2px 10px rgba(20,40,80,.05);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* FIXED 16:9 STAGE */
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; background: var(--slide-bg, #fff); }
+.slide { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; display: block; visibility: hidden; opacity: 0; pointer-events: none; background: var(--slide-bg, #fff); }
+.slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide { position: relative; display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls, .deck-hint, .edit-toggle, .edit-hotzone { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } }
+
+/* SLIDE CANVAS */
+.slide {
+    font-family: var(--font-body); color: var(--ink);
+    background:
+        radial-gradient(1100px 600px at 6% -12%, rgba(20,86,240,.05), transparent 60%),
+        radial-gradient(900px 520px at 102% 112%, rgba(96,165,250,.05), transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        repeating-linear-gradient(90deg, transparent 0 95px, rgba(23,32,43,.032) 95px 96px),
+        var(--slide-bg);
+}
+.inner { position: absolute; inset: 0; padding: 52px 84px 60px; display: flex; flex-direction: column; }
+.inner::after { content: ''; position: absolute; top: 46px; right: 84px; width: 132px; height: 34px; background: url('./33m2_logo.png') right center / contain no-repeat; pointer-events: none; z-index: 5; }
+
+.chrome { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 19px; letter-spacing: .12em; color: var(--ink-faint); text-transform: uppercase; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.chrome .dot { color: var(--accent); }
+.chrome .sec { display: none; }
+
+.t-wrap { margin: 30px 0 6px; }
+.kicker { font-family: var(--font-mono); font-size: 21px; letter-spacing: .22em; color: var(--brand); text-transform: uppercase; margin-bottom: 13px; }
+h2.t { font-size: 52px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.14; }
+h2.t .hl { color: var(--brand); }
+.t-sub { margin-top: 12px; font-size: 26px; color: var(--ink-dim); font-weight: 400; line-height: 1.45; }
+.t-sub b, .t-sub strong { color: var(--ink); font-weight: 600; }
+.body { flex: 1; margin-top: 30px; min-height: 0; }
+
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 30px; box-shadow: var(--shadow-card); }
+.panel.plain { background: #fff; }
+.panel h3 { font-size: 25px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.01em; display:flex; align-items:center; gap:10px; }
+.panel h3 .mono { font-family: var(--font-mono); font-size: 19px; color: var(--brand); }
+.panel h3 .ic { font-size: 26px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+.cols-l { display:grid; grid-template-columns: 1fr 1.05fr; gap: 30px; align-items:start; }
+.cols-r { display:grid; grid-template-columns: 1.05fr 1fr; gap: 30px; align-items:start; }
+
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; position: relative; overflow: hidden; }
+.stat::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--brand); opacity: .9; }
+.stat .num { font-family: var(--font-mono); font-size: 54px; font-weight: 600; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
+.stat .num small { font-size: 26px; color: var(--ink-dim); font-weight: 500; }
+.stat .lbl { margin-top: 12px; font-size: 23px; font-weight: 600; color: var(--ink); }
+.stat .sub { margin-top: 7px; font-size: 19.5px; color: var(--ink-dim); line-height: 1.48; }
+.stat.red::before { background: var(--red); }
+.stat.amber::before { background: var(--amber); }
+.stat.ok::before { background: var(--accent); }
+
+.card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px 22px; box-shadow:0 4px 16px rgba(20,30,50,.04); }
+.card .ic { font-size:38px; }
+.card .ct { margin-top:12px; font-size:24px; font-weight:700; color:var(--ink); }
+.card .ct .mono { font-family:var(--font-mono); font-size:17px; color:var(--brand); display:block; font-weight:500; letter-spacing:.02em; }
+.card .cd { margin-top:9px; font-size:19px; color:var(--ink-dim); line-height:1.5; }
+.card .cd b { color:var(--ink); }
+.card.hot { border-color: rgba(20,86,240,.4); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+
+.chip { display: inline-block; font-family: var(--font-mono); font-size: 18px; padding: 4px 13px; border-radius: 100px; letter-spacing: .03em; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(12,166,120,.28); vertical-align: middle; }
+.chip.br { background: var(--brand-dim); color: var(--brand); border-color: rgba(20,86,240,.28); }
+.chip.a { background: var(--amber-dim); color: var(--amber); border-color: rgba(232,137,12,.3); }
+.chip.r { background: var(--red-dim); color: var(--red); border-color: rgba(224,49,49,.3); }
+.chip.n { background: rgba(139,151,166,.12); color: var(--ink-dim); border-color: var(--line); }
+
+table.tbl { width: 100%; border-collapse: collapse; font-size: 21px; }
+.tbl th { font-family: var(--font-mono); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--line); font-weight: 500; white-space: nowrap; }
+.tbl td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); color: var(--ink-dim); line-height: 1.42; vertical-align: top; }
+.tbl td:first-child, .tbl td b, .tbl td strong { color: var(--ink); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr.hot td { background: var(--brand-dim); }
+.mono { font-family: var(--font-code); }
+.tbl.tight td { padding: 8px 14px; font-size: 19.5px; }
+.tbl.tight th { padding: 8px 14px; }
+
+ul.list { list-style: none; }
+ul.list li { position: relative; padding-left: 30px; margin-bottom: 13px; font-size: 22px; color: var(--ink-dim); line-height: 1.5; }
+ul.list li::before { content: '▸'; position: absolute; left: 4px; color: var(--brand); }
+ul.list li b, ul.list li strong { color: var(--ink); font-weight: 600; }
+ul.list.tight li { font-size: 20px; margin-bottom: 9px; }
+ul.check { list-style:none; }
+ul.check li { position:relative; padding-left: 40px; margin-bottom: 15px; font-size: 23px; color: var(--ink); line-height: 1.45; }
+ul.check li::before { content:'✓'; position:absolute; left:6px; top:-1px; color:var(--accent); font-weight:700; font-size:24px; }
+ul.check li .s { display:block; font-size:19px; color:var(--ink-dim); margin-top:3px; }
+ul.cross { list-style:none; }
+ul.cross li { position:relative; padding-left: 40px; margin-bottom: 15px; font-size: 22px; color: var(--ink-dim); line-height: 1.45; }
+ul.cross li::before { content:'✕'; position:absolute; left:6px; top:-1px; color:var(--red); font-weight:700; font-size:22px; }
+ul.cross li b { color: var(--ink); }
+
+.callout { border: 1px solid rgba(20,86,240,.32); background: var(--brand-dim); border-radius: 14px; padding: 18px 26px; font-size: 22px; color: var(--ink); line-height: 1.5; }
+.callout b { color: var(--brand); }
+.callout.ok { border-color: rgba(12,166,120,.35); background: var(--accent-dim); }
+.callout.ok b { color: var(--accent); }
+.callout.amber { border-color: rgba(232,137,12,.35); background: var(--amber-dim); }
+.callout.amber b { color: var(--amber); }
+.callout.red { border-color: rgba(220,38,38,.35); background: var(--red-dim); }
+.callout.red b { color: var(--red); }
+
+.flow { display: flex; align-items: stretch; gap: 0; }
+.fnode { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; text-align: center; flex: 1; box-shadow:0 4px 14px rgba(20,30,50,.05); }
+.fnode .fi { font-size: 30px; }
+.fnode .fn-t { margin-top:6px; font-size: 21px; font-weight: 700; color: var(--ink); }
+.fnode .fn-s { margin-top: 5px; font-size: 17px; color: var(--ink-dim); line-height: 1.4; }
+.fnode.hot { border-color: rgba(20,86,240,.45); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+.fnode.bad { border-color: rgba(220,38,38,.4); background: linear-gradient(180deg, var(--red-dim), #fff); }
+.farrow { display: flex; align-items: center; padding: 0 12px; color: var(--brand); font-size: 26px; font-family: var(--font-mono); }
+
+.divlbl { font-family: var(--font-mono); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 18px 0 11px; }
+.srcs a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(37,99,235,.4); }
+.srcs a:hover { color: var(--brand); text-decoration-color: var(--brand); }
+
+/* 회고 카드 — 번호 + 교훈 */
+.lesson { background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px 26px; box-shadow:0 4px 16px rgba(20,30,50,.04); display:flex; gap:20px; align-items:flex-start; }
+.lesson .n { flex:none; width:52px; height:52px; border-radius:14px; background:var(--brand); color:#fff; font-family:var(--font-mono); font-weight:700; font-size:26px; display:flex; align-items:center; justify-content:center; }
+.lesson .lt { font-size:24px; font-weight:700; color:var(--ink); line-height:1.3; }
+.lesson .ld { margin-top:8px; font-size:19.5px; color:var(--ink-dim); line-height:1.52; }
+.lesson .ld b { color:var(--ink); }
+.lesson .lq { margin-top:10px; font-family:var(--font-mono); font-size:17.5px; color:var(--brand); font-weight:600; }
+.lesson.hot { border-color: rgba(20,86,240,.4); background: linear-gradient(180deg, var(--brand-dim), #fff); }
+
+/* 스텝 배지 */
+.stepbadge { display:inline-flex; align-items:center; gap:12px; margin-bottom:6px; }
+.stepbadge .b { font-family:var(--font-mono); font-size:20px; font-weight:600; color:#fff; background:var(--brand); border-radius:10px; padding:5px 14px; }
+
+/* TITLE SLIDE */
+.slide.title .inner { justify-content: center; padding-top: 40px; }
+.title-status { display: flex; gap: 12px; margin-bottom: 40px; }
+.title-kicker { font-family: var(--font-mono); font-size: 23px; letter-spacing: .3em; color: var(--brand); text-transform: uppercase; margin-bottom: 26px; }
+h1.title-h { font-size: 104px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; }
+h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
+.title-sub { margin-top: 28px; font-size: 31px; color: var(--ink-dim); line-height: 1.5; max-width: 1450px; }
+.title-sub b { color: var(--ink); font-weight: 600; }
+.title-meta { margin-top: 52px; display: flex; gap: 34px; font-family: var(--font-mono); font-size: 21px; color: var(--ink-faint); }
+.title-meta span b { color: var(--ink-dim); font-weight: 500; }
+
+.slide.end .inner { justify-content:center; align-items:flex-start; }
+.end-h { font-size: 88px; font-weight:700; letter-spacing:-.02em; }
+.end-h .thin { color: var(--ink-dim); font-weight:300; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s var(--ease), transform .55s var(--ease); }
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1){transition-delay:.05s}.reveal:nth-child(2){transition-delay:.12s}.reveal:nth-child(3){transition-delay:.19s}.reveal:nth-child(4){transition-delay:.26s}.reveal:nth-child(5){transition-delay:.33s}.reveal:nth-child(6){transition-delay:.40s}.reveal:nth-child(7){transition-delay:.47s}.reveal:nth-child(8){transition-delay:.54s}
+
+/* Deck chrome */
+.deck-progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--brand); width: 0%; z-index: 1001; transition: width .3s var(--ease); }
+.deck-page { position: fixed; right: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 14px; color: var(--ink-faint); letter-spacing: .1em; }
+.deck-hint { position: fixed; left: 26px; bottom: 18px; z-index: 1001; font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); letter-spacing: .05em; opacity: .7; }
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle { position: fixed; top: 18px; left: 18px; z-index: 10001; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 20px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { border-color: var(--brand); color: var(--brand); }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===================== 01 표지 ===================== -->
+<section class="slide title active">
+    <div class="inner">
+        <div class="title-status reveal">
+            <span class="chip br">AI TF 공유</span>
+            <span class="chip n">2번째 공유 · 운영 회고 편</span>
+            <span class="chip">일 1~2시간 → 10~20분</span>
+        </div>
+        <div class="title-kicker reveal">삼삼엠투 AI TF · 앱 리뷰 자동화</div>
+        <h1 class="title-h reveal">앱 리뷰 자동화 <span class="thin">— 운영 회고</span></h1>
+        <p class="title-sub reveal">지난 공유에서는 <b>"무엇을 만들었는지"</b>를 보여드렸습니다.<br>이번에는 <b>느낀 점 · 공유하고 싶은 점 · 보완하고 싶은 점</b> — 만들고 돌려보며 배운 것들을 나눕니다.</p>
+        <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
+            <div class="fnode"><div class="fi">⏪</div><div class="fn-t">30초 복습</div><div class="fn-s">무엇을 만들었나</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">💭</div><div class="fn-t">느낀 점</div><div class="fn-s">진행하며 배운 5가지</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode"><div class="fi">🎁</div><div class="fn-t">공유하고 싶은 점</div><div class="fn-s">재사용 가능한 팁 + 트러블 지도</div></div>
+            <div class="farrow">→</div>
+            <div class="fnode hot"><div class="fi">🔧</div><div class="fn-t">보완하고 싶은 점</div><div class="fn-s">기능·보안·다음 단계</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>발표 <b>박현웅</b></span><span>저장소 <b>spacev-team/app-review-automation</b></span><span>선행 자료 <b>1차 공유 슬라이드 (구글 슬라이드)</b></span>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 02 30초 복습 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 30초 복습</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Recap · 30 sec</div>
+            <h2 class="t">무엇을 만들었나 — <span class="hl">수집→저장→초안→알림, 사람은 승인만</span></h2>
+            <p class="t-sub">월 200건+ 리뷰를 2개 스토어에서 수동 관리하던 일을 자동화했습니다. 상세 설계는 <b>1차 공유 슬라이드</b> 참고 — 오늘은 회고가 본론.</p>
+        </div>
+        <div class="body">
+            <div class="flow reveal" style="max-width:1600px;">
+                <div class="fnode"><div class="fi">📥</div><div class="fn-t">리뷰 수집</div><div class="fn-s">Play Store + App Store<br>매일 최근 30일</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">📄</div><div class="fn-t">Google Sheets</div><div class="fn-s">백업 · 이력 · 중복 제거</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">🤖</div><div class="fn-t">Claude 답변 초안</div><div class="fn-s">별점·내용 맞춤 톤<br>3~5초 생성</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode"><div class="fi">💬</div><div class="fn-t">Google Chat 카드</div><div class="fn-s">초안+바로가기 버튼<br>복붙 1~2분</div></div>
+                <div class="farrow">→</div>
+                <div class="fnode hot"><div class="fi">🔔</div><div class="fn-t">24h 리마인드</div><div class="fn-s">미답변 자동 재알림<br>누락 0 목표</div></div>
+            </div>
+            <div class="grid-4" style="margin-top:30px;">
+                <div class="stat ok reveal"><div class="num">80<small>%</small></div><div class="lbl">응대 시간 절감</div><div class="sub">일 1~2시간 → 10~20분. 건당 15~20분 → 복붙 1~2분.</div></div>
+                <div class="stat reveal"><div class="num">443<small>건</small></div><div class="lbl">시트 누적 저장</div><div class="sub">신규 195건 + 기존 알림완료 마킹 275건 백필.</div></div>
+                <div class="stat reveal"><div class="num">499<small>건</small></div><div class="lbl">개발자 답변 백필</div><div class="sub">Play Store 과거 답변 이력까지 시트로 회수.</div></div>
+                <div class="stat amber reveal"><div class="num">7<small>건</small></div><div class="lbl">트러블슈팅</div><div class="sub">검증 과정에서 만난 이슈 — 오늘 지도로 공유합니다.</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 03 느낀 점 ① ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 느낀 점 ①</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 1 · Lessons</div>
+            <h2 class="t">느낀 점 ① — <span class="hl">도구 선택이 프로젝트의 절반이었다</span></h2>
+            <p class="t-sub">n8n(시각적 워크플로우)과 Python 스크립트, <b>두 트랙을 다 만들어보고</b> 알게 된 것.</p>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🔀</span> n8n 트랙 — 기대와 현실</h3>
+                <ul class="list">
+                    <li><b>기대</b>: 시각적 노드라 팀원 누구나 수정 가능, 24노드 파이프라인 완성</li>
+                    <li><b>현실</b>: 트러블 7건 중 5건이 n8n에서 발생 — OAuth IP 차단, 노드 보안 정책, 배치 분기 인덱스 반전…</li>
+                    <li>"쉬워 보이는 도구"의 제약을 우회하는 데 쓴 시간이, Python으로 그냥 짜는 시간보다 길었음</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🐍</span> Python 트랙 — 주력이 된 이유</h3>
+                <ul class="check">
+                    <li>Claude Code와 함께라면 <b>코드가 곧 문서</b><span class="s">"이 스크립트 뭐 하는 거야?" → AI가 바로 설명·수정</span></li>
+                    <li>dry-run·백필·리마인드 같은 <b>운영 장치를 자유롭게</b><span class="s">도구의 제약이 아니라 업무의 요구가 설계를 결정</span></li>
+                    <li>결국 일별 모니터링은 <b>Python 단일 트랙</b>으로 수렴</li>
+                </ul>
+                <div class="callout reveal" style="margin-top:18px;">교훈 — 도구는 "내가 편한 것"이 아니라 <b>"막혔을 때 뚫을 수 있는 것"</b>으로. 비개발자여도 AI와 함께면 코드가 더 뚫기 쉬웠습니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 04 느낀 점 ② ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 느낀 점 ②</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 1 · Lessons</div>
+            <h2 class="t">느낀 점 ② — <span class="hl">자동화의 8할은 만들기가 아니라 '운영 설계'</span></h2>
+        </div>
+        <div class="body">
+            <div class="grid-2" style="row-gap:20px;">
+                <div class="lesson hot reveal">
+                    <div class="n">1</div>
+                    <div><div class="lt">문제를 쪼개니 기능이 저절로 나왔다</div><div class="ld">"리뷰 답변이 오래 걸린다"가 아니라 <b>인지 지연 · 답변 누락 · 톤 비일관 · 이력 부재</b>로 쪼개자 — 알림·리마인드·초안·시트라는 4개 기능이 그대로 도출.</div><div class="lq">문제 정의 30분이 기능 기획 회의 몇 번을 대체</div></div>
+                </div>
+                <div class="lesson reveal">
+                    <div class="n">2</div>
+                    <div><div class="lt">가장 지루한 백필이 가장 중요했다</div><div class="ld">과거 답변 499건 백필과 기존 리뷰 275건 마킹 — 이게 없었으면 <b>첫날부터 중복 알림 폭탄</b>. Airbnb가 AI CS 전에 데이터 정리에 2년을 쓴 이유를 체감.</div><div class="lq">"데이터 정리부터"는 진리였다</div></div>
+                </div>
+                <div class="lesson reveal">
+                    <div class="n">3</div>
+                    <div><div class="lt">AI는 초안까지, 발송은 사람 — 이게 신뢰를 만들었다</div><div class="ld">초안을 자동 발송하지 않고 <b>복붙 승인 구조</b>로 남겨두니, 팀이 결과물을 의심하지 않고 도구를 받아들임. 에어캐나다 판례의 반대 코스.</div><div class="lq">Human-in-the-loop = 채택률의 조건</div></div>
+                </div>
+                <div class="lesson reveal">
+                    <div class="n">4</div>
+                    <div><div class="lt">완성 선언보다 --dry-run이 먼저</div><div class="ld">실 웹훅에 테스트 발송을 쏘는 사고를 막아준 건 처음부터 넣어둔 <b>dry-run 플래그</b>. 검증 없이 "완료"라고 말할 뻔한 순간이 여러 번.</div><div class="lq">3강에서 배운 "중간 확인"의 실전 버전</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 05 공유하고 싶은 점 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 공유하고 싶은 점</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 2 · Reusable</div>
+            <h2 class="t">공유하고 싶은 점 — <span class="hl">다음 과제에 그대로 가져다 쓸 수 있는 것들</span></h2>
+            <p class="t-sub">이 프로젝트에서 나온 <b>재사용 가능한 패턴 5가지</b> — 여러분 과제에 복사해 가세요.</p>
+        </div>
+        <div class="body">
+            <div class="grid-3" style="row-gap:20px;">
+                <div class="card hot reveal"><div class="ic">🔐</div><div class="ct">config.example 패턴<span class="mono">시크릿 분리</span></div><div class="cd">웹훅 URL·API 키는 <b>config.yaml(git 제외)</b>에, 커밋은 example 파일만. 3강 거버넌스 "API 키 프롬프트 금지"의 저장소 버전.</div></div>
+                <div class="card reveal"><div class="ic">🧪</div><div class="ct">--dry-run 먼저<span class="mono">발송 없는 리허설</span></div><div class="cd">발송·기록이 있는 자동화라면 <b>미발송 테스트 모드를 1일차에</b> 만들기. 검증 비용이 10분의 1로.</div></div>
+                <div class="card reveal"><div class="ic">🃏</div><div class="ct">복붙 가능한 카드 UX<span class="mono">도입 장벽 제거</span></div><div class="cd">Chat 카드에 <b>초안 전문 + "답변하기" 바로가기 버튼</b> — 새 도구를 배울 필요가 없게 하니 팀이 바로 씀.</div></div>
+                <div class="card reveal"><div class="ic">🧩</div><div class="ct">스킬로 배포<span class="mono">.claude/skills</span></div><div class="cd">실행법을 스킬 문서로 저장소에 동봉 — <b>내가 없어도 팀원이 Claude Code로 재실행</b> 가능.</div></div>
+                <div class="card reveal"><div class="ic">🗺️</div><div class="ct">트러블 기록 = 자산<span class="mono">다음 장 참고</span></div><div class="cd">이슈 7건을 원인·해결까지 기록 — <b>같은 스택을 쓸 다음 사람의 며칠</b>을 아껴줍니다.</div></div>
+                <div class="card reveal"><div class="ic">📈</div><div class="ct">수치로 말하기<span class="mono">Before → After</span></div><div class="cd">"편해졌어요"가 아니라 <b>1~2시간 → 10~20분</b>. 공유회 심사 기준 ②(성과)도 결국 이것.</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 06 트러블슈팅 지도 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 트러블슈팅 지도</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 2 · Trouble Map</div>
+            <h2 class="t">트러블슈팅 7건 — <span class="hl">같은 길을 갈 분들을 위한 지도</span></h2>
+            <p class="t-sub">n8n·Google API·Chat 카드에서 만난 이슈들 — <b>겪기 전에 알면 며칠이 절약됩니다.</b></p>
+        </div>
+        <div class="body">
+            <table class="tbl tight reveal">
+                <tr><th style="width:60px;">#</th><th style="width:420px;">이슈</th><th>원인</th><th style="width:520px;">해결</th></tr>
+                <tr><td>1</td><td><b>n8n Sheets OAuth IP 거부</b></td><td>Google이 IP 기반 도메인 차단</td><td>EC2 도메인 발급 후 연동</td></tr>
+                <tr><td>2</td><td><b>executeCommand 노드 미인식</b></td><td>n8n 보안 정책상 비활성</td><td>Play Store 수집을 Python으로 분리</td></tr>
+                <tr><td>3</td><td><b>iTunes RSS 파싱 0건</b></td><td>Content-Type 자동 파싱 실패</td><td>responseFormat: text 후 JSON.parse</td></tr>
+                <tr><td>4</td><td><b>Sheets API rate limit</b></td><td>입력 150건 × 호출 반복</td><td>executeOnce: true로 단일 호출화</td></tr>
+                <tr><td>5</td><td><b>SplitInBatches 0건 처리</b></td><td>done/loop 출력 인덱스 반전</td><td>연결 인덱스 교체</td></tr>
+                <tr class="hot"><td>6</td><td><b>Chat 카드 JSON 깨짐</b></td><td>Claude 응답의 이모지·줄바꿈 미이스케이프</td><td><b>JSON.stringify() 적용</b> — AI 출력을 시스템에 넣을 땐 반드시 이스케이프</td></tr>
+                <tr><td>7</td><td><b>시트 Update 행 매칭 실패</b></td><td>매칭 컬럼 값 누락</td><td>루프 아이템에서 _review_id 명시 참조</td></tr>
+            </table>
+            <div class="callout amber reveal" style="margin-top:20px;">패턴 — 7건 중 5건이 <b>도구(n8n)의 제약</b>, 2건이 <b>AI 출력을 시스템에 연결하는 경계면</b>에서 발생. 자동화가 죽는 곳은 로직이 아니라 <b>연결부</b>입니다.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 07 보완하고 싶은 점 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 보완하고 싶은 점</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Part 3 · Next</div>
+            <h2 class="t">보완하고 싶은 점 — <span class="hl">기능 확장과 부채 상환</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">🚀</span> 기능 — 응대 도구에서 VOC 자산으로</h3>
+                <ul class="check">
+                    <li>월별 인사이트 리포트 고도화<span class="s">별점 추이·불만 Top 3 자동 정리 — AI TF 백로그 '앱 리뷰 공유 자동화'와 연결</span></li>
+                    <li>호스트/임차인 자동 분류<span class="s">현재 수동 입력 컬럼 → 리뷰 내용 기반 자동 태깅</span></li>
+                    <li>별점 기반 알림 우선순위<span class="s">1~2점은 즉시·강조 알림, 5점은 일괄 다이제스트</span></li>
+                    <li>답변 초안 반영률 측정<span class="s">초안을 얼마나 고쳐 쓰는지 데이터화 → 프롬프트 개선 근거</span></li>
+                    <li>다국어 리뷰 대응 (영/일/중)</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🔧</span> 부채 — 지금 알지만 미룬 것들</h3>
+                <table class="tbl tight">
+                    <tr><th>항목</th><th>현재</th><th>개선</th></tr>
+                    <tr class="hot"><td><b>n8n 인스턴스</b></td><td>HTTP 접속</td><td><b>HTTPS + SSL</b> 또는 Python 단일화로 트랙 정리</td></tr>
+                    <tr><td><b>API 키</b></td><td>일부 평문·환경변수 혼재</td><td>Credential/Secret 분리 일원화</td></tr>
+                    <tr><td><b>Webhook URL</b></td><td>config.yaml 평문</td><td>Secret Manager 검토</td></tr>
+                    <tr><td><b>실행 환경</b></td><td>개인 PC 스케줄러</td><td>공용 환경 이전 — "내 노트북이 꺼지면 멈춤" 해소</td></tr>
+                </table>
+                <div class="callout red reveal" style="margin-top:18px;">가장 큰 반성 — <b>개인 PC 의존</b>. 자동화가 사람을 대체했는데, 그 자동화가 다시 <b>내 노트북 한 대에 의존</b>하고 있습니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 08 정리 + 부탁 ===================== -->
+<section class="slide">
+    <div class="inner">
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 정리</span><span class="sec"></span></div>
+        <div class="t-wrap reveal">
+            <div class="kicker">Wrap-up</div>
+            <h2 class="t">한 문장 정리 — 그리고 <span class="hl">여러분께 부탁 3가지</span></h2>
+        </div>
+        <div class="body cols-l">
+            <div class="panel reveal">
+                <h3><span class="ic">💬</span> 이번 과제가 남긴 한 문장</h3>
+                <div class="callout" style="font-size:26px; line-height:1.6; padding:26px 30px;">"자동화는 <b>코드를 짜는 일</b>이 아니라,<br>내 업무를 <b>남이 이해할 수 있게 쪼개는 일</b>이었다."</div>
+                <ul class="list" style="margin-top:22px;">
+                    <li>기능 4개는 전부 <b>문제 정의에서</b> 나왔고</li>
+                    <li>신뢰는 <b>사람이 최종 승인하는 구조에서</b> 나왔고</li>
+                    <li>시간은 <b>백필과 dry-run 같은 지루한 준비에서</b> 절약됐습니다</li>
+                </ul>
+            </div>
+            <div class="panel plain reveal">
+                <h3><span class="ic">🙏</span> 부탁 3가지</h3>
+                <ul class="check">
+                    <li>답변 초안이 어색하면 <b>고치기 전 원문을 공유</b>해주세요<span class="s">수정 사례가 쌓여야 프롬프트가 좋아집니다</span></li>
+                    <li>리뷰에서 반복되는 불만이 보이면 <b>스레드에 남겨주세요</b><span class="s">월별 인사이트 리포트의 분류 기준이 됩니다</span></li>
+                    <li>같은 패턴(수집→초안→알림)이 필요한 업무가 있다면 <b>말씀 주세요</b><span class="s">이 저장소를 복제해서 반나절이면 시작할 수 있습니다</span></li>
+                </ul>
+                <div class="divlbl">자료</div>
+                <div class="srcs" style="font-size:17px; color:var(--ink-faint); line-height:1.7;"><a href="https://github.com/spacev-team/app-review-automation" target="_blank" rel="noopener">저장소 — spacev-team/app-review-automation</a> · 1차 공유 슬라이드(구글 슬라이드) · 리뷰 시트는 사내 공유 문서 참조</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== 09 엔딩 ===================== -->
+<section class="slide end">
+    <div class="inner">
+        <div class="title-kicker reveal">삼삼엠투 AI TF · 앱 리뷰 자동화</div>
+        <h1 class="end-h reveal">감사합니다 <span class="thin">— 질문 환영합니다</span></h1>
+        <p class="title-sub reveal" style="margin-top:24px;">복제해 가실 분, 같은 트러블을 만난 분, 초안 톤이 마음에 안 드는 분 —<br><b>전부 환영입니다. 그게 이 도구가 좋아지는 방법이니까요.</b></p>
+        <div class="flow reveal" style="margin-top:44px; max-width:900px;">
+            <div class="fnode hot"><div class="fi">💬</div><div class="fn-t">Q &amp; A</div><div class="fn-s">지금 바로</div></div>
+            <div class="farrow">·</div>
+            <div class="fnode"><div class="fi">📮</div><div class="fn-t">피드백</div><div class="fn-s">리뷰 알림 스레드 · AI TF 채널</div></div>
+        </div>
+        <div class="title-meta reveal">
+            <span>발표 <b>박현웅</b></span><span>REPO <b>spacev-team/app-review-automation</b></span>
+        </div>
+    </div>
+</section>
+<!-- APPEND:SLIDES -->
+</main>
+</div>
+
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-page" id="deckPage">01 / 09</div>
+<div class="deck-hint">← → 이동 · E 편집 · Ctrl+S 저장 · F11 전체화면</div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="편집 모드 (E)">✏️</button>
+
+<script>
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.stage = document.getElementById('deckStage');
+        this.progress = document.getElementById('deckProgress');
+        this.page = document.getElementById('deckPage');
+        this.current = 0;
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        const fromHash = parseInt((location.hash || '').replace('#', ''), 10);
+        this.showSlide(isNaN(fromHash) ? 0 : fromHash - 1);
+        this.slides.forEach((s, k) => {
+            const sec = s.querySelector('.chrome .sec');
+            if (sec) sec.textContent = String(k + 1).padStart(2, '0') + ' / ' + this.slides.length;
+        });
+    }
+    setupStageScale() {
+        const scale = () => {
+            const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * f) / 2;
+            const y = (window.innerHeight - 1080 * f) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.isContentEditable || document.designMode === 'on' && e.key !== 'Escape') {
+                if (!(e.ctrlKey || e.metaKey)) return;
+            }
+            switch (e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+                    e.preventDefault(); this.next(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+                    e.preventDefault(); this.prev(); break;
+                case 'Home': e.preventDefault(); this.showSlide(0); break;
+                case 'End': e.preventDefault(); this.showSlide(this.slides.length - 1); break;
+            }
+        });
+    }
+    setupTouchNav() {
+        let sx = 0;
+        document.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - sx;
+            if (Math.abs(dx) > 60) dx < 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    setupWheelNav() {
+        let lock = false;
+        document.addEventListener('wheel', (e) => {
+            if (document.designMode === 'on') return;
+            if (lock || Math.abs(e.deltaY) < 24) return;
+            lock = true; setTimeout(() => lock = false, 550);
+            e.deltaY > 0 ? this.next() : this.prev();
+        }, { passive: true });
+    }
+    next() { this.showSlide(this.current + 1); }
+    prev() { this.showSlide(this.current - 1); }
+    showSlide(i) {
+        this.current = Math.max(0, Math.min(i, this.slides.length - 1));
+        this.slides.forEach((s, k) => {
+            s.classList.toggle('active', k === this.current);
+            s.classList.toggle('visible', k === this.current);
+        });
+        const n = this.current + 1, total = this.slides.length;
+        this.progress.style.width = (n / total * 100) + '%';
+        this.page.textContent = String(n).padStart(2, '0') + ' / ' + total;
+        history.replaceState(null, '', '#' + n);
+    }
+}
+
+const editor = {
+    isActive: false,
+    KEY: 'app-review-automation-retro-edits',
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.designMode = this.isActive ? 'on' : 'off';
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        if (!this.isActive) this.persist();
+    },
+    persist() {
+        try { localStorage.setItem(this.KEY, JSON.stringify({ base: this._baseSig, html: document.getElementById('deckStage').innerHTML })); } catch (e) {}
+    },
+    restore() {
+        try {
+            const stage = document.getElementById('deckStage');
+            this._baseSig = this._sig(stage.innerHTML);
+            const raw = localStorage.getItem(this.KEY);
+            if (!raw) return;
+            let obj = null;
+            try { obj = JSON.parse(raw); } catch (e) {}
+            if (obj && obj.base === this._baseSig && obj.html) {
+                stage.innerHTML = obj.html;
+            } else {
+                localStorage.removeItem(this.KEY);
+            }
+        } catch (e) {}
+    },
+    _sig(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; } return s.length + ':' + h; },
+    exportFile() {
+        this.persist();
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '앱리뷰자동화_운영회고_edited.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+};
+editor.restore();
+const deck = new SlidePresentation();
+
+const hotzone = document.getElementById('editHotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+const showBtn = () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); };
+const hideBtn = () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400); };
+hotzone.addEventListener('mouseenter', showBtn);
+hotzone.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('mouseenter', showBtn);
+editToggle.addEventListener('mouseleave', hideBtn);
+editToggle.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !e.target.isContentEditable && document.designMode !== 'on') editor.toggleEditMode();
+    if (e.key === 'Escape' && editor.isActive) editor.toggleEditMode();
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); editor.exportFile(); }
+});
+</script>
+<script defer src="../../assets/comments.js"></script>
+</body>
+</html>
