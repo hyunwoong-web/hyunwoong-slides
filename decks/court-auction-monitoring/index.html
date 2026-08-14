@@ -226,13 +226,13 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         </div>
         <div class="title-kicker reveal">삼삼엠투 합동 공유회 · 법원경매 리스크 모니터링</div>
         <h1 class="title-h reveal">법원경매 모니터링 <span class="thin">— 운영 회고</span></h1>
-        <p class="title-sub reveal">전국 법원경매 진행물건을 매일 수집해 <b>삼삼엠투 등록 방 주소와 자동 대조</b>하는 리스크 관리 과제입니다.<br><b>왜 만들었는지, 무엇을 만들었는지, 만들면서 무엇을 배웠는지</b> — 처음 들으시는 분도 따라오실 수 있게 이야기하겠습니다.</p>
+        <p class="title-sub reveal">전국 법원경매에 나온 집들을 매일 수집해서, <b>삼삼엠투에 등록된 방과 같은 집인지 자동으로 대조</b>하는 과제입니다.<br><b>왜 만들었는지, 무엇을 만들었는지, 만들면서 무엇을 배웠는지</b> — 처음 들으시는 분도 따라오실 수 있게 이야기하겠습니다.</p>
         <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
             <div class="fnode"><div class="fi">❓</div><div class="fn-t">왜 만들었나</div><div class="fn-s">경매에 넘어간 방, 알 방법이 없었다</div></div>
             <div class="farrow">→</div>
-            <div class="fnode"><div class="fi">⚙️</div><div class="fn-t">무엇을 만들었나</div><div class="fn-s">수집→대조→변동 알림 파이프라인</div></div>
+            <div class="fnode"><div class="fi">⚙️</div><div class="fn-t">무엇을 만들었나</div><div class="fn-s">수집 → 대조 → 변동 알림</div></div>
             <div class="farrow">→</div>
-            <div class="fnode"><div class="fi">📈</div><div class="fn-t">성과</div><div class="fn-s">전국 2만여 건 무인 대조</div></div>
+            <div class="fnode"><div class="fi">📈</div><div class="fn-t">성과</div><div class="fn-s">전국 2만여 건, 사람 없이 매일 대조</div></div>
             <div class="farrow">→</div>
             <div class="fnode"><div class="fi">💭</div><div class="fn-t">느낀 점</div><div class="fn-s">배운 것 5가지</div></div>
             <div class="farrow">→</div>
@@ -257,21 +257,21 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel reveal">
                 <h3><span class="ic">⚠️</span> 손 놓고 있을 수밖에 없던 이유</h3>
                 <ul class="cross">
-                    <li><b>전국 진행물건 2만 건+</b> — 등록 방 주소와 사람이 일일이 대조하는 건 불가능</li>
-                    <li><b>매일 바뀜</b> — 신규 개시·유찰·낙찰·취하가 하루에도 수천 건씩 변동</li>
-                    <li><b>법원 사이트는 검색 전용</b> — 우리 주소 목록을 넣어 모니터링하는 기능이 없음</li>
-                    <li><b>알게 되는 시점 = 이미 늦은 시점</b> — 낙찰 확정 후에 알면 대응 여지가 좁아짐</li>
+                    <li><b>전국에 진행 중인 경매만 2만 건 이상</b> — 우리 방 주소와 사람이 하나하나 비교하는 건 불가능</li>
+                    <li><b>매일 바뀜</b> — 새로 나오고, 유찰되고, 낙찰되고, 취하되는 게 하루에도 수천 건</li>
+                    <li><b>법원 사이트는 검색만 가능</b> — 우리 주소 목록을 넣어두고 지켜보는 기능이 없음</li>
+                    <li><b>알게 되는 순간 = 이미 늦은 순간</b> — 낙찰이 끝난 뒤에 알면 할 수 있는 게 별로 없음</li>
                 </ul>
             </div>
             <div class="panel plain reveal">
                 <h3><span class="ic">🎯</span> 그래서 목표 4가지</h3>
                 <ul class="check">
-                    <li>매일 전국 수집<span class="s">법원경매 진행물건 전체를 시트 마스터 DB로</span></li>
-                    <li>자동 대조<span class="s">경매 물건 주소 ↔ 삼삼엠투 등록 방, 동·호수까지</span></li>
-                    <li>변동만 알림<span class="s">일치 건에 변화가 있는 날만 Chat 카드</span></li>
-                    <li>운영 처리 화면<span class="s">운영팀이 확인·조치·기록까지 한 시트에서</span></li>
+                    <li>매일 전국 수집<span class="s">법원경매에 나온 집 전체를 시트 하나에 모으기</span></li>
+                    <li>자동 대조<span class="s">경매 물건 주소 ↔ 삼삼엠투 등록 방, 동·호수까지 비교</span></li>
+                    <li>변동만 알림<span class="s">일치하는 건에 변화가 생긴 날만 Chat으로</span></li>
+                    <li>운영 처리 화면<span class="s">운영팀이 확인하고, 조치하고, 기록까지 한 시트에서</span></li>
                 </ul>
-                <div class="callout reveal" style="margin-top:18px;">한 줄로 — <b>"경매 개시된 방에서 계약이 진행되는 일"</b>을 막기 위한 조기 경보입니다.</div>
+                <div class="callout reveal" style="margin-top:18px;">한 줄로 — <b>"경매에 넘어간 방에서 계약이 진행되는 일"</b>을 막기 위한 조기 경보입니다.</div>
             </div>
         </div>
     </div>
@@ -283,40 +283,40 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 무엇을 만들었나</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">System</div>
-            <h2 class="t">무엇을 만들었나 — <span class="hl">수집→대조→알림, 매일 아침 스스로 돕니다</span></h2>
-            <p class="t-sub">사내 n8n 서버에서 <b>매일 두 번(백업 → 대조) 무인 실행</b> — 사람은 알림이 온 날만 움직이면 됩니다.</p>
+            <h2 class="t">무엇을 만들었나 — <span class="hl">수집하고, 대조하고, 변한 것만 알립니다</span></h2>
+            <p class="t-sub">사내 자동화 서버(n8n)에서 <b>매일 두 번(수집 → 대조) 사람 없이 실행</b>됩니다 — 사람은 알림이 온 날만 움직이면 됩니다.</p>
         </div>
         <div class="body">
             <div class="flow reveal" style="max-width:1600px;">
-                <div class="fnode"><div class="fi">🏛️</div><div class="fn-t">① 법원경매 수집</div><div class="fn-s">전국 진행물건<br>매일 아침 크롤</div></div>
+                <div class="fnode"><div class="fi">🏛️</div><div class="fn-t">① 법원경매 수집</div><div class="fn-s">전국 진행 물건을<br>매일 아침 수집</div></div>
                 <div class="farrow">→</div>
-                <div class="fnode"><div class="fi">📄</div><div class="fn-t">② 마스터 DB</div><div class="fn-s">시트에 delta upsert<br>이력 보존(GONE·SOLD)</div></div>
+                <div class="fnode"><div class="fi">📄</div><div class="fn-t">② 시트에 정리</div><div class="fn-s">바뀐 것만 반영<br>사라진 것도 기록 보존</div></div>
                 <div class="farrow">→</div>
-                <div class="fnode"><div class="fi">🔨</div><div class="fn-t">③ 매각결과 보강</div><div class="fn-s">낙찰 확정 물건에<br>낙찰가·낙찰일 기록</div></div>
+                <div class="fnode"><div class="fi">🔨</div><div class="fn-t">③ 낙찰 확인</div><div class="fn-s">낙찰된 물건에<br>낙찰가·낙찰일 기록</div></div>
                 <div class="farrow">→</div>
-                <div class="fnode"><div class="fi">🔍</div><div class="fn-t">④ 등록 방 대조</div><div class="fn-s">삼삼엠투 주소 API로<br>동·호수까지 판정</div></div>
+                <div class="fnode"><div class="fi">🔍</div><div class="fn-t">④ 등록 방과 대조</div><div class="fn-s">같은 집인지<br>동·호수까지 판정</div></div>
                 <div class="farrow">→</div>
-                <div class="fnode hot"><div class="fi">💬</div><div class="fn-t">⑤ 변동 알림</div><div class="fn-s">일치 건 변동이 있는<br>날만 Chat 카드</div></div>
+                <div class="fnode hot"><div class="fi">💬</div><div class="fn-t">⑤ 변동 알림</div><div class="fn-s">일치 건에 변화가 있는<br>날만 Chat 카드</div></div>
             </div>
             <div class="grid-2" style="margin-top:28px;">
                 <div class="panel reveal">
                     <h3><span class="ic">🌅</span> 운영팀의 하루 — 이렇게 돌아갑니다</h3>
                     <ul class="list tight">
-                        <li>아침 — 경매 DB 백업이 먼저 돌고, 이어서 <b>등록 방 대조</b>가 실행됨</li>
-                        <li>변동 없는 날 — <b>아무 알림도 오지 않음</b> (조용한 날 = 정상)</li>
-                        <li>변동 있는 날 — Chat 카드로 <b>신규 일치·해제 건수와 사유</b>가 도착</li>
-                        <li>확인 — <b>운영_처리현황 탭</b>에서 사건번호·방번호·호스트·활성 계약 확인</li>
-                        <li>조치 — 처리 결과를 <b>처리상태 컬럼에 기록</b> → 다음 판단의 기준이 됨</li>
+                        <li>아침 — 경매 수집이 먼저 돌고, 이어서 <b>등록 방 대조</b>가 실행됨</li>
+                        <li>변동 없는 날 — <b>아무 알림도 오지 않음</b> (조용한 날이 정상)</li>
+                        <li>변동 있는 날 — Chat 카드로 <b>새로 일치한 건, 풀린 건과 이유</b>가 도착</li>
+                        <li>확인 — <b>처리현황 탭</b>에서 사건번호·방번호·호스트·진행 중인 계약을 확인</li>
+                        <li>조치 — 처리한 결과를 <b>처리상태 칸에 기록</b> → 다음 판단의 근거가 됨</li>
                     </ul>
                 </div>
                 <div class="panel plain reveal">
                     <h3><span class="ic">🧱</span> 구성 요소</h3>
                     <table class="tbl tight">
-                        <tr><td><b>수집·대조 실행</b></td><td>사내 n8n 워크플로 2개 — 매일 자동, 수동 실행은 기본 테스트 모드</td></tr>
-                        <tr><td><b>저장</b></td><td>Google Sheets 마스터 DB + 대조 탭 + 변동로그 + 운영_처리현황</td></tr>
-                        <tr><td><b>대조</b></td><td>삼삼엠투 내부 주소검색 API — 동(棟)·층·호수 판정 규칙 v2</td></tr>
-                        <tr><td><b>알림</b></td><td>Google Chat 웹훅 — 요약형 카드, 상세는 변동로그 탭</td></tr>
-                        <tr><td><b>백업·복구</b></td><td>GitHub 저장소의 Python 스크립트 — 시트가 깨져도 전체 재구축 가능</td></tr>
+                        <tr><td><b>자동 실행</b></td><td>사내 자동화 서버(n8n) — 매일 정해진 시간에, 사람 없이</td></tr>
+                        <tr><td><b>저장</b></td><td>Google Sheets — 전국 물건 대장 + 대조 결과 + 변동 기록 + 처리현황 · <a href="https://docs.google.com/spreadsheets/d/10IZ6XH4fF_lLNtGCMvXAFdsCArI4pKHWy8q0TVK5xNw/edit#gid=0" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">시트 열기 ↗</a></td></tr>
+                        <tr><td><b>대조</b></td><td>삼삼엠투 내부 주소검색 API — 동·층·호수까지 따지는 판정 규칙</td></tr>
+                        <tr><td><b>알림</b></td><td>Google Chat — 건수 요약만 카드로, 상세 내역은 시트에</td></tr>
+                        <tr><td><b>백업·복구</b></td><td>GitHub 저장소의 스크립트 — 시트가 깨져도 처음부터 다시 만들 수 있음</td></tr>
                     </table>
                 </div>
             </div>
@@ -335,33 +335,33 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="body cols-l">
             <div>
                 <div class="panel reveal">
-                    <h3><span class="ic">🏛️</span> 수집 — 비로그인 공개 API만</h3>
+                    <h3><span class="ic">🏛️</span> 수집 — 로그인 없이 볼 수 있는 것만</h3>
                     <ul class="list tight">
-                        <li>법원경매정보의 <b>공개 API를 순수 HTTP로 재현</b> — 로그인·브라우저 우회 없음</li>
-                        <li>전국을 <b>지역 그룹으로 분할 실행</b> — n8n 노드당 300초 제한에 맞춤</li>
-                        <li>노드 간에는 <b>변경분(delta)만 전달</b> — 2만 행을 통째로 넘기면 메모리 초과</li>
+                        <li>법원경매정보 사이트가 <b>누구에게나 공개한 데이터만</b> 가져옵니다 — 로그인·우회 없음</li>
+                        <li>전국을 <b>지역 묶음으로 나눠 차례로 실행</b> — 한 번에 다 하면 서버 제한 시간(5분)을 넘김</li>
+                        <li>단계 사이에는 <b>바뀐 것만 전달</b> — 2만 건을 통째로 넘기면 서버가 버티지 못함</li>
                     </ul>
                 </div>
                 <div class="panel reveal" style="margin-top:16px;">
-                    <h3><span class="ic">🔨</span> 매각결과 보강</h3>
+                    <h3><span class="ic">🔨</span> 낙찰 확인</h3>
                     <ul class="list tight">
-                        <li>매각결과검색을 별도 크롤 — 리스트에서 사라진 물건 중 <b>낙찰 확정 건을 SOLD로 마킹</b></li>
-                        <li>낙찰가·낙찰일·허가결정기일까지 기록 — <b>323건 확정 보강</b>, 재실행해도 안전(멱등)</li>
+                        <li>매각결과 페이지를 따로 수집 — 목록에서 사라진 물건 중 <b>실제로 낙찰된 건을 '낙찰 확정'으로 표시</b></li>
+                        <li>낙찰가·낙찰일까지 기록 — <b>323건 확정</b>, 같은 작업을 다시 돌려도 중복 없이 안전</li>
                     </ul>
                 </div>
             </div>
             <div class="panel plain reveal">
-                <h3><span class="ic">📄</span> 마스터 DB 규칙 — 중복 없음 + 이력 보존</h3>
+                <h3><span class="ic">📄</span> 시트 관리 원칙 — 중복 없이, 기록은 남기고</h3>
                 <table class="tbl tight">
-                    <tr><th>규칙</th><th>내용</th></tr>
-                    <tr><td><b>1행 = 1물건</b></td><td>법원 물건 고유 ID 기준 — 중복 0</td></tr>
-                    <tr><td><b>변경은 갱신</b></td><td>가격·기일·유찰이 바뀌면 해당 행만 갱신 + 날짜 스탬프</td></tr>
-                    <tr class="hot"><td><b>삭제 대신 마킹</b></td><td>리스트에서 사라져도 지우지 않고 <b>GONE</b>, 낙찰 확정은 <b>SOLD</b> — 이력이 곧 판단 근거</td></tr>
-                    <tr><td><b>쓰기 최소화</b></td><td>변동 없는 행은 건드리지 않음 — API 한도·속도 확보</td></tr>
+                    <tr><th>원칙</th><th>내용</th></tr>
+                    <tr><td><b>한 물건 = 한 줄</b></td><td>물건 고유 번호 기준 — 중복 0건</td></tr>
+                    <tr><td><b>바뀌면 그 줄만 갱신</b></td><td>가격·경매일·유찰 횟수가 바뀌면 해당 줄만 고치고 날짜 도장</td></tr>
+                    <tr class="hot"><td><b>지우지 않고 표시</b></td><td>목록에서 사라져도 줄을 지우지 않고 <b>'사라짐'</b>으로, 낙찰이 확인되면 <b>'낙찰 확정'</b>으로 — 지난 기록이 판단 근거가 됨</td></tr>
+                    <tr><td><b>필요한 것만 쓰기</b></td><td>안 바뀐 줄은 건드리지 않음 — 속도와 호출 한도를 지키는 방법</td></tr>
                 </table>
                 <ul class="list tight" style="margin-top:14px;">
-                    <li>물건마다 <b>내부 상세 뷰어 링크</b> 자동 생성 — 법원 사이트가 딥링크를 지원하지 않아 직접 만들었습니다 (21,785행 백필)</li>
-                    <li>헤더 메모·범례 탭도 <b>스크립트가 관리</b> — 수동 서식이 어긋날 일이 없음</li>
+                    <li>물건마다 <b>눌러서 바로 보는 상세 조회 링크</b>를 자동으로 답니다 — 법원 사이트엔 물건별 바로가기 주소가 없어서 직접 만들었습니다 (기존 21,785건에도 소급 적용)</li>
+                    <li>칸 설명·범례 탭도 <b>스크립트가 자동 관리</b> — 시트를 다시 만들어도 안내가 어긋나지 않음</li>
                 </ul>
             </div>
         </div>
@@ -375,28 +375,28 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="t-wrap reveal">
             <div class="kicker">Detail 2 · Matching</div>
             <h2 class="t">구현 상세 ② — <span class="hl">"같은 집인가?"를 동·층·호수까지 따집니다</span></h2>
-            <p class="t-sub">주소 문자열이 같다고 같은 집이 아닙니다 — <b>운영팀 피드백으로 판정 규칙을 v2까지 다듬었습니다.</b></p>
+            <p class="t-sub">주소 글자가 같다고 같은 집이 아닙니다 — <b>운영팀 제보를 받아 판정 규칙을 두 번째 버전까지 다듬었습니다.</b></p>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
-                <h3><span class="ic">📐</span> 판정 규칙 v2 — 동(棟)·층 4규칙</h3>
+                <h3><span class="ic">📐</span> 판정 규칙 — 동(棟)·층 4가지</h3>
                 <table class="tbl tight">
-                    <tr><td><b>1</b></td><td>경매엔 동이 있는데 방엔 없으면 → <b>불일치</b> ("1동 101호" ↔ "101호")</td></tr>
-                    <tr><td><b>2</b></td><td>경매엔 동이 없고 방엔 있으면 → 일치 허용 ("203호" ↔ "1동 203호")</td></tr>
-                    <tr><td><b>3</b></td><td>동 이름이 다르면 → <b>불일치</b> ("1동" ↔ "가동")</td></tr>
-                    <tr><td><b>4</b></td><td>층이 다르면 → <b>불일치</b> — 호수에서 유추한 층까지 대조</td></tr>
+                    <tr><td><b>1</b></td><td>경매엔 동이 있는데 방엔 없으면 → <b>다른 집</b> ("1동 101호" ↔ "101호")</td></tr>
+                    <tr><td><b>2</b></td><td>경매엔 동이 없고 방엔 있으면 → 같은 집으로 인정 ("203호" ↔ "1동 203호")</td></tr>
+                    <tr><td><b>3</b></td><td>동 이름이 다르면 → <b>다른 집</b> ("1동" ↔ "가동")</td></tr>
+                    <tr><td><b>4</b></td><td>층이 다르면 → <b>다른 집</b> — 호수에서 짐작되는 층(503호=5층)까지 비교</td></tr>
                 </table>
-                <div class="callout ok reveal" style="margin-top:16px;">이 4개 규칙은 전부 <b>운영팀이 실제 오탐 사례를 제보</b>해서 생겼습니다 — 규칙은 책상이 아니라 현장에서 나옵니다.</div>
+                <div class="callout ok reveal" style="margin-top:16px;">이 규칙들은 전부 운영팀이 <b>"이거 다른 집인데 같은 집으로 잡혔어요"</b> 하고 알려준 사례에서 나왔습니다 — 규칙은 책상이 아니라 현장에서 나옵니다.</div>
             </div>
             <div class="panel plain reveal">
-                <h3><span class="ic">🗂️</span> 운영_처리현황 — 조치까지 한 화면에서</h3>
+                <h3><span class="ic">🗂️</span> 처리현황 탭 — 조치까지 한 화면에서 <a href="https://docs.google.com/spreadsheets/d/10IZ6XH4fF_lLNtGCMvXAFdsCArI4pKHWy8q0TVK5xNw/edit#gid=0" target="_blank" rel="noopener" style="font-size:18px; font-weight:500; color:var(--blue); text-decoration:underline; text-underline-offset:3px;">시트 열기 ↗</a></h3>
                 <ul class="check">
-                    <li>일치 건마다 <b>사건번호 · 주소 · 방번호 · 호스트 · 활성 계약 수</b> 자동 채움</li>
-                    <li>일치가 풀리면 <b>해제 사유를 자동 분류</b><span class="s">경매가 끝난 건지, 방이 삭제된 건지 교차 확인해서 표기</span></li>
-                    <li>운영팀은 <b>처리상태 컬럼만 기록</b> — 나머지는 매일 자동 갱신</li>
-                    <li>개시결정일·매각결정기일도 법원 사건 상세에서 <b>자동 보강</b></li>
+                    <li>일치한 건마다 <b>사건번호 · 주소 · 방번호 · 호스트 · 진행 중 계약 수</b>를 자동으로 채움</li>
+                    <li>일치가 풀리면 <b>이유를 자동으로 구분해서 표시</b><span class="s">경매가 끝난 건지, 우리 쪽에서 방이 내려간 건지 양쪽을 확인해서 적어줌</span></li>
+                    <li>운영팀은 <b>처리상태 칸만 기록</b>하면 됨 — 나머지는 매일 자동 갱신</li>
+                    <li>경매 개시일·매각허가 결정일도 법원 데이터에서 <b>자동으로 채워 넣음</b></li>
                 </ul>
-                <div class="callout reveal" style="margin-top:16px;">내부 주소 API는 <b>레이트리밋에 맞춰 정속 호출</b> — 서비스에 부담을 주지 않는 속도로 매일 전수 대조합니다.</div>
+                <div class="callout reveal" style="margin-top:16px;">사내 주소 API는 <b>정해진 호출 한도에 맞춰 일정한 속도로 천천히</b> — 서비스에 부담을 주지 않으면서 매일 전부 대조합니다.</div>
             </div>
         </div>
     </div>
@@ -408,31 +408,31 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 구현 상세 ③ 알림·안전</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Detail 3 · Alert &amp; Safety</div>
-            <h2 class="t">구현 상세 ③ — <span class="hl">변동만 알리고, 법적 경계 안에서 돕니다</span></h2>
+            <h2 class="t">구현 상세 ③ — <span class="hl">변한 것만 알리고, 법적인 선 안에서 돕니다</span></h2>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
                 <h3><span class="ic">💬</span> 알림 — 조용해야 오래 갑니다</h3>
                 <ul class="check">
-                    <li><b>변동이 있는 날만</b> 발송<span class="s">매일 오면 아무도 안 봅니다 — 조용한 날이 정상</span></li>
-                    <li>카드는 <b>요약형</b> — 그룹·사유별 건수만<span class="s">확정 단계(매각·허가·납부) 신규 건만 상세 줄, 상세 내역은 변동로그 탭</span></li>
-                    <li>경매 단계가 바뀐 것(진행중→매각)은 <b>신규·해제로 중복 보고하지 않음</b><span class="s">변동 키에서 단계를 분리한 설계</span></li>
-                    <li>수동 실행은 <b>기본 테스트 모드</b> — 알림·상태 미변경<span class="s">유지보수하다 실알림이 나가는 사고 차단, 복구용만 라이브 옵션</span></li>
+                    <li><b>변화가 있는 날만</b> 보냄<span class="s">매일 오는 알림은 아무도 안 봅니다 — 조용한 날이 정상</span></li>
+                    <li>카드에는 <b>건수 요약만</b><span class="s">낙찰 단계의 새 일치 건만 상세를 붙이고, 전체 내역은 시트의 변동 기록 탭에</span></li>
+                    <li>경매 단계만 바뀐 것(진행 중 → 매각)은 <b>새 건으로 다시 세지 않음</b><span class="s">같은 건이 두 번 알림되지 않도록 기준을 손봤습니다</span></li>
+                    <li>점검용 수동 실행은 <b>알림이 안 나가는 게 기본</b><span class="s">점검하다 진짜 알림이 발송되는 사고를 막기 위해 — 실제 발송은 따로 켜야만 동작</span></li>
                 </ul>
             </div>
             <div class="panel plain reveal">
-                <h3><span class="ic">⚖️</span> 수집 정책 — 판례 기준으로 설계</h3>
+                <h3><span class="ic">⚖️</span> 수집 원칙 — 법원 판례를 기준으로 선을 그었습니다</h3>
                 <ul class="list tight">
-                    <li>크롤링 형사·민사 판례(여기어때 사건 등)를 기준으로 경계를 먼저 그었습니다</li>
+                    <li>데이터 수집(크롤링) 관련 판결들을 먼저 살펴보고, 다음 5가지를 지키도록 설계했습니다</li>
                 </ul>
                 <table class="tbl tight" style="margin-top:8px;">
-                    <tr><td><b>1</b></td><td>인증 우회 없음 — <b>비로그인 공개 API만</b></td></tr>
-                    <tr><td><b>2</b></td><td>허용 상한 준수 + 요청 간 딜레이 + 거부 시 백오프 (우회 금지)</td></tr>
-                    <tr><td><b>3</b></td><td>채무자·소유자 <b>성명 필드는 저장하지 않음</b> (개인정보 최소수집)</td></tr>
-                    <tr><td><b>4</b></td><td>내부 리스크 관리 용도 한정 · 외부 재배포 금지</td></tr>
-                    <tr><td><b>5</b></td><td>대상은 국가기관의 <b>법정 공고</b> (저작권 비보호 저작물)</td></tr>
+                    <tr><td><b>1</b></td><td>로그인·인증 우회 없음 — <b>누구나 볼 수 있는 공개 데이터만</b></td></tr>
+                    <tr><td><b>2</b></td><td>허용된 만큼만, 천천히 — 요청 사이 간격을 두고, 막히면 쉬었다 재시도</td></tr>
+                    <tr><td><b>3</b></td><td>채무자·소유자 <b>이름이 담긴 항목은 아예 저장하지 않음</b></td></tr>
+                    <tr><td><b>4</b></td><td>사내 리스크 관리 용도로만 · 외부 공유 금지</td></tr>
+                    <tr><td><b>5</b></td><td>수집 대상은 국가기관의 <b>공개 공고문</b> — 법적으로 자유롭게 이용할 수 있는 자료</td></tr>
                 </table>
-                <div class="callout amber reveal" style="margin-top:14px;">자동화보다 <b>경계 설정이 먼저</b>였습니다 — 회사 이름으로 도는 크롤러라면 더욱.</div>
+                <div class="callout amber reveal" style="margin-top:14px;">자동화보다 <b>선 긋기가 먼저</b>였습니다 — 회사 이름으로 도는 수집기라면 더욱요.</div>
             </div>
         </div>
     </div>
@@ -444,34 +444,34 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 성과</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Result · Before → After</div>
-            <h2 class="t">성과 — <span class="hl">"알 수 없던 리스크"가 매일 아침 자동 보고됩니다</span></h2>
+            <h2 class="t">성과 — <span class="hl">"알 수 없던 리스크"가 매일 아침 자동으로 보고됩니다</span></h2>
         </div>
         <div class="body">
             <div class="grid-2">
                 <div class="panel reveal">
                     <h3><span class="ic">🙈</span> Before</h3>
                     <ul class="cross">
-                        <li>등록 방이 경매에 넘어가도 <b>알 방법이 없음</b></li>
-                        <li>임차인·회사 리스크를 <b>사후에, 우연히</b> 인지</li>
-                        <li>전국 진행물건과 등록 방 대조는 <b>사람으로는 불가능한 규모</b></li>
-                        <li>확인하려 해도 법원 사이트에서 <b>건별 검색뿐</b></li>
+                        <li>등록 방이 경매에 넘어가도 <b>알 방법이 없었음</b></li>
+                        <li>임차인·회사 리스크를 <b>일이 터진 뒤에, 우연히</b> 알게 됨</li>
+                        <li>전국 경매 물건과 등록 방 대조는 <b>사람 손으로는 불가능한 양</b></li>
+                        <li>확인하려 해도 법원 사이트에서 <b>한 건씩 검색하는 방법뿐</b></li>
                     </ul>
                 </div>
                 <div class="panel plain reveal" style="border-color:rgba(12,166,120,.4); background:linear-gradient(180deg,var(--accent-dim),#fff);">
                     <h3><span class="ic">🛡️</span> After</h3>
                     <ul class="check">
-                        <li>매일 아침 <b>전국 진행물건 → 등록 방 전수 대조</b>가 무인으로</li>
-                        <li>동·호수까지 일치한 건에 변동이 생기면 <b>그날 바로 Chat 알림</b></li>
-                        <li>운영팀은 <b>처리현황 탭에서 확인·조치·기록</b>까지 한 번에</li>
-                        <li>낙찰 확정(SOLD)·해제 사유까지 <b>근거가 시트에 남음</b></li>
+                        <li>매일 아침 <b>전국 경매 물건 ↔ 등록 방 전체 대조</b>가 사람 없이 돌아감</li>
+                        <li>동·호수까지 일치한 건에 변화가 생기면 <b>그날 바로 Chat 알림</b></li>
+                        <li>운영팀은 <b>처리현황 탭에서 확인 · 조치 · 기록</b>까지 한 번에</li>
+                        <li>낙찰 확정, 일치가 풀린 이유까지 <b>근거가 시트에 남음</b></li>
                     </ul>
                 </div>
             </div>
             <div class="grid-4" style="margin-top:24px;">
-                <div class="stat ok reveal"><div class="num">21,785<small>행</small></div><div class="lbl">마스터 DB 물건</div><div class="sub">전국 진행물건 — 중복 0, 빈 키 0.</div></div>
-                <div class="stat reveal"><div class="num">2<small>회/일</small></div><div class="lbl">무인 자동 실행</div><div class="sub">아침 백업 → 대조, 사내 n8n에서.</div></div>
-                <div class="stat reveal"><div class="num">323<small>건</small></div><div class="lbl">낙찰 확정 보강</div><div class="sub">매각결과 크롤로 낙찰가·낙찰일 기록.</div></div>
-                <div class="stat amber reveal"><div class="num">+1,014</div><div class="lbl">첫 정기 실행 변동</div><div class="sub">신규 1,014 · 종결 1,695 — 하루치 변동 규모.</div></div>
+                <div class="stat ok reveal"><div class="num">21,785<small>건</small></div><div class="lbl">시트에 쌓인 물건</div><div class="sub">전국 진행 물건 — 중복 0, 누락 0.</div></div>
+                <div class="stat reveal"><div class="num">2<small>회/일</small></div><div class="lbl">사람 없이 자동 실행</div><div class="sub">아침에 수집 → 이어서 대조, 사내 서버에서.</div></div>
+                <div class="stat reveal"><div class="num">323<small>건</small></div><div class="lbl">낙찰 확정 기록</div><div class="sub">낙찰가·낙찰일까지 자동으로 채움.</div></div>
+                <div class="stat amber reveal"><div class="num">+1,014</div><div class="lbl">하루치 변동 규모</div><div class="sub">첫 정기 실행: 신규 1,014 · 종결 1,695건.</div></div>
             </div>
         </div>
     </div>
@@ -490,20 +490,20 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel reveal">
                 <h3><span class="ic">🔁</span> 왜 반대 결론이 났나</h3>
                 <ul class="list">
-                    <li>앱 리뷰는 <b>하루 몇 건, 사람이 승인하는 일</b> — 내 PC의 Python이면 충분</li>
-                    <li>이 과제는 <b>매일 2만 건, 사람이 안 보는 날이 대부분</b> — 내 노트북이 꺼지면 안 되는 일</li>
-                    <li>그래서 <b>사내 n8n 서버</b>에 올렸습니다 — 상시 무인 실행이 도구 선택의 기준</li>
+                    <li>앱 리뷰는 <b>하루 몇 건, 사람이 승인하는 일</b> — 제 PC에서 도는 Python이면 충분했습니다</li>
+                    <li>이 과제는 <b>매일 2만 건, 사람이 안 보는 날이 대부분</b> — 제 노트북이 꺼지면 안 되는 일</li>
+                    <li>그래서 <b>사내 자동화 서버(n8n)</b>에 올렸습니다 — 꺼지지 않고 혼자 도는 게 기준이었습니다</li>
                 </ul>
-                <div class="callout reveal" style="margin-top:18px;">교훈 — 도구에 정답은 없고, <b>과제의 성격이 도구를 고릅니다.</b> 승인이 필요한 일은 내 곁에, 무인으로 돌 일은 서버에.</div>
+                <div class="callout reveal" style="margin-top:18px;">교훈 — 도구에 정답은 없고, <b>일의 성격이 도구를 고릅니다.</b> 사람 승인이 필요한 일은 내 곁에, 혼자 돌 일은 서버에.</div>
             </div>
             <div class="panel plain reveal">
-                <h3><span class="ic">🧗</span> 대신, 제약을 설계로 받아들였습니다</h3>
+                <h3><span class="ic">🧗</span> 대신, 서버의 제약에 맞춰 설계했습니다</h3>
                 <ul class="check">
-                    <li>노드당 300초 제한 → <b>전국을 지역 그룹으로 분할</b></li>
-                    <li>대용량 전달 시 메모리 초과 → <b>변경분(delta)만 노드 간 전달</b></li>
-                    <li>내부 API 레이트리밋 → <b>정속 호출 + 거부 시 백오프</b></li>
+                    <li>한 단계당 5분 제한 → <b>전국을 지역 묶음으로 나눠 차례로</b></li>
+                    <li>큰 데이터를 넘기면 서버가 버티지 못함 → <b>바뀐 것만 다음 단계로</b></li>
+                    <li>사내 API 호출 한도 → <b>일정한 속도로 천천히, 막히면 쉬었다 재시도</b></li>
                 </ul>
-                <div class="callout ok reveal" style="margin-top:18px;">제약을 우회하는 대신 <b>제약에 맞는 구조</b>를 짰더니 — 오히려 안정적으로 돕니다.</div>
+                <div class="callout ok reveal" style="margin-top:18px;">제약을 우회하지 않고 <b>제약에 맞는 구조</b>를 짰더니 — 오히려 안정적으로 돕니다.</div>
             </div>
         </div>
     </div>
@@ -515,25 +515,25 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 느낀 점 ②</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 1 · Lessons</div>
-            <h2 class="t">느낀 점 ② — <span class="hl">데이터 수집은 시작일 뿐이었습니다</span></h2>
+            <h2 class="t">느낀 점 ② — <span class="hl">데이터 모으기는 시작일 뿐이었습니다</span></h2>
         </div>
         <div class="body">
             <div class="grid-2" style="row-gap:20px;">
                 <div class="lesson hot reveal">
                     <div class="n">1</div>
-                    <div><div class="lt">가치는 수집이 아니라 대조와 알림에서 나왔다</div><div class="ld">2만 행 시트만 있었다면 아무도 안 열어봤을 겁니다. <b>등록 방과의 대조, 변동이 있는 날만 오는 알림, 조치 기록 화면</b>까지 이어지고 나서야 쓰이는 도구가 됐습니다.</div><div class="lq">데이터는 재료고, 제품은 '운영팀이 움직일 수 있는 화면'입니다</div></div>
+                    <div><div class="lt">가치는 수집이 아니라 대조와 알림에서 나왔다</div><div class="ld">2만 줄짜리 시트만 있었다면 아무도 안 열어봤을 겁니다. <b>등록 방과의 대조, 변화가 있는 날만 오는 알림, 조치를 기록하는 화면</b>까지 이어지고 나서야 쓰이는 도구가 됐습니다.</div><div class="lq">데이터는 재료고, 결과물은 '사람이 움직일 수 있는 신호'입니다</div></div>
                 </div>
                 <div class="lesson reveal">
                     <div class="n">2</div>
-                    <div><div class="lt">판정 규칙은 현장에서 나왔다</div><div class="ld">처음 규칙으로는 "1동 101호"와 "101호"를 같은 집으로 봤습니다. <b>운영팀의 오탐 제보</b>가 쌓여 동·층 규칙 v2가 됐고 — 지금도 피드백으로 다듬는 중입니다.</div><div class="lq">규칙의 스펙 문서는 운영팀 제보 목록이었습니다</div></div>
+                    <div><div class="lt">판정 규칙은 현장에서 나왔다</div><div class="ld">처음엔 "1동 101호"와 "101호"를 같은 집으로 봤습니다. 운영팀의 <b>"이거 다른 집인데요?" 제보</b>가 쌓이면서 동·층까지 따지는 지금의 규칙이 됐고 — 지금도 제보로 다듬는 중입니다.</div><div class="lq">규칙의 설계 문서는 운영팀의 제보 목록이었습니다</div></div>
                 </div>
                 <div class="lesson reveal">
                     <div class="n">3</div>
-                    <div><div class="lt">알림은 총량이 아니라 신호여야 한다</div><div class="ld">하루 수천 건 변동을 다 알리면 그날로 채널이 음소거됩니다. <b>동호수 일치 건의 변동만, 그것도 요약으로</b> — 조용한 날이 많아야 알림이 신호로 남습니다.</div><div class="lq">알림의 가치는 보내지 않은 날들이 만듭니다</div></div>
+                    <div><div class="lt">알림은 많이 보내는 게 아니라, 필요할 때만 보내는 것</div><div class="ld">하루 수천 건 변동을 다 알리면 그날로 채널이 조용히 무시당합니다. <b>동·호수까지 일치한 건의 변화만, 그것도 요약으로</b> — 조용한 날이 많아야 알림이 신호로 남습니다.</div><div class="lq">알림의 가치는 보내지 않은 날들이 만듭니다</div></div>
                 </div>
                 <div class="lesson reveal">
                     <div class="n">4</div>
-                    <div><div class="lt">수동 실행이 사고를 낸다 — 기본값을 안전하게</div><div class="ld">점검하려고 돌린 수동 실행이 실알림을 쏘고 기준선을 흔드는 걸 겪고, <b>수동 실행 = 테스트 모드</b>를 기본값으로 바꿨습니다. 라이브는 명시적으로 켜야만 동작합니다.</div><div class="lq">안전은 주의가 아니라 기본값으로 만드는 것</div></div>
+                    <div><div class="lt">점검하다 사고 난다 — 기본값을 안전하게</div><div class="ld">점검하려고 돌린 수동 실행이 진짜 알림을 쏘고 기록을 흔드는 일을 겪고 나서, <b>수동 실행은 알림 없이 도는 게 기본</b>이 되도록 바꿨습니다. 실제 발송은 따로 켜야만 동작합니다.</div><div class="lq">안전은 '조심하기'가 아니라 '기본값'으로 만드는 것</div></div>
                 </div>
             </div>
         </div>
@@ -546,17 +546,17 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 공유하고 싶은 점</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 2 · Reusable</div>
-            <h2 class="t">공유하고 싶은 점 — <span class="hl">외부 데이터 모니터링의 공식 6가지</span></h2>
-            <p class="t-sub">비슷한 과제(외부 데이터 수집·대조·알림)를 하실 분들께 — <b>그대로 복사해 가세요.</b></p>
+            <h2 class="t">공유하고 싶은 점 — <span class="hl">바깥 데이터를 지켜보는 일의 공식 6가지</span></h2>
+            <p class="t-sub">비슷한 과제(외부 데이터를 모아서 비교하고 알리는 일)를 하실 분들께 — <b>그대로 가져다 쓰세요.</b></p>
         </div>
         <div class="body">
             <div class="grid-3" style="row-gap:20px;">
-                <div class="card hot reveal"><div class="ic">⚖️</div><div class="ct">경계부터 긋기<span class="mono">판례 기반 수집 정책</span></div><div class="cd">크롤 전에 <b>인증 우회 없음·딜레이·개인정보 미수집·내부 한정</b>을 문서로 — 회사 이름으로 도는 자동화의 필수 조건입니다.</div></div>
-                <div class="card reveal"><div class="ic">🧩</div><div class="ct">분할 + delta 패턴<span class="mono">타임아웃·메모리 대응</span></div><div class="cd">큰 작업은 <b>그룹으로 쪼개고, 노드 사이엔 변경분만</b> 넘기세요 — n8n류 도구의 제한 안에서 대용량을 다루는 공식입니다.</div></div>
-                <div class="card reveal"><div class="ic">🔕</div><div class="ct">변동만 알리기<span class="mono">요약 카드 + 로그 탭</span></div><div class="cd">알림엔 <b>건수 요약만</b>, 상세는 시트 로그로 — 채널이 음소거되지 않아야 알림이 삽니다.</div></div>
-                <div class="card reveal"><div class="ic">🧪</div><div class="ct">수동 실행 = 테스트 모드<span class="mono">기본값 안전</span></div><div class="cd">점검·복구용 수동 실행이 <b>실알림·상태 변경을 못 하게 기본값</b>으로 — 라이브는 명시 옵션으로만.</div></div>
-                <div class="card reveal"><div class="ic">🔁</div><div class="ct">백필은 멱등하게<span class="mono">두 번 돌려도 같은 결과</span></div><div class="cd">과거 데이터 채우기는 <b>재실행해도 안전한 스크립트</b>로 만들어 저장소에 남기세요 — 다음 복구가 반나절에서 5분이 됩니다.</div></div>
-                <div class="card reveal"><div class="ic">📝</div><div class="ct">시트 문서화도 코드로<span class="mono">범례·메모 스크립트</span></div><div class="cd">컬럼 설명·범례 탭을 <b>스크립트가 관리</b>하게 — 시트를 다시 만들어도 안내가 어긋나지 않습니다.</div></div>
+                <div class="card hot reveal"><div class="ic">⚖️</div><div class="ct">선 긋기부터<span class="mono">수집 원칙 문서화</span></div><div class="cd">수집을 시작하기 전에 <b>로그인 우회 없음 · 천천히 · 개인정보 미저장 · 사내 한정</b>을 문서로 — 회사 이름으로 도는 자동화의 기본입니다.</div></div>
+                <div class="card reveal"><div class="ic">🧩</div><div class="ct">쪼개고, 바뀐 것만<span class="mono">시간·용량 제한 대응</span></div><div class="cd">큰 작업은 <b>묶음으로 나누고, 단계 사이엔 바뀐 것만</b> 넘기세요 — 자동화 도구의 제한 안에서 큰 데이터를 다루는 공식입니다.</div></div>
+                <div class="card reveal"><div class="ic">🔕</div><div class="ct">변한 것만 알리기<span class="mono">요약 카드 + 기록 탭</span></div><div class="cd">알림에는 <b>건수 요약만</b>, 상세 내역은 시트에 — 채널이 무시당하지 않아야 알림이 삽니다.</div></div>
+                <div class="card reveal"><div class="ic">🧪</div><div class="ct">점검 실행은 조용하게<span class="mono">기본값 안전</span></div><div class="cd">점검·복구용 수동 실행이 <b>진짜 알림을 못 보내게 기본값</b>으로 — 실제 발송은 따로 켜야만.</div></div>
+                <div class="card reveal"><div class="ic">🔁</div><div class="ct">다시 돌려도 안전하게<span class="mono">과거 데이터 채우기</span></div><div class="cd">과거 데이터를 채우는 스크립트는 <b>몇 번을 돌려도 결과가 같게</b> 만들어 저장소에 남기세요 — 다음 복구가 반나절에서 5분이 됩니다.</div></div>
+                <div class="card reveal"><div class="ic">📝</div><div class="ct">시트 설명도 코드로<span class="mono">범례·메모 자동화</span></div><div class="cd">칸 설명·범례 탭을 <b>스크립트가 관리</b>하게 — 시트를 다시 만들어도 안내가 어긋나지 않습니다.</div></div>
             </div>
         </div>
     </div>
@@ -565,24 +565,24 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
 <!-- ===================== 11 트러블슈팅 지도 ===================== -->
 <section class="slide">
     <div class="inner">
-        <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 트러블슈팅 지도</span><span class="sec"></span></div>
+        <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 막혔던 곳들</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 2 · Trouble Map</div>
-            <h2 class="t">트러블슈팅 7건 — <span class="hl">같은 길을 가실 분들을 위한 지도</span></h2>
-            <p class="t-sub">외부 사이트 크롤 × 사내 API × Chat 알림의 경계면에서 만난 문제들입니다.</p>
+            <h2 class="t">막혔던 곳 7군데 — <span class="hl">같은 길을 가실 분들을 위한 지도</span></h2>
+            <p class="t-sub">외부 사이트 × 사내 API × Chat 알림 — <b>서로 다른 시스템이 만나는 지점</b>에서 문제가 났습니다.</p>
         </div>
         <div class="body">
             <table class="tbl tight reveal">
-                <tr><th style="width:60px;">#</th><th style="width:430px;">이슈</th><th>원인</th><th style="width:530px;">해결</th></tr>
-                <tr><td>1</td><td><b>전국 크롤이 한 노드에서 실패</b></td><td>n8n 노드당 300초 실행 제한</td><td>지역 그룹으로 분할 실행</td></tr>
-                <tr><td>2</td><td><b>노드 간 데이터 전달 시 메모리 초과</b></td><td>2만 행을 통째로 체인에 전달</td><td>각 노드가 변경분(delta)만 반환</td></tr>
-                <tr><td>3</td><td><b>사내 주소 API 403 차단</b></td><td>WAF가 기본 Python UA 차단</td><td>식별 가능한 UA 지정 + 정속 호출</td></tr>
-                <tr class="hot"><td>4</td><td><b>낙찰 아닌 물건이 SOLD로 오염</b></td><td>상태코드 의미를 추정으로 사용</td><td><b>공식 코드표 확보</b> 후 판정 교정 — 추정 말고 원전 확인</td></tr>
-                <tr><td>5</td><td><b>Chat 카드에 경고 문구 노출</b></td><td>웹훅 봇은 버튼 위젯 처리 불가</td><td>버튼 대신 인라인 텍스트 링크</td></tr>
-                <tr><td>6</td><td><b>물건 상세를 링크로 못 보냄</b></td><td>법원 사이트가 딥링크 미지원(SPA)</td><td>내부 상세 뷰어를 직접 만들어 링크 제공</td></tr>
-                <tr><td>7</td><td><b>같은 건이 신규+해제로 이중 보고</b></td><td>경매 단계 전이가 변동으로 잡힘</td><td>변동 키에서 단계(그룹)를 분리</td></tr>
+                <tr><th style="width:60px;">#</th><th style="width:430px;">문제</th><th>원인</th><th style="width:530px;">해결</th></tr>
+                <tr><td>1</td><td><b>전국 수집이 도중에 끊김</b></td><td>서버가 한 단계에 5분까지만 허용</td><td>전국을 지역 묶음으로 나눠 차례로 실행</td></tr>
+                <tr><td>2</td><td><b>단계 사이에서 서버가 멈춤</b></td><td>2만 건을 통째로 다음 단계에 전달</td><td>바뀐 것만 골라서 전달</td></tr>
+                <tr><td>3</td><td><b>사내 주소 API가 접속을 차단</b></td><td>보안 장비가 이름 없는 프로그램을 차단</td><td>프로그램 이름표를 달고, 일정한 속도로 천천히 호출</td></tr>
+                <tr class="hot"><td>4</td><td><b>낙찰 안 된 물건이 '낙찰'로 잘못 표시</b></td><td>상태 코드의 뜻을 짐작으로 사용</td><td><b>공식 코드표를 구해서</b> 판정을 바로잡음 — 짐작 말고 원본 확인</td></tr>
+                <tr><td>5</td><td><b>Chat 카드에 경고 문구가 뜸</b></td><td>웹훅 봇은 버튼을 처리하지 못함</td><td>버튼 대신 글자 링크로 교체</td></tr>
+                <tr><td>6</td><td><b>물건 상세를 링크로 보낼 수 없음</b></td><td>법원 사이트에 물건별 바로가기 주소가 없음</td><td>눌러서 볼 수 있는 내부 조회 페이지를 직접 제작</td></tr>
+                <tr><td>7</td><td><b>같은 건이 두 번씩 알림됨</b></td><td>경매 단계가 바뀐 걸 새 건으로 인식</td><td>'같은 건' 판단 기준에서 단계를 제외</td></tr>
             </table>
-            <div class="callout amber reveal" style="margin-top:20px;">이번에도 — 문제는 로직이 아니라 <b>경계면(외부 사이트·사내 API·알림 채널)</b>에서 났습니다.</div>
+            <div class="callout amber reveal" style="margin-top:20px;">이번에도 — 문제는 계산 로직이 아니라 <b>서로 다른 시스템이 만나는 지점</b>에서 났습니다.</div>
         </div>
     </div>
 </section>
@@ -593,27 +593,27 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 법원경매 모니터링 — 보완하고 싶은 점</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 3 · Next</div>
-            <h2 class="t">보완하고 싶은 점 — <span class="hl">판정 정밀도와 운영 루프</span></h2>
+            <h2 class="t">보완하고 싶은 점 — <span class="hl">판정은 더 정확하게, 대응은 더 체계 있게</span></h2>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
                 <h3><span class="ic">🚀</span> 기능 — 경보에서 대응 체계로</h3>
                 <ul class="check">
-                    <li>판정 정밀도 계속 보정<span class="s">운영팀 처리현황 피드백으로 오탐·미탐 사례 수집 → 규칙 v3</span></li>
-                    <li>운영 처리 루프 정착<span class="s">처리상태 기록이 쌓이면 대응 매뉴얼·통계로 발전</span></li>
-                    <li>대응 우선순위<span class="s">활성 계약이 있는 일치 건은 더 강하게 알리기</span></li>
-                    <li>수집 범위 검토<span class="s">현재 건물류만 — 제외 유형(토지 등)의 필요 여부 재점검</span></li>
+                    <li>판정 정확도 계속 높이기<span class="s">잘못 잡은 것·놓친 것 사례를 모아 규칙을 다음 버전으로</span></li>
+                    <li>대응 요령 만들기<span class="s">처리상태 기록이 쌓이면 상황별 대응 매뉴얼과 통계로 발전</span></li>
+                    <li>급한 건 더 크게 알리기<span class="s">진행 중인 계약이 있는 일치 건은 더 강하게 표시</span></li>
+                    <li>수집 범위 다시 보기<span class="s">지금은 건물만 — 빠져 있는 유형(토지 등)이 필요한지 점검</span></li>
                 </ul>
             </div>
             <div class="panel plain reveal">
-                <h3><span class="ic">🔧</span> 부채 — 지금 알지만 미룬 것들</h3>
+                <h3><span class="ic">🔧</span> 아는 숙제 — 지금은 미뤄둔 것들</h3>
                 <table class="tbl tight">
                     <tr><th>항목</th><th>현재</th><th>개선</th></tr>
-                    <tr class="hot"><td><b>비공식 크롤 의존</b></td><td>법원 사이트 개편 시 중단 위험</td><td>구조 변경 감지 + 실패 알림 강화</td></tr>
-                    <tr><td><b>규모 성장</b></td><td>그룹당 처리량이 늘면 타임아웃 재발</td><td>물량 임계 도달 시 그룹 재분할</td></tr>
-                    <tr><td><b>n8n 단일 의존</b></td><td>워크플로 장애 = 수집 공백</td><td>로컬 스크립트 백업 경로 정기 점검</td></tr>
+                    <tr class="hot"><td><b>남의 사이트 의존</b></td><td>법원 사이트가 개편되면 멈출 수 있음</td><td>구조 변화를 감지하면 바로 알리게 강화</td></tr>
+                    <tr><td><b>물량 증가</b></td><td>물건 수가 크게 늘면 시간 제한에 다시 걸림</td><td>일정 수준을 넘으면 묶음을 더 잘게 나누기</td></tr>
+                    <tr><td><b>서버 한 곳 의존</b></td><td>자동화 서버 장애 = 수집 공백</td><td>PC에서 돌릴 수 있는 예비 스크립트 정기 점검</td></tr>
                 </table>
-                <div class="callout red reveal" style="margin-top:18px;">가장 큰 리스크 — <b>남의 사이트 위에 지은 집</b>이라는 것. 법원 사이트가 바뀌면 멈춥니다. 그래서 전체 재구축 스크립트를 항상 준비해 둡니다.</div>
+                <div class="callout red reveal" style="margin-top:18px;">가장 큰 위험 — <b>남의 사이트 위에 지은 집</b>이라는 점. 법원 사이트가 바뀌면 멈춥니다. 그래서 처음부터 다시 지을 수 있는 스크립트를 늘 준비해 둡니다.</div>
             </div>
         </div>
     </div>
@@ -630,22 +630,22 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="body cols-l">
             <div class="panel reveal">
                 <h3><span class="ic">💬</span> 이번 과제가 남긴 한 문장</h3>
-                <div class="callout" style="font-size:26px; line-height:1.6; padding:26px 30px;">"자동화의 진짜 산출물은 데이터가 아니라,<br><b>사람이 움직일 수 있는 신호</b>였다."</div>
+                <div class="callout" style="font-size:26px; line-height:1.6; padding:26px 30px;">"자동화의 진짜 결과물은 데이터가 아니라,<br><b>사람이 움직일 수 있는 신호</b>였다."</div>
                 <ul class="list" style="margin-top:22px;">
-                    <li>2만 행의 시트가 아니라 <b>변동이 있는 날의 알림 한 장</b>이 일을 하고</li>
+                    <li>일을 하는 건 2만 줄의 시트가 아니라 <b>변화가 있는 날의 알림 한 장</b>이었고</li>
                     <li>판정 규칙은 <b>운영팀의 제보</b>가 완성했고</li>
-                    <li>안전은 주의가 아니라 <b>기본값(테스트 모드·이력 보존)</b>이 지켰습니다</li>
+                    <li>안전은 조심하기가 아니라 <b>기본값(알림 없는 점검 모드 · 기록 보존)</b>이 지켰습니다</li>
                 </ul>
             </div>
             <div class="panel plain reveal">
                 <h3><span class="ic">🙏</span> 부탁 3가지</h3>
                 <ul class="check">
-                    <li>알림이 오면 <b>처리상태 컬럼에 결과를 남겨주세요</b><span class="s">기록이 쌓여야 대응 매뉴얼과 규칙 개선으로 이어집니다</span></li>
-                    <li>"이건 같은 집이 아닌데?" 싶은 <b>오탐을 제보해주세요</b><span class="s">판정 규칙 v2도 전부 제보에서 나왔습니다</span></li>
-                    <li>대조하면 좋을 <b>다른 외부 데이터</b>가 있다면 말씀 주세요<span class="s">수집→대조→변동 알림 구조는 그대로 재사용할 수 있습니다</span></li>
+                    <li>알림이 오면 <b>처리상태 칸에 결과를 남겨주세요</b><span class="s">기록이 쌓여야 대응 매뉴얼과 규칙 개선으로 이어집니다 · <a href="https://docs.google.com/spreadsheets/d/10IZ6XH4fF_lLNtGCMvXAFdsCArI4pKHWy8q0TVK5xNw/edit#gid=0" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">처리현황 열기 ↗</a></span></li>
+                    <li>"이거 다른 집인데?" 싶으면 <b>바로 알려주세요</b><span class="s">지금의 판정 규칙도 전부 그런 제보에서 나왔습니다</span></li>
+                    <li>이렇게 지켜보면 좋을 <b>다른 바깥 데이터</b>가 있으면 말씀 주세요<span class="s">수집 → 대조 → 변동 알림 구조는 그대로 다시 쓸 수 있습니다</span></li>
                 </ul>
                 <div class="divlbl">자료</div>
-                <div class="srcs" style="font-size:17px; color:var(--ink-faint); line-height:1.7;"><a href="https://github.com/spacev-team/court-auction-backup" target="_blank" rel="noopener">저장소 — spacev-team/court-auction-backup (비공개)</a> · 마스터 시트·처리현황은 사내 공유 문서 참조</div>
+                <div class="srcs" style="font-size:17px; color:var(--ink-faint); line-height:1.7;"><a href="https://github.com/spacev-team/court-auction-backup" target="_blank" rel="noopener">저장소 — spacev-team/court-auction-backup (비공개)</a> · <a href="https://docs.google.com/spreadsheets/d/10IZ6XH4fF_lLNtGCMvXAFdsCArI4pKHWy8q0TVK5xNw/edit#gid=0" target="_blank" rel="noopener">물건 시트·처리현황 (사내 계정 전용)</a></div>
             </div>
         </div>
     </div>
@@ -656,11 +656,11 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     <div class="inner">
         <div class="title-kicker reveal">삼삼엠투 합동 공유회 · 법원경매 리스크 모니터링</div>
         <h1 class="end-h reveal">감사합니다 <span class="thin">— 질문 환영합니다</span></h1>
-        <p class="title-sub reveal" style="margin-top:24px;">같은 구조(수집→대조→변동 알림)가 필요한 분, 오탐을 발견한 분, 크롤 경계가 궁금한 분 —<br><b>전부 환영입니다. 이 도구는 제보로 좋아집니다.</b></p>
+        <p class="title-sub reveal" style="margin-top:24px;">같은 구조(수집 → 대조 → 변동 알림)가 필요한 분, 잘못 잡힌 건을 발견한 분, 수집의 법적인 선이 궁금한 분 —<br><b>전부 환영입니다. 이 도구는 제보를 먹고 자랍니다.</b></p>
         <div class="flow reveal" style="margin-top:44px; max-width:900px;">
             <div class="fnode hot"><div class="fi">💬</div><div class="fn-t">Q &amp; A</div><div class="fn-s">지금 바로</div></div>
             <div class="farrow">·</div>
-            <div class="fnode"><div class="fi">📮</div><div class="fn-t">피드백</div><div class="fn-s">매칭 알림 스레드 · 운영_처리현황</div></div>
+            <div class="fnode"><div class="fi">📮</div><div class="fn-t">피드백</div><div class="fn-s">매칭 알림 스레드 · 처리현황 탭</div></div>
         </div>
         <div class="title-meta reveal">
             <span>발표 <b>박현웅</b></span><span>REPO <b>spacev-team/court-auction-backup</b></span>
