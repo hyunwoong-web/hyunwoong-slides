@@ -377,7 +377,8 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <h2 class="t">구현 상세 ② — <span class="hl">"같은 집인가?"를 동·층·호수까지 따집니다</span></h2>
             <p class="t-sub">주소 글자가 같다고 같은 집이 아닙니다 — <b>운영팀 제보를 받아 판정 규칙을 두 번째 버전까지 다듬었습니다.</b></p>
         </div>
-        <div class="body cols-l">
+        <div class="body">
+            <div class="grid-2">
             <div class="panel reveal">
                 <h3><span class="ic">📐</span> 판정 규칙 — 동(棟)·층 4가지</h3>
                 <table class="tbl tight">
@@ -396,7 +397,16 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>운영팀은 <b>처리상태 칸만 기록</b>하면 됨 — 나머지는 매일 자동 갱신</li>
                     <li>경매 개시일·매각허가 결정일도 법원 데이터에서 <b>자동으로 채워 넣음</b></li>
                 </ul>
-                <div class="callout reveal" style="margin-top:16px;">사내 주소 API는 <b>정해진 호출 한도에 맞춰 일정한 속도로 천천히</b> — 서비스에 부담을 주지 않으면서 매일 전부 대조합니다.</div>
+            </div>
+            </div>
+            <div class="panel reveal" style="margin-top:18px;">
+                <h3><span class="ic">🔌</span> 사내 주소검색 API — 주고받는 데이터</h3>
+                <table class="tbl tight">
+                    <tr><td style="width:150px;"><b>보내는 것</b></td><td>경매 물건의 <b>지번주소 한 줄</b> — 정해진 호출 한도 안에서, 일정한 속도로 천천히 요청합니다</td></tr>
+                    <tr><td><b>받는 것</b></td><td>그 주소에 등록된 <b>방 목록</b> — 방 고유 번호 · 지번/도로명 주소 · 동·호수 상세 · <b>진행 중인 계약 목록</b> (호스트 이름·연락처는 응답에 아예 없음 — 대조에 필요한 것만)</td></tr>
+                    <tr><td><b>넓혀 찾기</b></td><td>글자가 딱 같은 주소만이 아니라 <b>부번·건물명이 붙은 등록 주소 후보까지</b> 함께 알려줌</td></tr>
+                </table>
+                <div class="callout ok reveal" style="margin-top:14px;">이 API는 <b>개발팀 현희님</b>이 저희 요청 사항(비슷한 주소 후보까지 넓혀 찾아주는 확장 조회 등)에 맞춰 제작해 주셨습니다 — <b>덕분에 전국 전수 대조가 가능해졌습니다. 감사합니다 🙏</b></div>
             </div>
         </div>
     </div>

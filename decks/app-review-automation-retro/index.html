@@ -230,7 +230,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="flow reveal" style="margin-top:48px; max-width:1480px;">
             <div class="fnode"><div class="fi">❓</div><div class="fn-t">왜 만들었나</div><div class="fn-s">사람 손에 의존하던 리뷰 응대</div></div>
             <div class="farrow">→</div>
-            <div class="fnode"><div class="fi">⚙️</div><div class="fn-t">무엇을 만들었나</div><div class="fn-s">수집→초안→알림 파이프라인</div></div>
+            <div class="fnode"><div class="fi">⚙️</div><div class="fn-t">무엇을 만들었나</div><div class="fn-s">수집 → 초안 → 알림 자동 흐름</div></div>
             <div class="farrow">→</div>
             <div class="fnode"><div class="fi">📈</div><div class="fn-t">성과</div><div class="fn-s">응대는 복붙 승인만, 누락 차단</div></div>
             <div class="farrow">→</div>
@@ -260,7 +260,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li><b>월 200건+ 신규 리뷰</b> — 답변 쓰는 데만 시간이 꽤 들어감</li>
                     <li><b>2개 스토어 별도 관리</b> — Play Console과 App Store Connect를 오가다 보니 답변을 놓치는 일이 잦음</li>
                     <li><b>톤·길이 제각각</b> — 별점·내용마다 다른 응대가 필요한데, 쓰는 사람마다 다름</li>
-                    <li><b>인지 지연</b> — 새 리뷰를 뒤늦게 발견해, 불만 고객을 제때 챙기기 어려움</li>
+                    <li><b>새 리뷰를 뒤늦게 발견</b> — 불만 고객을 제때 챙기기 어려움</li>
                 </ul>
             </div>
             <div class="panel plain reveal">
@@ -284,7 +284,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="t-wrap reveal">
             <div class="kicker">System</div>
             <h2 class="t">무엇을 만들었나 — <span class="hl">수집→저장→초안→알림, 사람은 승인만</span></h2>
-            <p class="t-sub">Python + Claude API + Google Sheets/Chat 조합 — <b>매일 아침 스스로 돌아가는</b> 파이프라인입니다.</p>
+            <p class="t-sub">Python + Claude + 구글 시트·챗 조합 — <b>매일 아침 스스로 돌아가는</b> 자동 흐름입니다.</p>
         </div>
         <div class="body">
             <div class="flow reveal" style="max-width:1600px;">
@@ -313,10 +313,10 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <div class="panel plain reveal">
                     <h3><span class="ic">🧱</span> 구성 요소</h3>
                     <table class="tbl tight">
-                        <tr><td><b>수집·오케스트레이션</b></td><td>Python 스크립트 (daily_monitor) — 매일 자동 실행</td></tr>
-                        <tr><td><b>답변 초안</b></td><td>Claude API — 서비스 설명·톤 가이드를 프롬프트에 내장</td></tr>
-                        <tr><td><b>저장·알림</b></td><td>Google Sheets(이력) + Google Chat 웹훅(요약·스레드)</td></tr>
-                        <tr class="hot"><td><b>피드백 루프</b></td><td>시트 P열 <b>담당자 컨펌</b> — 컨펌·수정된 실제 답변을 AI가 참고, 초안 품질 지속 업데이트 · <a class="srcs" href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">리뷰 시트 열기 ↗</a></td></tr>
+                        <tr><td><b>수집·전체 진행</b></td><td>Python 스크립트 — 매일 아침 예약 실행, 사람 없이</td></tr>
+                        <tr><td><b>답변 초안</b></td><td>Claude — 서비스 설명·톤 가이드를 프롬프트에 내장</td></tr>
+                        <tr><td><b>저장·알림</b></td><td>Google Sheets(이력) + Google Chat(요약 + 스레드 댓글)</td></tr>
+                        <tr class="hot"><td><b>컨펌 반영</b></td><td>시트 P열 <b>담당자 컨펌</b> — 컨펌·수정된 실제 답변을 AI가 참고, 초안 품질 지속 업데이트 · <a class="srcs" href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">리뷰 시트 열기 ↗</a></td></tr>
                         <tr><td><b>팀 공유</b></td><td>GitHub 저장소 + Claude Code 스킬 — 누구나 재실행 가능</td></tr>
                     </table>
                 </div>
@@ -336,32 +336,32 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="body cols-l">
             <div>
                 <div class="panel reveal">
-                    <h3><span class="ic">🤖</span> Play Store — google-play-scraper</h3>
+                    <h3><span class="ic">🤖</span> 플레이스토어 — 공개 수집 도구로</h3>
                     <ul class="list tight">
-                        <li>공식 리뷰 API가 없어 <b>웹 스크래핑</b> 방식 (한국 리뷰 1회 최대 500건)</li>
-                        <li>개발자 답변(replyContent)까지 <b>함께 수집</b> — 과거 답변 499건 백필도 여기서 나왔습니다</li>
+                        <li>구글이 리뷰를 받아 갈 공식 통로를 안 열어줘서 — <b>공개된 수집 도구로 웹 화면에서 읽어옵니다</b> (한국 리뷰 1회 최대 500건)</li>
+                        <li>우리가 달았던 답변까지 <b>함께 수집</b> — 과거 답변 499건을 시트로 되살린 것도 여기서 나왔습니다</li>
                     </ul>
                 </div>
                 <div class="panel reveal" style="margin-top:16px;">
-                    <h3><span class="ic">🍎</span> App Store — RSS + Connect API</h3>
+                    <h3><span class="ic">🍎</span> 앱스토어 — 애플이 공개한 통로로</h3>
                     <ul class="list tight">
-                        <li>리뷰는 <b>iTunes RSS Feed</b> (페이지당 50건 × 3페이지)</li>
-                        <li>개발자 답변은 <b>App Store Connect API</b> — JWT(ES256) 인증으로 별도 조회</li>
+                        <li>리뷰는 <b>애플이 공개해 둔 리뷰 목록 주소</b>에서 수집 (한 번에 50건 × 3페이지)</li>
+                        <li>우리가 단 답변은 <b>애플 개발자용 통로</b>로 따로 조회 — 전용 키를 발급받아 인증합니다</li>
                     </ul>
                 </div>
-                <div class="callout reveal" style="margin-top:16px;">수집 범위 — 매일 <b>최근 30일치</b> · 백필은 <b>최근 100일</b> · <b>매일 아침 스케줄러</b>가 자동 실행</div>
+                <div class="callout reveal" style="margin-top:16px;">수집 범위 — 매일 <b>최근 30일치</b> · 과거 채우기는 <b>최근 100일</b> · <b>매일 아침 예약 실행</b>으로 자동</div>
             </div>
             <div class="panel plain reveal">
                 <h3><span class="ic">📄</span> Google Sheets — 팀이 함께 보는 단일 원천</h3>
                 <table class="tbl tight">
                     <tr><th>구분</th><th>컬럼</th></tr>
                     <tr><td><b>사용자 표시 (8)</b></td><td>작성 날짜 · 별점 · 운영 체제 · 앱 버전 · 버전 · 위치 · 리뷰 내용 · 답변</td></tr>
-                    <tr><td><b>시스템 메타 (4)</b></td><td class="mono">_review_id · _store · _reviewed_at · _notified_at</td></tr>
+                    <tr><td><b>내부 관리 (4)</b></td><td>리뷰 고유 번호 · 스토어 구분 · 수집 시각 · 알림 시각</td></tr>
                     <tr class="hot"><td><b>피드백 (P열)</b></td><td><b>담당자 컨펌</b> — 컨펌된 답변을 AI가 참고해 초안 지속 개선 · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">리뷰 시트 열기 ↗</a></td></tr>
                 </table>
                 <ul class="list tight" style="margin-top:14px;">
-                    <li><span class="mono">_review_id</span> 기반 <b>중복 제거(upsert)</b> — 매일 돌려도 같은 리뷰는 한 번만</li>
-                    <li>OAuth 2.0 인증 · 개발자 답변 <b>자동 백필</b> · 월별 필터 → 인사이트 분석</li>
+                    <li>리뷰 고유 번호로 <b>중복 제거</b> — 매일 돌려도 같은 리뷰는 시트에 한 번만 기록</li>
+                    <li>구글 계정으로 인증 · 과거 답변 <b>자동으로 채워 넣음</b> · 월별로 걸러 보며 흐름 분석</li>
                 </ul>
             </div>
         </div>
@@ -385,7 +385,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><td><b>👥 역할 구분</b></td><td>호스트/임차인 리뷰에 서로 다른 톤</td></tr>
                     <tr><td><b>🏢 정체성</b></td><td>단기 임대 플랫폼 맥락(게스트↔호스트 연결)을 프롬프트에 내장</td></tr>
                 </table>
-                <div class="callout ok reveal" style="margin-top:16px;"><b>+ 컨펌 루프</b> — 시트 P열에서 담당자가 컨펌한 실제 답변을 참고하기 때문에, <b>초안이 우리 답변 톤에 점점 가까워집니다.</b></div>
+                <div class="callout ok reveal" style="margin-top:16px;"><b>+ 컨펌 반영</b> — 시트 P열에서 담당자가 컨펌한 실제 답변을 참고하기 때문에, <b>초안이 우리 답변 톤에 점점 가까워집니다.</b></div>
                 <div class="callout reveal" style="margin-top:12px;">비용 — 건당 약 <b>$0.001~0.003</b> · 생성 <b>3~5초</b></div>
             </div>
             <div class="panel plain reveal">
@@ -432,17 +432,17 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <h3><span class="ic">🚦</span> 알림 규칙 — 두 갈래</h3>
                     <table class="tbl tight">
                         <tr><th>유형</th><th>트리거 조건</th></tr>
-                        <tr><td><b>🆕 신규 알림</b></td><td><span class="mono">_notified_at</span> 비어 있음 + 답변 비어 있음</td></tr>
-                        <tr><td><b>🔔 리마인드</b></td><td>알림 후 <b>24h 경과</b> + 답변 여전히 없음</td></tr>
+                        <tr><td><b>🆕 신규 알림</b></td><td>아직 알림을 안 보냈고, 답변도 없는 리뷰</td></tr>
+                        <tr><td><b>🔔 리마인드</b></td><td>알림 후 <b>24시간이 지나도</b> 답변이 없는 리뷰</td></tr>
                         <tr><td><b>⏹ 정지</b></td><td>답변 채워지면 <b>둘 다 자동 중단</b></td></tr>
                     </table>
                 </div>
                 <div class="panel reveal" style="margin-top:16px;">
-                    <h3><span class="ic">🧰</span> 기술 스택 요약</h3>
+                    <h3><span class="ic">🧰</span> 쓴 도구들</h3>
                     <ul class="list tight">
-                        <li>Python · google-play-scraper · gspread(OAuth 2.0) · PyJWT(ES256)</li>
-                        <li>Anthropic Claude SDK · Google Chat Incoming Webhook</li>
-                        <li>인증 정보는 <b>config.yaml(git 제외)·환경변수</b>로 분리</li>
+                        <li>Python + 공개 리뷰 수집 도구 + 구글 시트·챗 연동 — <b>전부 무료·공개 도구</b></li>
+                        <li>Claude(답변 초안) — 비용은 Claude 사용료뿐 (건당 1~4원 수준)</li>
+                        <li>비밀번호·인증 키는 <b>코드와 따로 보관</b> — 공유 저장소에 올라가지 않습니다</li>
                     </ul>
                 </div>
             </div>
@@ -482,9 +482,9 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             </div>
             <div class="grid-4" style="margin-top:24px;">
                 <div class="stat ok reveal"><div class="num">3~5<small>초</small></div><div class="lbl">답변 초안 생성</div><div class="sub">일이 '쓰기'에서 '검토·승인'으로 바뀌었습니다.</div></div>
-                <div class="stat reveal"><div class="num">443<small>건</small></div><div class="lbl">시트 누적 저장</div><div class="sub">신규 195건 + 기존 마킹 275건 백필.</div></div>
-                <div class="stat reveal"><div class="num">499<small>건</small></div><div class="lbl">개발자 답변 백필</div><div class="sub">과거 답변 이력까지 시트로 회수.</div></div>
-                <div class="stat amber reveal"><div class="num">7<small>건</small></div><div class="lbl">트러블슈팅</div><div class="sub">검증하며 만난 이슈 — 뒤에서 지도로 공유합니다.</div></div>
+                <div class="stat reveal"><div class="num">443<small>건</small></div><div class="lbl">시트 누적 저장</div><div class="sub">새로 수집 195건 + 과거 리뷰 275건 소급 정리.</div></div>
+                <div class="stat reveal"><div class="num">499<small>건</small></div><div class="lbl">과거 답변 되살림</div><div class="sub">예전에 단 답변들까지 시트로 회수.</div></div>
+                <div class="stat amber reveal"><div class="num">7<small>건</small></div><div class="lbl">막혔던 곳</div><div class="sub">만들며 만난 문제들 — 뒤에서 지도로 공유합니다.</div></div>
             </div>
         </div>
     </div>
@@ -497,14 +497,14 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="t-wrap reveal">
             <div class="kicker">Part 1 · Lessons</div>
             <h2 class="t">느낀 점 ① — <span class="hl">도구 선택이 프로젝트의 절반이었다</span></h2>
-            <p class="t-sub">n8n(시각적 워크플로우)과 Python 스크립트 — <b>두 트랙을 모두 만들어보고 나서야</b> 알게 된 것들입니다.</p>
+            <p class="t-sub">n8n(블록을 이어 붙이는 자동화 도구)과 Python(직접 짜는 코드) — <b>둘 다 만들어보고 나서야</b> 알게 된 것들입니다.</p>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
                 <h3><span class="ic">🔀</span> n8n 트랙 — 기대와 현실</h3>
                 <ul class="list">
-                    <li><b>기대</b> — 시각적 노드니까 팀원 누구나 고칠 수 있겠지, 하며 24노드 파이프라인까지 완성</li>
-                    <li><b>현실</b> — 트러블 7건 중 5건이 n8n에서 발생: OAuth IP 차단, 노드 보안 정책, 배치 분기 인덱스 반전…</li>
+                    <li><b>기대</b> — 블록을 이어 붙이는 방식이니 팀원 누구나 고칠 수 있겠지, 하며 블록 24개짜리 흐름까지 완성</li>
+                    <li><b>현실</b> — 문제 7건 중 5건이 n8n에서 발생: 구글 인증 거부, 막혀 있는 기능, 반복 처리 연결이 반대로 꽂힘…</li>
                     <li>'쉬워 보이는 도구'의 제약을 우회하는 데 쓴 시간이, Python으로 그냥 짜는 시간보다 길었습니다</li>
                 </ul>
             </div>
@@ -512,7 +512,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <h3><span class="ic">🐍</span> Python 트랙 — 주력이 된 이유</h3>
                 <ul class="check">
                     <li>Claude Code와 함께라면 <b>코드가 곧 문서</b><span class="s">"이 스크립트 뭐 하는 거야?" → AI가 바로 설명·수정</span></li>
-                    <li>dry-run·백필·리마인드 같은 <b>운영 장치를 자유롭게</b><span class="s">도구의 제약이 아니라 업무의 요구가 설계를 결정</span></li>
+                    <li>발송 없는 리허설·과거 데이터 채우기·리마인드 같은 <b>운영 장치를 자유롭게</b><span class="s">도구의 제약이 아니라 업무의 요구가 설계를 결정</span></li>
                     <li>결국 일별 모니터링은 <b>Python 단일 트랙으로 정리</b>했습니다</li>
                 </ul>
                 <div class="callout reveal" style="margin-top:18px;">교훈 — 도구는 '내게 편해 보이는 것'보다 <b>'막혔을 때 뚫고 나갈 수 있는 것'</b>을 골라야 합니다. 비개발자인 저도, AI와 함께라면 오히려 코드 쪽이 뚫기 쉬웠습니다.</div>
@@ -537,15 +537,15 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 </div>
                 <div class="lesson reveal">
                     <div class="n">2</div>
-                    <div><div class="lt">가장 지루한 백필이 가장 중요했다</div><div class="ld">과거 답변 499건 백필과 기존 리뷰 275건 마킹 — 이게 없었다면 <b>첫날부터 중복 알림이 쏟아졌을 겁니다</b>. Airbnb가 AI 상담을 열기 전에 데이터 정리부터 했다는 게 이해됐습니다.</div><div class="lq">'데이터 정리부터'는 진리였습니다</div></div>
+                    <div><div class="lt">가장 지루한 '과거 데이터 채우기'가 가장 중요했다</div><div class="ld">과거 답변 499건을 시트로 되살리고, 기존 리뷰 275건을 미리 정리해 둔 것 — 이게 없었다면 <b>첫날부터 중복 알림이 쏟아졌을 겁니다</b>. Airbnb가 AI 상담을 열기 전에 데이터 정리부터 했다는 게 이해됐습니다.</div><div class="lq">'데이터 정리부터'는 진리였습니다</div></div>
                 </div>
                 <div class="lesson reveal">
                     <div class="n">3</div>
-                    <div><div class="lt">AI는 초안까지, 발송은 사람 — 이게 신뢰를 만들었다</div><div class="ld">초안을 자동 발송하지 않고 <b>복붙 승인 구조</b>로 남겨두니, 팀이 결과물을 의심하지 않고 도구를 받아들였습니다. 자동 발송이었다면 오답 리스크를 회사가 그대로 떠안았을 겁니다.</div><div class="lq">Human-in-the-loop = 채택률의 조건</div></div>
+                    <div><div class="lt">AI는 초안까지, 발송은 사람 — 이게 신뢰를 만들었다</div><div class="ld">초안을 자동 발송하지 않고 <b>복붙 승인 구조</b>로 남겨두니, 팀이 결과물을 의심하지 않고 도구를 받아들였습니다. 자동 발송이었다면 오답 리스크를 회사가 그대로 떠안았을 겁니다.</div><div class="lq">마지막 판단을 사람에게 남긴 것이, 팀이 받아들인 조건이었습니다</div></div>
                 </div>
                 <div class="lesson reveal">
                     <div class="n">4</div>
-                    <div><div class="lt">완성 선언보다 --dry-run이 먼저</div><div class="ld">실제 웹훅에 테스트 발송을 쏘는 사고를 막아준 건, 처음부터 넣어둔 <b>dry-run 플래그</b>였습니다. 검증 없이 "완료"라고 말할 뻔한 순간이 여러 번 있었습니다.</div><div class="lq">돌려보기 전까지는 완료가 아닙니다</div></div>
+                    <div><div class="lt">완성 선언보다 '발송 없는 리허설'이 먼저</div><div class="ld">테스트하다 진짜 채팅방에 발송하는 사고를 막아준 건, 처음부터 넣어둔 <b>미발송 시험 모드</b>였습니다. 검증 없이 "완료"라고 말할 뻔한 순간이 여러 번 있었습니다.</div><div class="lq">돌려보기 전까지는 완료가 아닙니다</div></div>
                 </div>
             </div>
         </div>
@@ -563,12 +563,12 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         </div>
         <div class="body">
             <div class="grid-3" style="row-gap:20px;">
-                <div class="card hot reveal"><div class="ic">🔐</div><div class="ct">config.example 패턴<span class="mono">시크릿 분리</span></div><div class="cd">웹훅 URL·API 키는 <b>config.yaml(git 제외)</b>에 두고, 커밋은 example 파일만 — 키가 저장소에 올라가는 사고를 원천 차단합니다.</div></div>
-                <div class="card reveal"><div class="ic">🧪</div><div class="ct">--dry-run 먼저<span class="mono">발송 없는 리허설</span></div><div class="cd">발송·기록이 있는 자동화라면 <b>미발송 테스트 모드를 첫날에</b> 만들어두세요. 검증이 훨씬 가벼워집니다.</div></div>
+                <div class="card hot reveal"><div class="ic">🔐</div><div class="ct">비밀값은 따로 보관<span class="mono">키 유출 방지</span></div><div class="cd">알림 주소·인증 키는 <b>공유 저장소에 올라가지 않는 별도 파일</b>에 — 키가 새는 사고를 원천 차단합니다.</div></div>
+                <div class="card reveal"><div class="ic">🧪</div><div class="ct">리허설 모드 먼저<span class="mono">발송 없는 시험</span></div><div class="cd">발송·기록이 있는 자동화라면 <b>미발송 테스트 모드를 첫날에</b> 만들어두세요. 검증이 훨씬 가벼워집니다.</div></div>
                 <div class="card reveal"><div class="ic">🃏</div><div class="ct">쓰던 도구에 얹기<span class="mono">도입 장벽 제거</span></div><div class="cd">요약은 Chat 본문에, 리뷰·초안은 <b>스레드 댓글</b>에 — 늘 쓰던 채팅방 그대로라 팀이 바로 씁니다.</div></div>
-                <div class="card reveal"><div class="ic">🧩</div><div class="ct">스킬로 배포<span class="mono">.claude/skills</span></div><div class="cd">실행법을 스킬 문서로 저장소에 동봉 — <b>내가 없어도 팀원이 Claude Code로 재실행</b> 가능.</div></div>
+                <div class="card reveal"><div class="ic">🧩</div><div class="ct">스킬로 배포<span class="mono">실행법 문서 동봉</span></div><div class="cd">실행법을 스킬 문서로 저장소에 동봉 — <b>내가 없어도 팀원이 Claude Code로 재실행</b> 가능.</div></div>
                 <div class="card reveal"><div class="ic">🗺️</div><div class="ct">트러블 기록 = 자산<span class="mono">다음 장 참고</span></div><div class="cd">이슈 7건을 원인·해결까지 기록 — <b>같은 스택을 쓸 다음 사람의 며칠</b>을 아껴줍니다.</div></div>
-                <div class="card reveal"><div class="ic">📈</div><div class="ct">수치로 말하기<span class="mono">Before → After</span></div><div class="cd">"편해졌어요"가 아니라 <b>443건 저장·499건 백필·초안 3~5초</b>처럼. 설득은 형용사가 아니라 숫자가 합니다.</div></div>
+                <div class="card reveal"><div class="ic">📈</div><div class="ct">수치로 말하기<span class="mono">Before → After</span></div><div class="cd">"편해졌어요"가 아니라 <b>443건 저장·499건 되살림·초안 3~5초</b>처럼. 설득은 형용사가 아니라 숫자가 합니다.</div></div>
             </div>
         </div>
     </div>
@@ -577,24 +577,24 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
 <!-- ===================== 06 트러블슈팅 지도 ===================== -->
 <section class="slide">
     <div class="inner">
-        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 트러블슈팅 지도</span><span class="sec"></span></div>
+        <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 막혔던 곳들</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 2 · Trouble Map</div>
-            <h2 class="t">트러블슈팅 7건 — <span class="hl">같은 길을 갈 분들을 위한 지도</span></h2>
-            <p class="t-sub">n8n·Google API·Chat 카드에서 만난 이슈들 — <b>겪기 전에 알면 며칠이 절약됩니다.</b></p>
+            <h2 class="t">막혔던 곳 7군데 — <span class="hl">같은 길을 갈 분들을 위한 지도</span></h2>
+            <p class="t-sub">n8n·구글 연동·Chat 알림에서 만난 문제들 — <b>겪기 전에 알면 며칠이 절약됩니다.</b></p>
         </div>
         <div class="body">
             <table class="tbl tight reveal">
-                <tr><th style="width:60px;">#</th><th style="width:420px;">이슈</th><th>원인</th><th style="width:520px;">해결</th></tr>
-                <tr><td>1</td><td><b>n8n Sheets OAuth IP 거부</b></td><td>Google이 IP 기반 도메인 차단</td><td>EC2 도메인 발급 후 연동</td></tr>
-                <tr><td>2</td><td><b>executeCommand 노드 미인식</b></td><td>n8n 보안 정책상 비활성</td><td>Play Store 수집을 Python으로 분리</td></tr>
-                <tr><td>3</td><td><b>iTunes RSS 파싱 0건</b></td><td>Content-Type 자동 파싱 실패</td><td>responseFormat: text 후 JSON.parse</td></tr>
-                <tr><td>4</td><td><b>Sheets API rate limit</b></td><td>입력 150건 × 호출 반복</td><td>executeOnce: true로 단일 호출화</td></tr>
-                <tr><td>5</td><td><b>SplitInBatches 0건 처리</b></td><td>done/loop 출력 인덱스 반전</td><td>연결 인덱스 교체</td></tr>
-                <tr class="hot"><td>6</td><td><b>Chat 카드 JSON 깨짐</b></td><td>Claude 응답의 이모지·줄바꿈 미이스케이프</td><td><b>JSON.stringify() 적용</b> — AI 출력을 시스템에 넣을 땐 반드시 이스케이프</td></tr>
-                <tr><td>7</td><td><b>시트 Update 행 매칭 실패</b></td><td>매칭 컬럼 값 누락</td><td>루프 아이템에서 _review_id 명시 참조</td></tr>
+                <tr><th style="width:60px;">#</th><th style="width:420px;">문제</th><th>원인</th><th style="width:520px;">해결</th></tr>
+                <tr><td>1</td><td><b>구글 시트 연결이 거부됨</b></td><td>정식 인터넷 주소가 없는 서버는 구글이 인증을 막음</td><td>서버에 정식 주소를 발급해서 연결</td></tr>
+                <tr><td>2</td><td><b>필요한 기능이 n8n에서 안 보임</b></td><td>보안상 꺼져 있는 기능이었음</td><td>그 단계만 Python으로 분리</td></tr>
+                <tr><td>3</td><td><b>애플 리뷰가 0건으로 읽힘</b></td><td>응답 형식을 자동으로 알아채지 못함</td><td>글자 그대로 받아서 직접 해석하도록 변경</td></tr>
+                <tr><td>4</td><td><b>시트 기록이 한도 초과로 막힘</b></td><td>150건을 한 건씩 따로따로 호출</td><td>한 번에 몰아서 기록하도록 변경</td></tr>
+                <tr><td>5</td><td><b>리뷰가 처리되지 않고 건너뜀</b></td><td>반복 처리의 출구 연결이 반대로 꽂혀 있었음</td><td>연결을 바로잡음</td></tr>
+                <tr class="hot"><td>6</td><td><b>알림 카드가 깨져서 안 옴</b></td><td>AI 답변 속 이모지·줄바꿈이 전송 형식을 깨뜨림</td><td><b>특수문자를 안전하게 감싸서 전달</b> — AI가 쓴 글을 시스템에 넣을 땐 필수</td></tr>
+                <tr><td>7</td><td><b>갱신할 줄을 시트에서 못 찾음</b></td><td>어느 줄인지 알려주는 값이 빠져 있었음</td><td>리뷰 고유 번호를 명시해서 찾도록 수정</td></tr>
             </table>
-            <div class="callout amber reveal" style="margin-top:20px;">패턴 — 7건 중 5건이 <b>도구(n8n)의 제약</b>, 2건이 <b>AI 출력을 시스템에 연결하는 경계면</b>에서 발생. 자동화가 죽는 곳은 로직이 아니라 <b>연결부</b>입니다.</div>
+            <div class="callout amber reveal" style="margin-top:20px;">패턴 — 7건 중 5건이 <b>도구(n8n)의 제약</b>, 2건이 <b>AI가 쓴 글을 시스템에 넣는 이음새</b>에서 났습니다. 자동화가 멈추는 곳은 계산이 아니라 <b>연결 부위</b>입니다.</div>
         </div>
     </div>
 </section>
@@ -611,21 +611,21 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel reveal">
                 <h3><span class="ic">🚀</span> 기능 — 응대 도구에서 VOC 자산으로</h3>
                 <ul class="check">
-                    <li>월별 인사이트 리포트 고도화<span class="s">별점 추이·불만 Top 3 자동 정리 — 응대 도구를 넘어 제품 개선의 인풋으로</span></li>
-                    <li>호스트/임차인 자동 분류<span class="s">현재 수동 입력 컬럼 → 리뷰 내용 기반 자동 태깅</span></li>
-                    <li>별점 기반 알림 우선순위<span class="s">1~2점은 즉시·강조 알림, 5점은 일괄 다이제스트</span></li>
-                    <li>컨펌 루프 정량화<span class="s">P열 컨펌 데이터가 쌓이면 초안 수정률을 측정 → 프롬프트 개선 근거로</span></li>
+                    <li>월별 리포트 고도화<span class="s">별점 흐름·불만 Top 3 자동 정리 — 응대 도구를 넘어 제품 개선의 재료로</span></li>
+                    <li>호스트/임차인 자동 분류<span class="s">지금은 손으로 적는 칸 → 리뷰 내용을 보고 자동으로 구분</span></li>
+                    <li>별점 기반 알림 우선순위<span class="s">1~2점은 즉시·강조 알림, 5점은 모아서 한 번에</span></li>
+                    <li>컨펌 기록으로 초안 채점<span class="s">P열 기록이 쌓이면 초안을 얼마나 고쳐 쓰는지 재서 → 프롬프트 개선 근거로</span></li>
                     <li>다국어 리뷰 대응 (영/일/중)</li>
                 </ul>
             </div>
             <div class="panel plain reveal">
-                <h3><span class="ic">🔧</span> 부채 — 지금 알지만 미룬 것들</h3>
+                <h3><span class="ic">🔧</span> 아는 숙제 — 지금은 미뤄둔 것들</h3>
                 <table class="tbl tight">
                     <tr><th>항목</th><th>현재</th><th>개선</th></tr>
-                    <tr class="hot"><td><b>n8n 인스턴스</b></td><td>HTTP 접속</td><td><b>HTTPS + SSL</b> 또는 Python 단일화로 트랙 정리</td></tr>
-                    <tr><td><b>API 키</b></td><td>일부 평문·환경변수 혼재</td><td>Credential/Secret 분리 일원화</td></tr>
-                    <tr><td><b>Webhook URL</b></td><td>config.yaml 평문</td><td>Secret Manager 검토</td></tr>
-                    <tr><td><b>실행 환경</b></td><td>개인 PC 스케줄러</td><td>공용 환경 이전 — "내 노트북이 꺼지면 멈춤" 해소</td></tr>
+                    <tr class="hot"><td><b>n8n 서버</b></td><td>암호화 안 된 접속</td><td><b>암호화 접속으로 전환</b>하거나 Python으로 정리</td></tr>
+                    <tr><td><b>인증 키</b></td><td>보관 방식이 제각각</td><td>한 가지 안전한 방식으로 통일</td></tr>
+                    <tr><td><b>알림 발송 주소</b></td><td>설정 파일에 그대로 적혀 있음</td><td>전용 보안 저장소 검토</td></tr>
+                    <tr><td><b>실행 환경</b></td><td>제 PC의 예약 실행</td><td>공용 서버로 이전 — "내 노트북이 꺼지면 멈춤" 해소</td></tr>
                 </table>
                 <div class="callout red reveal" style="margin-top:18px;">가장 큰 반성 — <b>개인 PC 의존</b>. 자동화가 사람을 대체했는데, 그 자동화가 다시 <b>내 노트북 한 대에 의존</b>하고 있습니다.</div>
             </div>
@@ -648,7 +648,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <ul class="list" style="margin-top:22px;">
                     <li>기능 4개는 전부 <b>문제 정의에서</b> 나왔고</li>
                     <li>신뢰는 <b>사람이 최종 승인하는 구조에서</b> 나왔고</li>
-                    <li>시간은 <b>백필과 dry-run 같은 지루한 준비에서</b> 절약됐습니다</li>
+                    <li>시간은 <b>과거 데이터 채우기와 발송 없는 리허설 같은 지루한 준비에서</b> 절약됐습니다</li>
                 </ul>
             </div>
             <div class="panel plain reveal">
@@ -670,7 +670,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
     <div class="inner">
         <div class="title-kicker reveal">삼삼엠투 합동 공유회 · 앱 리뷰 자동화</div>
         <h1 class="end-h reveal">감사합니다 <span class="thin">— 질문 환영합니다</span></h1>
-        <p class="title-sub reveal" style="margin-top:24px;">복제해 가실 분, 같은 트러블을 만난 분, 초안 톤이 마음에 안 드는 분 —<br><b>전부 환영입니다. 그게 이 도구가 좋아지는 방법이니까요.</b></p>
+        <p class="title-sub reveal" style="margin-top:24px;">복제해 가실 분, 같은 문제에 막힌 분, 초안 톤이 마음에 안 드는 분 —<br><b>전부 환영입니다. 그게 이 도구가 좋아지는 방법이니까요.</b></p>
         <div class="flow reveal" style="margin-top:44px; max-width:900px;">
             <div class="fnode hot"><div class="fi">💬</div><div class="fn-t">Q &amp; A</div><div class="fn-s">지금 바로</div></div>
             <div class="farrow">·</div>
