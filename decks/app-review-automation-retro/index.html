@@ -315,7 +315,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                         <tr><td><b>수집·오케스트레이션</b></td><td>Python 스크립트 (daily_monitor) — 매일 자동 실행</td></tr>
                         <tr><td><b>답변 초안</b></td><td>Claude API — 서비스 설명·톤 가이드를 프롬프트에 내장</td></tr>
                         <tr><td><b>저장·알림</b></td><td>Google Sheets(이력) + Google Chat 웹훅(카드)</td></tr>
-                        <tr class="hot"><td><b>피드백 루프</b></td><td>시트 P열 <b>담당자 컨펌</b> — 컨펌·수정된 실제 답변을 AI가 참고, 초안 품질 지속 업데이트</td></tr>
+                        <tr class="hot"><td><b>피드백 루프</b></td><td>시트 P열 <b>담당자 컨펌</b> — 컨펌·수정된 실제 답변을 AI가 참고, 초안 품질 지속 업데이트 · <a class="srcs" href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">리뷰 시트 열기 ↗</a></td></tr>
                         <tr><td><b>팀 공유</b></td><td>GitHub 저장소 + Claude Code 스킬 — 누구나 재실행 가능</td></tr>
                     </table>
                 </div>
@@ -356,7 +356,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><th>구분</th><th>컬럼</th></tr>
                     <tr><td><b>사용자 표시 (8)</b></td><td>작성 날짜 · 별점 · 운영 체제 · 앱 버전 · 버전 · 위치 · 리뷰 내용 · 답변</td></tr>
                     <tr><td><b>시스템 메타 (4)</b></td><td class="mono">_review_id · _store · _reviewed_at · _notified_at</td></tr>
-                    <tr class="hot"><td><b>피드백 (P열)</b></td><td><b>담당자 컨펌</b> — 컨펌된 답변을 AI가 참고해 초안 지속 개선</td></tr>
+                    <tr class="hot"><td><b>피드백 (P열)</b></td><td><b>담당자 컨펌</b> — 컨펌된 답변을 AI가 참고해 초안 지속 개선 · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">리뷰 시트 열기 ↗</a></td></tr>
                 </table>
                 <ul class="list tight" style="margin-top:14px;">
                     <li><span class="mono">_review_id</span> 기반 <b>중복 제거(upsert)</b> — 매일 돌려도 같은 리뷰는 한 번만</li>
@@ -647,12 +647,12 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel plain reveal">
                 <h3><span class="ic">🙏</span> 부탁 3가지</h3>
                 <ul class="check">
-                    <li>답변을 고쳐 쓰셨다면 <b>P열 컨펌만 체크</b>해주세요<span class="s">컨펌된 답변을 AI가 참고해 다음 초안에 자동 반영됩니다</span></li>
+                    <li>답변을 고쳐 쓰셨다면 <b>P열 컨펌만 체크</b>해주세요<span class="s">컨펌된 답변을 AI가 참고해 다음 초안에 자동 반영 · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">리뷰 시트 열기 ↗</a></span></li>
                     <li>리뷰에서 반복되는 불만이 보이면 <b>스레드에 남겨주세요</b><span class="s">월별 인사이트 리포트의 분류 기준이 됩니다</span></li>
                     <li>같은 패턴(수집→초안→알림)이 필요한 업무가 있다면 <b>말씀 주세요</b><span class="s">이 저장소를 복제해서 반나절이면 시작할 수 있습니다</span></li>
                 </ul>
                 <div class="divlbl">자료</div>
-                <div class="srcs" style="font-size:17px; color:var(--ink-faint); line-height:1.7;"><a href="https://github.com/spacev-team/app-review-automation" target="_blank" rel="noopener">저장소 — spacev-team/app-review-automation</a> · 리뷰 시트는 사내 공유 문서 참조</div>
+                <div class="srcs" style="font-size:17px; color:var(--ink-faint); line-height:1.7;"><a href="https://github.com/spacev-team/app-review-automation" target="_blank" rel="noopener">저장소 — spacev-team/app-review-automation</a> · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener">리뷰 시트 (사내 계정 전용)</a></div>
             </div>
         </div>
     </div>
