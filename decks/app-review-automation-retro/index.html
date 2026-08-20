@@ -250,28 +250,28 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 왜 만들었나</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Problem</div>
-            <h2 class="t">왜 — <span class="hl">리뷰 응대의 모든 단계가 사람 손이었습니다</span></h2>
-            <p class="t-sub">두 스토어에 <b>월 200건+</b> — 전부 손으로 처리하고 있었습니다.</p>
+            <h2 class="t">왜 — <span class="hl">마케팅 막내라면 피할 수 없던 일, 앱 리뷰 답변</span></h2>
+            <p class="t-sub">중간에 합류한 미현님·민우님을 빼면 <b>팀 전원이 거쳐 간 업무</b> — 지금은 막내 <b>지은님</b>이 맡고 있습니다.</p>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
-                <h3><span class="ic">😮‍💨</span> 매일 반복되던 문제</h3>
-                <ul class="cross">
-                    <li>답변 쓰는 데만 <b>한참</b></li>
-                    <li>스토어 2곳 따로 관리 — <b>놓치는 답변</b> 발생</li>
-                    <li>쓰는 사람마다 <b>톤 제각각</b></li>
-                    <li>새 리뷰를 <b>뒤늦게 발견</b></li>
-                </ul>
+                <h3><span class="ic">😮‍💨</span> 기존 프로세스 — 전부 사람 손</h3>
+                <table class="tbl tight">
+                    <tr><td><b>① 확인</b></td><td>플레이스토어·앱스토어 월 <b>200건+</b> 리뷰 확인</td></tr>
+                    <tr><td><b>② 초안</b></td><td>답변 초안을 직접 작성</td></tr>
+                    <tr><td><b>③ 보고</b></td><td>초안 보고 후 컨펌 대기</td></tr>
+                    <tr><td><b>④ 등록</b></td><td>컨펌받은 답변을 스토어에 등록</td></tr>
+                </table>
+                <div class="callout amber reveal" style="margin-top:16px;">막내가 바뀔 때마다 <b>그대로 대물림</b>되던 반복 업무였습니다.</div>
             </div>
             <div class="panel plain reveal">
-                <h3><span class="ic">🎯</span> 그래서 목표 4가지</h3>
+                <h3><span class="ic">💡</span> 그래서 세운 가설</h3>
                 <ul class="check">
-                    <li>즉시 인지 — Chat 알림</li>
-                    <li>AI 답변 초안 — <b>사람은 복붙만</b></li>
-                    <li>누락 방지 — 24시간 리마인드</li>
-                    <li>이력 관리 — 시트 자동 기록</li>
+                    <li>기존에 작성한 답변들을 <b>AI가 분석·학습</b></li>
+                    <li>답변 초안은 <b>AI가 생성</b></li>
+                    <li>담당자는 <b>확인·수정만</b></li>
                 </ul>
-                <div class="callout reveal" style="margin-top:18px;">문제를 넷으로 쪼개니 — <b>만들 기능 4개가 그대로 보였습니다.</b></div>
+                <div class="callout ok reveal" style="margin-top:18px;">'쓰는 일'이 '확인하는 일'로 바뀌면 — <b>리소스가 크게 줄어들 것.</b></div>
             </div>
         </div>
     </div>
@@ -292,7 +292,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <div class="farrow">→</div>
                 <div class="fnode"><div class="fi">📄</div><div class="fn-t">② 시트 기록</div><div class="fn-s">이력 · 중복 제거</div></div>
                 <div class="farrow">→</div>
-                <div class="fnode"><div class="fi">🤖</div><div class="fn-t">③ Claude 초안</div><div class="fn-s">별점·내용 맞춤<br>3~5초</div></div>
+                <div class="fnode"><div class="fi">🤖</div><div class="fn-t">③ Claude 초안</div><div class="fn-s">내부 가이드 학습<br>3~5초</div></div>
                 <div class="farrow">→</div>
                 <div class="fnode"><div class="fi">💬</div><div class="fn-t">④ Chat 알림</div><div class="fn-s">요약 + 스레드에<br>리뷰·초안</div></div>
                 <div class="farrow">→</div>
@@ -305,7 +305,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                         <li>아침 — Chat에 <b>오늘의 리뷰 요약</b></li>
                         <li>스레드 — <b>리뷰 원문 + AI 초안</b></li>
                         <li>괜찮으면 <b>복사해서 붙여넣기</b> — 발송은 항상 사람</li>
-                        <li>답변 확정 — 시트 <b>P열 '컨펌' 체크</b> → 초안이 점점 좋아짐</li>
+                        <li>아쉬우면 — 시트 <b>피드백 열에 한 줄</b> → 다음 초안 생성 전 AI가 학습</li>
                     </ul>
                 </div>
                 <div class="panel plain reveal">
@@ -314,7 +314,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                         <tr><td><b>자동 실행</b></td><td>Python — 매일 아침</td></tr>
                         <tr><td><b>답변 초안</b></td><td>Claude</td></tr>
                         <tr><td><b>저장·알림</b></td><td>구글 시트 + Chat · <a class="srcs" href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">시트 열기 ↗</a></td></tr>
-                        <tr class="hot"><td><b>컨펌 반영</b></td><td>P열 체크 → AI가 참고</td></tr>
+                        <tr class="hot"><td><b>피드백 학습</b></td><td>피드백 열 → 다음 초안 생성 전 반영</td></tr>
                         <tr><td><b>팀 공유</b></td><td>GitHub + Claude Code 스킬</td></tr>
                     </table>
                 </div>
@@ -355,7 +355,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><th>구분</th><th>내용</th></tr>
                     <tr><td><b>사용자 표시 (8)</b></td><td>날짜 · 별점 · 버전 · 리뷰 · 답변 …</td></tr>
                     <tr><td><b>내부 관리 (4)</b></td><td>고유 번호 · 스토어 · 수집·알림 시각</td></tr>
-                    <tr class="hot"><td><b>컨펌 (P열)</b></td><td>컨펌한 답변 → AI가 참고 · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">시트 열기 ↗</a></td></tr>
+                    <tr class="hot"><td><b>AI 답변·피드백</b></td><td>피드백 한 줄 → 다음 초안 전에 학습 · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">시트 열기 ↗</a></td></tr>
                 </table>
                 <ul class="list tight" style="margin-top:14px;">
                     <li>고유 번호로 <b>중복 제거</b> — 같은 리뷰는 한 번만</li>
@@ -376,14 +376,14 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
-                <h3><span class="ic">📐</span> 프롬프트 4원칙</h3>
+                <h3><span class="ic">📐</span> 내부 수립 리뷰 가이드 → 프롬프트 4원칙</h3>
                 <table class="tbl tight">
                     <tr><td><b>📏 분량</b></td><td>30~70자, 친근하게</td></tr>
                     <tr><td><b>⭐ 별점</b></td><td>5점 감사 · 4점 개선 의지 · 3점 이하 사과</td></tr>
                     <tr><td><b>👥 역할</b></td><td>호스트 / 임차인 다른 톤</td></tr>
                     <tr><td><b>🏢 정체성</b></td><td>단기 임대 플랫폼 맥락 내장</td></tr>
                 </table>
-                <div class="callout ok reveal" style="margin-top:16px;"><b>+ 컨펌 반영</b> — 초안이 우리 톤에 점점 가까워집니다.</div>
+                <div class="callout ok reveal" style="margin-top:16px;"><b>+ 피드백 루프</b> — 시트 피드백 열을 초안 생성 전에 학습 → 갈수록 우리 톤에 가까워집니다.</div>
                 <div class="callout reveal" style="margin-top:12px;">건당 <b>1~4원</b> · 생성 <b>3~5초</b></div>
             </div>
             <div class="panel plain reveal">
@@ -393,7 +393,8 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <div class="divlbl">출력 — Claude 초안 (3~5초)</div>
                 <div class="callout">"소중한 후기 감사드립니다 😊 처음 이용하시는데도 만족스러운 경험을 드릴 수 있어 정말 기쁩니다! 앞으로도 더 나은 서비스로 보답하겠습니다 💙"</div>
                 <ul class="list tight" style="margin-top:14px;">
-                    <li>그대로 쓰거나, 고치거나, 버리거나 — <b>발송은 사람 몫</b></li>
+                    <li>자동 등록까지 가능했지만 — <b>최종 답변은 담당자가 확인·수정해 직접 등록</b></li>
+                    <li>사람이 마지막을 쥐는 <b>하네스 구조</b>가 맞다고 판단했습니다</li>
                 </ul>
             </div>
         </div>
@@ -406,7 +407,8 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 구현 상세 ③ 알림</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Detail 3 · Chat Notification</div>
-            <h2 class="t">구현 상세 ③ — <span class="hl">늘 쓰던 Google Chat으로</span></h2>
+            <h2 class="t">구현 상세 ③ — <span class="hl">늘 쓰던 Google Chat, '전체 수다방'으로</span></h2>
+            <p class="t-sub">매일 아침 신규 리뷰 알림 — <b>전사가 함께 봅니다.</b></p>
         </div>
         <div class="body cols-l">
             <div class="panel reveal">
@@ -416,9 +418,9 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                         <b>삼삼엠투 앱 리뷰</b><span class="chip n" style="font-size:14px; padding:2px 9px;">앱</span><span style="color:var(--ink-faint); font-size:16px;">오전 8:15</span>
                     </div>
                     <div style="padding:16px 20px; font-size:18.5px; line-height:1.6; color:var(--ink-dim);">
-                        🗓️ <b style="color:var(--ink);">26년 8월 14일까지의 삼삼엠투 플레이스토어&amp;앱스토어 앱 리뷰</b><br><br>
-                        [플레이스토어]: 전체 4건<br>· 5점 리뷰: 4건<br><br>
-                        [앱스토어]: 전체 1건<br>· 5점 리뷰: 1건<br><br>
+                        🗓️ <b style="color:var(--ink);">26년 8월 17일까지의 삼삼엠투 플레이스토어&amp;앱스토어 앱 리뷰</b><br><br>
+                        [플레이스토어]: 전체 5건<br>· 5점 리뷰: 5건<br><br>
+                        [앱스토어]: 전체 2건<br>· 5점 리뷰: 2건<br><br>
                         💬 아래 댓글에서 오늘의 리뷰를 확인해보세요.
                     </div>
                 </div>
@@ -431,6 +433,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                         <tr><td><b>🆕 신규</b></td><td>알림 전 + 답변 없음</td></tr>
                         <tr><td><b>🔔 리마인드</b></td><td>24시간 지나도 답변 없음</td></tr>
                         <tr><td><b>⏹ 정지</b></td><td>답변이 달리면 자동 중단</td></tr>
+                        <tr><td><b>📢 공유</b></td><td>'전체 수다방' 스페이스 — 전사 공개</td></tr>
                     </table>
                 </div>
                 <div class="panel reveal" style="margin-top:16px;">
@@ -470,7 +473,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                         <li>아침 <b>요약 알림</b> — 스레드에서 바로 확인</li>
                         <li><b>복붙 승인이면 끝</b></li>
                         <li>24시간 <b>리마인드</b> — 누락 차단</li>
-                        <li>컨펌 → <b>초안이 점점 좋아짐</b></li>
+                        <li>피드백 열 → <b>초안이 점점 좋아짐</b></li>
                     </ul>
                 </div>
             </div>
@@ -606,7 +609,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <li>월별 리포트 — 별점 흐름 · 불만 Top 3</li>
                     <li>호스트/임차인 <b>자동 분류</b></li>
                     <li>1~2점은 강조, 5점은 모아서</li>
-                    <li>컨펌 기록으로 <b>초안 채점</b></li>
+                    <li>피드백 기록으로 <b>초안 채점</b></li>
                     <li>다국어 리뷰 대응</li>
                 </ul>
             </div>
@@ -645,7 +648,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel plain reveal">
                 <h3><span class="ic">🙏</span> 부탁 3가지</h3>
                 <ul class="check">
-                    <li>답변을 고쳤다면 <b>P열 컨펌 체크</b> · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">시트 열기 ↗</a></li>
+                    <li>초안이 아쉬우면 <b>시트 피드백 열에 한 줄</b> · <a href="https://docs.google.com/spreadsheets/d/1TLVtAsOwntHsUlA3siTmzpxcF6yZp-bKkcdqdLvYGiA/edit?gid=1379646885#gid=1379646885" target="_blank" rel="noopener" style="color:var(--blue); text-decoration:underline; text-underline-offset:3px;">시트 열기 ↗</a></li>
                     <li>반복되는 불만이 보이면 <b>스레드에 남기기</b></li>
                     <li>같은 패턴이 필요한 업무가 있으면 <b>말씀 주세요</b></li>
                 </ul>
