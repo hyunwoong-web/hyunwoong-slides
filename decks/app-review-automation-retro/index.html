@@ -576,20 +576,47 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         <div class="chrome"><span><span class="dot">●</span> 앱 리뷰 자동화 — 막혔던 곳들</span><span class="sec"></span></div>
         <div class="t-wrap reveal">
             <div class="kicker">Part 2 · Trouble Map</div>
-            <h2 class="t">막혔던 곳 7군데 — <span class="hl">같은 길을 갈 분들을 위한 지도</span></h2>
+            <h2 class="t">막혔던 곳 7군데 — <span class="hl">대표 3가지만 자세히</span></h2>
+            <p class="t-sub">처음 보는 분도 따라올 수 있게 — 나머지 4건은 아래 한 줄씩만.</p>
         </div>
         <div class="body">
-            <table class="tbl tight reveal">
-                <tr><th style="width:60px;">#</th><th style="width:420px;">문제</th><th>원인</th><th style="width:480px;">해결</th></tr>
-                <tr><td>1</td><td><b>구글 시트 연결 거부</b></td><td>주소 없는 서버 차단</td><td>정식 주소 발급</td></tr>
-                <tr><td>2</td><td><b>필요한 기능이 안 보임</b></td><td>보안상 꺼져 있음</td><td>그 단계만 Python으로</td></tr>
-                <tr><td>3</td><td><b>애플 리뷰 0건으로 읽힘</b></td><td>형식 자동 인식 실패</td><td>글자 그대로 받아 직접 해석</td></tr>
-                <tr><td>4</td><td><b>시트 기록 한도 초과</b></td><td>150건을 한 건씩 호출</td><td>한 번에 몰아서 기록</td></tr>
-                <tr><td>5</td><td><b>리뷰가 건너뛰어짐</b></td><td>반복 연결이 반대로</td><td>연결 바로잡음</td></tr>
-                <tr class="hot"><td>6</td><td><b>알림 카드가 깨짐</b></td><td>이모지·줄바꿈이 형식 파괴</td><td><b>특수문자 안전 처리</b> — AI 출력엔 필수</td></tr>
-                <tr><td>7</td><td><b>갱신할 줄을 못 찾음</b></td><td>기준 값 누락</td><td>고유 번호 명시</td></tr>
-            </table>
-            <div class="callout amber reveal" style="margin-top:20px;">5건은 <b>도구의 제약</b>, 2건은 <b>AI 출력과 시스템의 이음새</b> — 자동화는 <b>연결 부위</b>에서 멈춥니다.</div>
+            <div class="grid-3">
+                <div class="panel plain reveal">
+                    <h3><span class="ic">🍎</span> 애플 리뷰가 '0건'으로 읽힘</h3>
+                    <table class="tbl tight">
+                        <tr><td style="white-space:nowrap;"><b>상황</b></td><td>분명 리뷰가 있는데 시스템은 계속 "새 리뷰 없음"</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>원인</b></td><td>애플이 주는 데이터 형식을 도구가 자동 인식 못 해 빈 값 처리</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>해결</b></td><td>글자 그대로 받아서 <b>직접 해석</b>하도록 변경</td></tr>
+                    </table>
+                    <div style="margin-top:12px; font-family:var(--font-mono); font-size:17.5px; color:var(--brand); font-weight:600;">'0건'은 없다가 아니라 못 읽었다일 수 있다</div>
+                </div>
+                <div class="panel plain reveal">
+                    <h3><span class="ic">📄</span> 시트 기록이 중간에 멈춤</h3>
+                    <table class="tbl tight">
+                        <tr><td style="white-space:nowrap;"><b>상황</b></td><td>과거 리뷰 150건을 넣다가 중간에 오류로 정지</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>원인</b></td><td>한 건씩 150번 호출 — 구글 시트의 <b>분당 호출 한도</b> 초과</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>해결</b></td><td>전부 모아서 <b>한 번에 기록</b>하는 방식으로 변경</td></tr>
+                    </table>
+                    <div style="margin-top:12px; font-family:var(--font-mono); font-size:17.5px; color:var(--brand); font-weight:600;">같은 작업의 반복 호출은 한도부터 확인</div>
+                </div>
+                <div class="panel plain reveal" style="border-color:rgba(20,86,240,.4); background:linear-gradient(180deg,var(--brand-dim),#fff);">
+                    <h3><span class="ic">💬</span> 알림 카드가 깨져서 도착</h3>
+                    <table class="tbl tight">
+                        <tr><td style="white-space:nowrap;"><b>상황</b></td><td>어떤 리뷰만 Chat 알림 카드가 형식이 무너진 채 발송</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>원인</b></td><td>AI 초안 속 <b>이모지·줄바꿈</b>이 카드 형식을 깨뜨림</td></tr>
+                        <tr><td style="white-space:nowrap;"><b>해결</b></td><td>특수문자를 <b>안전한 형태로 변환</b>한 뒤 발송</td></tr>
+                    </table>
+                    <div style="margin-top:12px; font-family:var(--font-mono); font-size:17.5px; color:var(--brand); font-weight:600;">AI가 쓴 글을 시스템에 넣을 땐 안전 처리 필수</div>
+                </div>
+            </div>
+            <div class="divlbl reveal">나머지 4건 — 한 줄 요약</div>
+            <div class="reveal" style="display:flex; flex-wrap:wrap; gap:10px;">
+                <span class="chip n">시트 연결 거부 → 정식 주소 발급</span>
+                <span class="chip n">n8n에 필요한 기능 없음 → 그 단계만 Python</span>
+                <span class="chip n">리뷰 건너뜀 → 반복 연결 방향 바로잡음</span>
+                <span class="chip n">갱신할 줄 못 찾음 → 고유 번호 명시</span>
+            </div>
+            <div class="callout amber reveal" style="margin-top:18px;">5건은 <b>도구의 제약</b>, 2건은 <b>AI 출력과 시스템의 이음새</b> — 자동화는 <b>연결 부위</b>에서 멈춥니다.</div>
         </div>
     </div>
 </section>
@@ -616,12 +643,12 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="panel plain reveal">
                 <h3><span class="ic">🔧</span> 아는 숙제</h3>
                 <table class="tbl tight">
-                    <tr><th>항목</th><th>개선</th></tr>
-                    <tr class="hot"><td><b>n8n 서버</b></td><td>암호화 접속 or Python 정리</td></tr>
-                    <tr><td><b>인증 키 보관</b></td><td>한 가지 방식으로 통일</td></tr>
-                    <tr><td><b>실행 환경</b></td><td>내 PC → 공용 서버</td></tr>
+                    <tr><th>항목</th><th>현재</th><th>개선</th></tr>
+                    <tr><td><b>일일 모니터링</b></td><td>사내 n8n 서버 — 매일 08:15 자동 실행 ✓</td><td>—</td></tr>
+                    <tr class="hot"><td><b>월별 리포트</b></td><td>아직 <b>내 PC 스케줄러</b>로 실행</td><td>사내 서버로 이전</td></tr>
+                    <tr><td><b>인증 키 보관</b></td><td>팀원 각자 발급·별도 공유</td><td>한 가지 방식으로 통일</td></tr>
                 </table>
-                <div class="callout red reveal" style="margin-top:18px;">가장 큰 반성 — 자동화가 <b>내 노트북 한 대에 의존</b>하고 있습니다.</div>
+                <div class="callout amber reveal" style="margin-top:18px;">일일 운영은 <b>사내 n8n 서버로 이전 완료</b> — 남은 숙제는 <b>월별 리포트가 아직 내 PC에서 도는 것</b>입니다.</div>
             </div>
         </div>
     </div>
