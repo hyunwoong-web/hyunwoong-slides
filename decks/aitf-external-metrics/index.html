@@ -533,7 +533,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <table class="tbl">
                     <tr><th style="width:270px;">시각 (KST)</th><th style="width:150px;">잡</th><th>수집 내용</th><th style="width:430px;">후속 감지</th></tr>
                     <tr><td class="mono"><b>매시 정각</b> (24h)</td><td><span class="chip b" style="font-size:17px;">ga4</span></td><td>GA4 실시간 — 30분 활성 사용자·페이지·앱 첫 실행</td><td>급증 · 급락(장애) · 설치 급증</td></tr>
-                    <tr><td class="mono"><b>09:00</b></td><td><span class="chip" style="font-size:17px;">daily</span></td><td><b>전 수집기</b> — 광고 확정 3채널·검색량·GSC·뉴스·공지·앱버전·매물 8사·순위·GA4 일간·SNS·YT·IG·채용</td><td>전 규칙 + 광고 점검 + 조용시간 보류분 지연발송</td></tr>
+                    <tr><td class="mono"><b>09:00</b></td><td><span class="chip" style="font-size:17px;">daily</span></td><td><b>전 수집기</b> — 광고 확정 3채널·검색량·GSC·뉴스·공지·앱버전·매물 7사·순위·GA4 일간·SNS·YT·IG·채용</td><td>전 규칙 + 광고 점검 + 조용시간 보류분 지연발송</td></tr>
                     <tr><td class="mono"><b>10:05 / 14:05 / 18:05 / 22:05</b></td><td><span class="chip" style="font-size:17px;">intraday</span></td><td>당일 광고 스냅샷 3채널 + 뉴스·공지·앱버전 증분</td><td>당일 페이스(R4)+자동 검토 · 신규 기사·공지</td></tr>
                     <tr><td class="mono"><b>10:30</b></td><td><span class="chip n" style="font-size:17px;">watchdog</span></td><td>daily 미실행 감지 시 재기동 (백스톱)</td><td>—</td></tr>
                     <tr><td class="mono"><b>11:00</b></td><td><span class="chip" style="font-size:17px;">dsp</span></td><td>DSP 확정치 — 몰로코·애피어·RTB House·스마덱스</td><td>DSP 신규·소멸·급증</td></tr>
@@ -603,7 +603,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <h3><span class="mono">SIGNAL</span>연결 알림 8종</h3>
                 <ul class="list tight">
                     <li>🆕 R1 신규 캠페인 / ⚠️ R2 소멸·0원 / 🚨 R3 확정 급증 / 🚨 R4 당일 페이스 <b>(+자동 검토 첨부)</b></li>
-                    <li>🧯 전환 추적 고장 / 🚫 소재 비승인 — 계정 건강 점검</li>
+                    <li>🧯 전환 추적 고장 / 🚫 소재 비승인 / 🟢 소재 재승인 — 계정 건강 점검</li>
                     <li>💰 실적 현황(매일 15시) / 📊 주간 다이제스트(월)</li>
                 </ul>
                 <div class="divlbl">데이터 특성 — 실측</div>
@@ -787,7 +787,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
         </div>
         <div class="body grid-2">
             <div class="panel reveal">
-                <h3><span class="mono">SUPPLY</span>매물수 8개사 — 07-14 실측 (시장 총 65,634개)</h3>
+                <h3><span class="mono">SUPPLY</span>매물수 8개사 — 07-14 실측 (시장 총 65,634개 · 자사는 08-21부터 수집 제외 — 웹 UI 개편, 집계 API 대기)</h3>
                 <div class="bar-row"><div class="bn">삼삼엠투</div><div class="bt" style="width:100%;"></div><div class="bv">32,511</div></div>
                 <div class="bar-row dim"><div class="bn">에어비앤비 (서울)</div><div class="bt" style="width:47.5%;"></div><div class="bv">15,439</div></div>
                 <div class="bar-row dim"><div class="bn">리브애니웨어</div><div class="bt" style="width:44.4%;"></div><div class="bv">14,434</div></div>
@@ -905,6 +905,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <div class="reveal">
                 <div class="alert warn"><div class="h">🧯 [전환 추적 고장] — ₩5만↑ 집행 중 전환이 7일 중앙값의 20% 이하</div><div class="s">↳ 해소까지 <b>매일 재알림</b> — 중대 사고 예외 (전환 태그·연동 고장은 조용히 손실 누적)</div></div>
                 <div class="alert warn"><div class="h">🚫 [소재 비승인] — 구글 DISAPPROVED + 메타 WITH_ISSUES</div><div class="s">↳ 신규 비승인만 1회 — 지속돼도 도배 없음, 해소 후 재비승인 시에만 새 사건. <b>반려·게재 사유 자동 첨부</b>(소재·사유 줄 분리 — 07-15)</div></div>
+                <div class="alert"><div class="h">🟢 [소재 재승인] — 비승인 기억분이 다음 스캔에서 해소</div><div class="s">↳ 해소당 1회 — 캠페인·소재·감지일 + <b>"게재 재개로 소진 증가 가능"</b> 해석 첨부. 재승인 이력 14일 보존 → R4 자동 검토가 유력 원인으로 병기 (구글 change_event 엔 정책 전환 이력이 없어 자체 state 차분으로 보완 — 08-20)</div></div>
                 <div class="panel" style="margin-top:18px;">
                     <h3><span class="mono">NOTE</span>임계는 전부 실사고 후 조정값</h3>
                     <ul class="list tight">
@@ -1106,7 +1107,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                 <div class="alert"><div class="h">💰 15시 실적 현황 — 채널별 광고비/공헌이익/ROAS</div><div class="cap">매일 15:00 · 광고비 봇 방</div></div>
                 <div class="alert"><div class="h">📊 주간 다이제스트 — 비용·설치·가입·결제·ROAS</div><div class="cap">월 10시 · 광고비 방</div></div>
                 <div class="alert"><div class="h">📦 매물 주간리뷰 — "+139개 · 신규 추적: 직방"</div><div class="cap">월 10시 · 매물 방</div></div>
-                <div class="alert warn"><div class="h">🧯/🚫 광고 점검 — 전환 추적·소재 비승인</div><div class="s">↳ 현재 무발화 = <b>정상 상태</b> (문제 있을 때만 오는 알림)</div><div class="cap">매일 09시대 1회 점검</div></div>
+                <div class="alert warn"><div class="h">🧯/🚫/🟢 광고 점검 — 전환 추적·소재 비승인·재승인</div><div class="s">↳ 현재 무발화 = <b>정상 상태</b> (문제 있을 때만 오는 알림)</div><div class="cap">매일 09시대 1회 점검</div></div>
             </div>
         </div>
     </div>
@@ -1390,7 +1391,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><th>key</th><th>지표</th><th>소스 · 주기</th></tr>
                     <tr><td class="mono">comp_notices</td><td>공지·프로모션 6사</td><td>회사별 공식 소스 · 일 5회</td></tr>
                     <tr><td class="mono">comp_appver</td><td>앱버전 iOS8+And8(변경 감지)</td><td>iTunes+Play · 일 5회</td></tr>
-                    <tr><td class="mono">comp_supply</td><td>매물수 8사×전국+시/도</td><td>백엔드 API+AirDNA · 09:00</td></tr>
+                    <tr><td class="mono">comp_supply</td><td>매물수 7사(경쟁)×전국+시/도 — 자사 08-21 제외</td><td>백엔드 API+AirDNA · 09:00</td></tr>
                     <tr><td class="mono">comp_jobs</td><td>채용 4사(신규만)</td><td>원티드·사람인 · 09:00</td></tr>
                     <tr><td class="mono">app_rank</td><td>검색순위 7사×11kw×2스토어</td><td>iTunes+Play 검색 · 09:00</td></tr>
                     <tr><td class="mono">app_cat_rank</td><td>카테고리 차트 순위</td><td>iTunes RSS+batchexecute · 09:00</td></tr>
@@ -1414,7 +1415,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
             <h2 class="t" style="font-size:44px;">이벤트 알림 인벤토리 — 약 30종</h2>
         </div>
         <div class="body grid-3" style="margin-top:22px;">
-            <div class="panel reveal"><h3><span class="mono">광고 6</span></h3><ul class="list tight"><li>🆕 신규 / ⚠️ 소멸</li><li>🚨 전일 급증 / 🚨 당일 페이스(+검토)</li><li>🧯 전환 추적 고장 / 🚫 소재 비승인</li></ul></div>
+            <div class="panel reveal"><h3><span class="mono">광고 7</span></h3><ul class="list tight"><li>🆕 신규 / ⚠️ 소멸</li><li>🚨 전일 급증 / 🚨 당일 페이스(+검토)</li><li>🧯 전환 추적 고장 / 🚫 소재 비승인 / 🟢 소재 재승인</li></ul></div>
             <div class="panel reveal"><h3><span class="mono">트래픽 7</span></h3><ul class="list tight"><li>GA4 실시간 — 급증 · 급락 · 첫 실행 급증</li><li>GA4 일간 — 급증 · 급감 · 유입 급증 · 신규 유입 소스</li></ul></div>
             <div class="panel reveal"><h3><span class="mono">검색 3</span></h3><ul class="list tight"><li>📈 검색량 급증 네이버 · 구글</li><li>🔻 GSC 노출 급감</li></ul></div>
             <div class="panel reveal"><h3><span class="mono">경쟁사 활동 4</span></h3><ul class="list tight"><li>📰 신규 기사 / 🔁 후속보도</li><li>📢 공지 / 💼 채용</li></ul></div>
