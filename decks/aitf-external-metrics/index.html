@@ -536,7 +536,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><td class="mono"><b>09:00</b></td><td><span class="chip" style="font-size:17px;">daily</span></td><td><b>전 수집기</b> — 광고 확정 3채널·검색량·GSC·뉴스·공지·앱버전·매물 7사·순위·GA4 일간·SNS·YT·IG·채용</td><td>전 규칙 + 광고 점검 + 조용시간 보류분 지연발송</td></tr>
                     <tr><td class="mono"><b>10:05 / 14:05 / 18:05 / 22:05</b></td><td><span class="chip" style="font-size:17px;">intraday</span></td><td>당일 광고 스냅샷 3채널 + 뉴스·공지·앱버전 증분</td><td>당일 페이스(R4)+자동 검토 · 신규 기사·공지</td></tr>
                     <tr><td class="mono"><b>10:30</b></td><td><span class="chip n" style="font-size:17px;">watchdog</span></td><td>daily 미실행 감지 시 재기동 (백스톱)</td><td>—</td></tr>
-                    <tr><td class="mono"><b>11:00</b></td><td><span class="chip" style="font-size:17px;">dsp</span></td><td>DSP 확정치 — 몰로코·애피어·RTB House·스마덱스</td><td>DSP 신규·소멸·급증</td></tr>
+                    <tr><td class="mono"><b>11:00</b></td><td><span class="chip" style="font-size:17px;">dsp</span></td><td>DSP 확정치 — 몰로코·애피어·RTB House·스마덱스·틱톡</td><td>DSP 신규·소멸·급증</td></tr>
                     <tr><td class="mono"><b>15:00</b></td><td><span class="chip a" style="font-size:17px;">spend</span></td><td>14시 스냅샷 재사용 (추가 수집 없음)</td><td>💰 실적 현황 카드 (정기)</td></tr>
                     <tr><td class="mono"><b>매주 월 10시대</b></td><td><span class="chip n" style="font-size:17px;">편승</span></td><td>—</td><td>📦 매물 주간리뷰 + 📊 주간 광고 성과 + 🔍 GSC 주간</td></tr>
                 </table>
@@ -591,7 +591,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><td><b>네이버</b></td><td>검색광고 API · 2계정(MO/PC) — 캠페인별 비용·노출·클릭</td></tr>
                     <tr><td><b>구글</b></td><td>Google Ads API(REST) · 3계정(임대인·임차인·해외) + 전환</td></tr>
                     <tr><td><b>메타</b></td><td>Marketing API insights · 3계정 — <b>통화 USD</b>(헤더 명시), 토큰 만료 14일 전 자동 재교환</td></tr>
-                    <tr><td><b>DSP</b></td><td>Airbridge Actuals API(비동기 폴링) — 몰로코·애피어·RTB House·스마덱스 + 설치</td></tr>
+                    <tr><td><b>DSP</b></td><td>Airbridge Actuals API(비동기 폴링) — 몰로코·애피어·RTB House·스마덱스·틱톡 + 설치</td></tr>
                 </table>
                 <div class="divlbl">주기</div>
                 <ul class="list tight">
@@ -1378,7 +1378,7 @@ h1.title-h .thin { color: var(--ink-dim); font-weight: 300; }
                     <tr><td class="mono">google_ads_snap</td><td>구글 당일 누적</td><td>동일 API · 일 5회</td></tr>
                     <tr><td class="mono">meta_ads</td><td>메타 광고 확정치(3계정·USD)</td><td>Marketing API · 09:00</td></tr>
                     <tr><td class="mono">meta_ads_snap</td><td>메타 당일 누적(USD)</td><td>동일 API · 일 5회</td></tr>
-                    <tr><td class="mono">dsp_ads</td><td>DSP 확정치(4채널)</td><td>Airbridge API · 11:00</td></tr>
+                    <tr><td class="mono">dsp_ads</td><td>DSP 확정치(5채널)</td><td>Airbridge API · 11:00</td></tr>
                     <tr><td class="mono">search_volume</td><td>네이버 검색량(절대량 추정)</td><td>키워드도구+데이터랩 · 09:00</td></tr>
                     <tr><td class="mono">search_volume_google</td><td>구글 검색량(지수)</td><td>Google Trends · 09:00</td></tr>
                     <tr><td class="mono">search_volume_youtube</td><td>유튜브 검색량(관측 전용)</td><td>Trends YouTube · 09:00</td></tr>
