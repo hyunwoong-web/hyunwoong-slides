@@ -1,0 +1,167 @@
+{
+  "asOf": "2026-09-29",
+  "source": "공유 시트 DB 적재에 사용되는 Airbridge 리포트 직접 조회",
+  "metric": "Cost (Channel)",
+  "currency": "KRW",
+  "exclusion": "캠페인명이 인지도·신뢰도·이해도로 시작하는 행 제외 (사용자 확정)",
+  "latestFullMonth": "2026-08",
+  "settlement": "달력상 완료 월. 재무 정산 확정 여부는 별도 확인되지 않음.",
+  "rows": 166939,
+  "rawRows": 175619,
+  "months": [
+    {
+      "month": "2026-01",
+      "total": 285279747.36,
+      "excluded": 0,
+      "days": 31,
+      "channels": {
+        "appier": 19952221.57,
+        "facebook.business": 51397385,
+        "google.adwords": 103105523.77,
+        "kakao": 5129951,
+        "kakao.keywordad": 33280,
+        "moloco": 33741477.15,
+        "naver.searchad": 36053226,
+        "personaly": 13256163.11,
+        "rtbhouse": 19953365.76,
+        "tiktok": 2657154
+      }
+    },
+    {
+      "month": "2026-02",
+      "total": 278160835.11,
+      "excluded": 0,
+      "days": 28,
+      "channels": {
+        "appier": 28977132.15,
+        "facebook.business": 56592627,
+        "google.adwords": 108127301.44,
+        "kakao": 4366684,
+        "kakao.keywordad": 42030,
+        "moloco": 26192327.37,
+        "naver.performance_da": 1937720,
+        "naver.searchad": 32746021,
+        "rtbhouse": 19178992.15
+      }
+    },
+    {
+      "month": "2026-03",
+      "total": 428125551.65,
+      "excluded": 0,
+      "days": 31,
+      "channels": {
+        "appier": 26264690.51,
+        "facebook.business": 92974024.37,
+        "google.adwords": 198840304.01,
+        "kakao": 6973682,
+        "kakao.keywordad": 52240,
+        "moloco": 35310858.42,
+        "naver.performance_da": 5750451,
+        "naver.searchad": 37028540,
+        "rtbhouse": 24930761.34
+      }
+    },
+    {
+      "month": "2026-04",
+      "total": 279358061.41,
+      "excluded": 0,
+      "days": 30,
+      "channels": {
+        "appier": 20390624.88,
+        "facebook.business": 62583255.2,
+        "google.adwords": 91700420.22,
+        "kakao": 2639538,
+        "kakao.keywordad": 39100,
+        "moloco": 40321799.43,
+        "naver.performance_da": 3113000,
+        "naver.searchad": 32515722,
+        "rtbhouse": 24541292.68,
+        "tiktok": 1513309
+      }
+    },
+    {
+      "month": "2026-05",
+      "total": 244696893.34,
+      "excluded": 0,
+      "days": 31,
+      "channels": {
+        "appier": 22536970.32,
+        "facebook.business": 53875110.55,
+        "google.adwords": 97277154.2,
+        "kakao.keywordad": 31960,
+        "moloco": 20244587.53,
+        "naver.searchad": 30715299,
+        "rtbhouse": 20015811.74
+      }
+    },
+    {
+      "month": "2026-06",
+      "total": 350978521.41,
+      "excluded": 172296.26999998093,
+      "days": 30,
+      "channels": {
+        "appier": 22797939.63,
+        "facebook.business": 85044700.17,
+        "google.adwords": 130557115.05,
+        "kakao.keywordad": 38400,
+        "moloco": 23708942.79,
+        "naver.performance_da": 31246,
+        "naver.searchad": 30624357,
+        "rtbhouse": 43966751.9,
+        "smadex": 14209068.87
+      }
+    },
+    {
+      "month": "2026-07",
+      "total": 415988159.93,
+      "excluded": 28160615.96999997,
+      "days": 31,
+      "channels": {
+        "appier": 30169845.43,
+        "facebook.business": 109793296.53,
+        "google.adwords": 133031400.99,
+        "kakao.keywordad": 49870,
+        "moloco": 23691307.16,
+        "naver.searchad": 31592754,
+        "rtbhouse": 58417535.72,
+        "smadex": 29242150.1
+      }
+    },
+    {
+      "month": "2026-08",
+      "total": 409015272.62,
+      "excluded": 33479256.680000007,
+      "days": 31,
+      "channels": {
+        "appier": 32167674.11,
+        "facebook.business": 108896760.31,
+        "google.adwords": 145659863.76,
+        "kakao.keywordad": 60650,
+        "moloco": 22565646.64,
+        "naver.searchad": 25347754,
+        "rtbhouse": 44970498.41,
+        "smadex": 24231403.39,
+        "tiktok": 5115022
+      }
+    },
+    {
+      "month": "2026-09",
+      "total": 448404555.19,
+      "excluded": 32667267.75,
+      "days": 29,
+      "channels": {
+        "appier": 32781972.9,
+        "facebook.business": 119744697.39,
+        "google.adwords": 165366874.44,
+        "kakao.keywordad": 52930,
+        "moloco": 15557293.18,
+        "naver.searchad": 21296288,
+        "rtbhouse": 53564777.23,
+        "smadex": 15317767.05,
+        "tiktok": 24721955
+      }
+    }
+  ],
+  "total": 3140007598.02,
+  "excluded": 94479436.67000008
+}
